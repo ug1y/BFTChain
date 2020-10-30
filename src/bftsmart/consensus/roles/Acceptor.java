@@ -143,7 +143,8 @@ public final class Acceptor {
 		Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
 		switch (msg.getType()) {
 		case MessageFactory.PROPOSE: {
-			proposeReceived(epoch, msg);
+			noConsensus(epoch, msg);
+//			proposeReceived(epoch, msg);
 		}
 			break;
 		case MessageFactory.WRITE: {
@@ -155,6 +156,18 @@ public final class Acceptor {
 		}
 		}
 		consensus.lock.unlock();
+	}
+
+	public void noConsensus(Epoch epoch, ConsensusMessage msg) {
+		logger.info("jumping!");
+		byte[] value = msg.getValue();
+		epoch.propValue = value;
+		epoch.deserializedPropValue = tomLayer.checkProposedValue(value, true);
+		epoch.writeSent();
+		epoch.acceptSent();
+		epoch.acceptCreated();
+		logger.info("deserializedPropValue = {}", epoch.deserializedPropValue);
+		decide(epoch);
 	}
 
 	/**
