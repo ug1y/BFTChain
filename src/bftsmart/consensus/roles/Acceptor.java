@@ -38,6 +38,12 @@ import bftsmart.tom.core.TOMLayer;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.util.TOMUtil;
 
+///
+import bftsmart.consensus.messages.NewConsensusMessage;
+import bftsmart.consensus.messages.NewMessageFactory;
+import bftsmart.consensus.messages.NewConsensusMessageTest;
+import bftsmart.communication.SystemMessage;
+///
 /**
  * This class represents the acceptor role in the consensus protocol. This class
  * work together with the TOMLayer class in order to supply a atomic multicast
@@ -129,7 +135,12 @@ public final class Acceptor {
 			tomLayer.processOutOfContext();
 		}
 	}
-
+///
+	public final void deliver(NewConsensusMessage msg) {
+		NewConsensusMessageTest t = new NewConsensusMessageTest();
+		t.testResponse(msg);
+	}
+///
 	/**
 	 * Called when a Consensus message is received or when a out of context message
 	 * must be processed. It processes the received message according to its type

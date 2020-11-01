@@ -27,6 +27,9 @@ import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.leaderchange.LCMessage;
 import bftsmart.tom.util.TOMUtil;
 
+///
+import bftsmart.consensus.messages.NewConsensusMessage;
+///
 /**
  *
  * @author edualchieri
@@ -50,6 +53,12 @@ public class MessageHandler {
 
 	@SuppressWarnings("unchecked")
 	protected void processData(SystemMessage sm) {
+		///
+		if (sm instanceof NewConsensusMessage) {
+			NewConsensusMessage consMsg = (NewConsensusMessage) sm;
+			acceptor.deliver(consMsg);
+		}else
+		///
 		if (sm instanceof ConsensusMessage) {
 
 			int myId = tomLayer.controller.getStaticConf().getProcessId();

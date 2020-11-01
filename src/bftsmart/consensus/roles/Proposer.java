@@ -19,6 +19,9 @@ import bftsmart.communication.ServerCommunicationSystem;
 import bftsmart.consensus.messages.MessageFactory;
 import bftsmart.reconfiguration.ServerViewController;
 
+///
+import bftsmart.consensus.messages.NewConsensusMessageTest;
+///
 /**
  * This class represents the proposer role in the consensus protocol.
  **/
@@ -52,8 +55,13 @@ public class Proposer {
      */
     public void startConsensus(int cid, byte[] value) {
         //******* EDUARDO BEGIN **************//
-        communication.send(this.controller.getCurrentViewAcceptors(),
-                factory.createPropose(cid, 0, value));
+//        communication.send(this.controller.getCurrentViewAcceptors(),
+//                factory.createPropose(cid, 0, value));
         //******* EDUARDO END **************//
+        ///
+        NewConsensusMessageTest t = new NewConsensusMessageTest();
+        communication.send(this.controller.getCurrentViewAcceptors(),
+                t.testRequest());
+        ///
     }
 }
