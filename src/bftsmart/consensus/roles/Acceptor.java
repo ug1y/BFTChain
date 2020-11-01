@@ -38,6 +38,12 @@ import bftsmart.tom.core.TOMLayer;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.util.TOMUtil;
 
+///
+import bftsmart.consensus.messages.NewConsensusMessage;
+import bftsmart.consensus.messages.NewMessageFactory;
+import bftsmart.consensus.messages.NewConsensusMessageTest;
+import bftsmart.communication.SystemMessage;
+///
 /**
  * This class represents the acceptor role in the consensus protocol. This class
  * work together with the TOMLayer class in order to supply a atomic multicast
@@ -129,7 +135,12 @@ public final class Acceptor {
 			tomLayer.processOutOfContext();
 		}
 	}
-
+///
+	public final void deliver(NewConsensusMessage msg) {
+		NewConsensusMessageTest t = new NewConsensusMessageTest();
+		t.testResponse(msg);
+	}
+///
 	/**
 	 * Called when a Consensus message is received or when a out of context message
 	 * must be processed. It processes the received message according to its type
@@ -143,7 +154,8 @@ public final class Acceptor {
 		Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
 		switch (msg.getType()) {
 		case MessageFactory.PROPOSE: {
-			proposeReceived(epoch, msg);
+			noConsensus(epoch, msg);
+//			proposeReceived(epoch, msg);
 		}
 			break;
 		case MessageFactory.WRITE: {
@@ -155,6 +167,18 @@ public final class Acceptor {
 		}
 		}
 		consensus.lock.unlock();
+	}
+
+	public void noConsensus(Epoch epoch, ConsensusMessage msg) {
+		logger.info("jumping!");
+		byte[] value = msg.getValue();
+		epoch.propValue = value;
+		epoch.deserializedPropValue = tomLayer.checkProposedValue(value, true);
+		epoch.writeSent();
+		epoch.acceptSent();
+		epoch.acceptCreated();
+		logger.info("deserializedPropValue = {}", epoch.deserializedPropValue);
+		decide(epoch);
 	}
 
 	/**
