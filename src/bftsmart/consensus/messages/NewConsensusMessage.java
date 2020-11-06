@@ -17,6 +17,8 @@ public class NewConsensusMessage extends SystemMessage {
     private Object setofProof; // the set of votes or view-change in PROPOSE and NEWVIEW
     private byte[] data = null; // the data that the block proposed for
     private Object newMessage; // the message that SYNC proposing for
+    private int epoch; // Epoch to which this message belongs to
+
     /**
      * here we use Object instead of NewConsensusMessage for setofProof and newMessage for
      * cannot converting Object into NewConsensusMessage in the Override version of readExternal
@@ -34,12 +36,14 @@ public class NewConsensusMessage extends SystemMessage {
      * @param viewNumber The view this message in or for
      * @param from The replica who send this
      */
-    public NewConsensusMessage(int messageType, int viewNumber, int from){
+    public NewConsensusMessage(int messageType, int viewNumber,
+                               int epoch, int from){
 
         super(from);
 
         this.messageType = messageType;
         this.viewNumber = viewNumber;
+        this.epoch = epoch;
 
     }
 
@@ -51,6 +55,7 @@ public class NewConsensusMessage extends SystemMessage {
 
         out.writeInt(messageType);
         out.writeInt(viewNumber);
+        out.writeInt(epoch);
 
         if(hashValue == 0) {
             out.writeBoolean(false);
@@ -89,6 +94,7 @@ public class NewConsensusMessage extends SystemMessage {
 
         messageType = in.readInt();
         viewNumber = in.readInt();
+        epoch = in.readInt();
 
         Boolean toRead = in.readBoolean();
         if(toRead)
@@ -167,6 +173,10 @@ public class NewConsensusMessage extends SystemMessage {
         return newMessage;
     }
 
+    public int getEpoch() {
+        return epoch;
+    }
+
     /**
      * Returns this message type as a verbose string
      * @return message type
@@ -178,10 +188,11 @@ public class NewConsensusMessage extends SystemMessage {
             return "VOTE";
         else if (messageType == NewMessageFactory.SYNC)
             return "SYNC";
-        else if (messageType == NewMessageFactory.VIEWCHANGE)
-            return "VIEWCHANGE";
-        else if (messageType == NewMessageFactory.NEWVIEW)
-            return "NEWVIEW";
+//        else if (messageType == NewMessageFactory.VIEWCHANGE)
+//            return "VIEWCHANGE";
+//        else if (messageType == NewMessageFactory.NEWVIEW)
+//            return "NEWVIEW";
+//        in wrong place
         else
             return "NOT DEFINED";
     }
@@ -191,6 +202,6 @@ public class NewConsensusMessage extends SystemMessage {
         return "type=" + getMessageType() + ",\nview number=" + getViewNumber() +
                 ",\nhash value=" + getHashValue() + ",\nset of proof=[" +
                 getSetofProof() +"],\ndata=" + getData() + ",\nnew message=" +
-                getNewMessage() + ".\n";
+                getNewMessage() + "\nepoch=" + getEpoch() + ".\n";
     }
 }

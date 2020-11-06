@@ -37,6 +37,8 @@ import bftsmart.reconfiguration.ServerViewController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import bftsmart.consensus.messages.NewConsensusMessage;
+import bftsmart.consensus.roles.NewAcceptor;
 
 /**
  * This class manages consensus instances. It can have several epochs if
@@ -49,7 +51,7 @@ public final class ExecutionManager {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private ServerViewController controller;
-    private Acceptor acceptor; // Acceptor role of the PaW algorithm
+    private NewAcceptor acceptor; // Acceptor role of the PaW algorithm
     private Proposer proposer; // Proposer role of the PaW algorithm
     //******* EDUARDO BEGIN: now these variables are all concentrated in the Reconfigurationmanager **************//
     //private int me; // This process ID
@@ -92,7 +94,7 @@ public final class ExecutionManager {
      * @param proposer Proposer role of the PaW algorithm
      * @param me This process ID
      */
-    public ExecutionManager(ServerViewController controller, Acceptor acceptor,
+    public ExecutionManager(ServerViewController controller, NewAcceptor acceptor,
             Proposer proposer, int me) {
         //******* EDUARDO BEGIN **************//
         this.controller = controller;
@@ -150,7 +152,7 @@ public final class ExecutionManager {
      * Returns the acceptor role of the PaW algorithm
      * @return The acceptor role of the PaW algorithm
      */
-    public Acceptor getAcceptor() {
+    public NewAcceptor getAcceptor() {
         return acceptor;
     }
 
@@ -202,7 +204,7 @@ public final class ExecutionManager {
         //process stopped messages
         while (!stoppedMsgs.isEmpty()) {
             ConsensusMessage pm = stoppedMsgs.remove();
-            if (pm.getNumber() > tomLayer.getLastExec()) acceptor.processMessage(pm);
+            if (pm.getNumber() > tomLayer.getLastExec()); ///acceptor.processMessage(pm);
         }
         stoppedMsgsLock.unlock();
         logger.debug("Finished stopped messages processing");
@@ -301,6 +303,15 @@ public final class ExecutionManager {
         outOfContextLock.unlock();
 
         return canProcessTheMessage;
+    }
+
+    /**
+     * a temporary method
+     * @param msg which is newConsensusMessage
+     * @return true
+     */
+    public final boolean checkLimits(NewConsensusMessage msg) {
+        return true;
     }
 
     /**
@@ -438,7 +449,7 @@ public final class ExecutionManager {
         if (prop != null) {
             logger.debug("[Consensus " + consensus.getId()
                     + "] Processing out of context propose");
-            acceptor.processMessage(prop);
+///            acceptor.processMessage(prop);
         }
 
         /******* END OUTOFCONTEXT CRITICAL SECTION *******/
@@ -447,28 +458,28 @@ public final class ExecutionManager {
 
     public void processOutOfContext(Consensus consensus) {
         outOfContextLock.lock();
-        /******* BEGIN OUTOFCONTEXT CRITICAL SECTION *******/
-        
-        //then we have to put the pending paxos messages
-        List<ConsensusMessage> messages = outOfContext.remove(consensus.getId());
-        if (messages != null) {
-            logger.debug("[Consensus " + consensus.getId()
-                    + "] Processing other " + messages.size()
-                    + " out of context messages.");
-
-            for (Iterator<ConsensusMessage> i = messages.iterator(); i.hasNext();) {
-                acceptor.processMessage(i.next());
-                if (consensus.isDecided()) {
-                    logger.debug("Consensus "
-                            + consensus.getId() + " decided.");
-                    break;
-                }
-            }
-            logger.debug("[Consensus " + consensus.getId()
-                    + "] Finished out of context processing");
-        }
-
-        /******* END OUTOFCONTEXT CRITICAL SECTION *******/
+//        /******* BEGIN OUTOFCONTEXT CRITICAL SECTION *******/
+//
+//        //then we have to put the pending paxos messages
+//        List<ConsensusMessage> messages = outOfContext.remove(consensus.getId());
+//        if (messages != null) {
+//            logger.debug("[Consensus " + consensus.getId()
+//                    + "] Processing other " + messages.size()
+//                    + " out of context messages.");
+//
+//            for (Iterator<ConsensusMessage> i = messages.iterator(); i.hasNext();) {
+//                acceptor.processMessage(i.next());
+//                if (consensus.isDecided()) {
+//                    logger.debug("Consensus "
+//                            + consensus.getId() + " decided.");
+//                    break;
+//                }
+//            }
+//            logger.debug("[Consensus " + consensus.getId()
+//                    + "] Finished out of context processing");
+//        }
+//
+//        /******* END OUTOFCONTEXT CRITICAL SECTION *******/
         outOfContextLock.unlock();
     }
 

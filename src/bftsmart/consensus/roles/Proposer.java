@@ -20,6 +20,7 @@ import bftsmart.consensus.messages.MessageFactory;
 import bftsmart.reconfiguration.ServerViewController;
 
 ///
+import bftsmart.consensus.messages.NewMessageFactory;
 import bftsmart.consensus.messages.NewConsensusMessageTest;
 ///
 /**
@@ -27,7 +28,7 @@ import bftsmart.consensus.messages.NewConsensusMessageTest;
  **/
 public class Proposer {
 
-    private MessageFactory factory; // Factory for PaW messages
+    private NewMessageFactory factory; // Factory for PaW messages
     private ServerCommunicationSystem communication; // Replicas comunication system
     private ServerViewController controller;
 
@@ -39,7 +40,7 @@ public class Proposer {
      * @param verifier Proof verifier
      * @param conf TOM configuration
      */
-    public Proposer(ServerCommunicationSystem communication, MessageFactory factory,
+    public Proposer(ServerCommunicationSystem communication, NewMessageFactory factory,
             ServerViewController controller) {
         this.communication = communication;
         this.factory = factory;
@@ -59,9 +60,8 @@ public class Proposer {
 //                factory.createPropose(cid, 0, value));
         //******* EDUARDO END **************//
         ///
-        NewConsensusMessageTest t = new NewConsensusMessageTest();
         communication.send(this.controller.getCurrentViewAcceptors(),
-                t.testRequest());
+                factory.createPROPOSE(value, 2, 1, cid, "no vote here"));
         ///
     }
 }

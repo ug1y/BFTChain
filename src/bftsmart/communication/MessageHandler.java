@@ -29,6 +29,7 @@ import bftsmart.tom.util.TOMUtil;
 
 ///
 import bftsmart.consensus.messages.NewConsensusMessage;
+import bftsmart.consensus.roles.NewAcceptor;
 ///
 /**
  *
@@ -38,12 +39,12 @@ public class MessageHandler {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private Acceptor acceptor;
+	private NewAcceptor acceptor;
 	private TOMLayer tomLayer;
 
 	public MessageHandler() {}
 
-	public void setAcceptor(Acceptor acceptor) {
+	public void setAcceptor(NewAcceptor acceptor) {
 		this.acceptor = acceptor;
 	}
 
@@ -63,13 +64,13 @@ public class MessageHandler {
 
 			int myId = tomLayer.controller.getStaticConf().getProcessId();
 
-			ConsensusMessage consMsg = (ConsensusMessage) sm;
+			NewConsensusMessage consMsg = (NewConsensusMessage) sm;
 
-			if (consMsg.authenticated || consMsg.getSender() == myId)
+//			if (consMsg.authenticated || consMsg.getSender() == myId)
 				acceptor.deliver(consMsg);
-			else {
-				logger.warn("Discarding unauthenticated message from " + sm.getSender());
-			}
+//			else {
+//				logger.warn("Discarding unauthenticated message from " + sm.getSender());
+//			}
 
 		} else {
 			if (sm.authenticated) {

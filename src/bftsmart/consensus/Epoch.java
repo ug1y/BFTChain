@@ -43,6 +43,7 @@ public class Epoch implements Serializable {
     private final int me; // Process ID
     private boolean[] writeSetted;
     private boolean[] acceptSetted;
+    private boolean[] voteSetted;
     private byte[][] write; // WRITE values from other processes
     private byte[][] accept; // accepted values from other processes
     private boolean writeSent;
@@ -86,6 +87,7 @@ public class Epoch implements Serializable {
 
         writeSetted = new boolean[n];
         acceptSetted = new boolean[n];
+        voteSetted = new boolean[n];
 
         Arrays.fill(writeSetted, false);
         Arrays.fill(acceptSetted, false);
@@ -123,9 +125,11 @@ public class Epoch implements Serializable {
             
             boolean[] writeSetted = new boolean[n];
             boolean[] acceptSetted = new boolean[n];
+            boolean[] voteSetted = new boolean[n];
 
             Arrays.fill(writeSetted, false);
             Arrays.fill(acceptSetted, false);
+            Arrays.fill(voteSetted, false);
         
             for (int pid : lastView.getProcesses()) {
                 
@@ -139,6 +143,7 @@ public class Epoch implements Serializable {
 
                     writeSetted[currentPos] = this.writeSetted[lastPos];
                     acceptSetted[currentPos] = this.acceptSetted[lastPos];
+                    voteSetted[currentPos] = this.voteSetted[lastPos];
 
                 }
             }
@@ -345,6 +350,32 @@ public class Epoch implements Serializable {
      */
     public int countAccept(byte[] value) {
         return count(acceptSetted,accept, value);
+    }
+
+    public void setVote(int acceptor) { // TODO: add viewnumber or some identification else
+
+        updateArrays();
+
+        //******* EDUARDO BEGIN **************//
+        int p = this.controller.getCurrentViewPos(acceptor);
+        if (p >= 0) { //it can only be setted once
+            voteSetted[p] = true;
+        }
+        //******* EDUARDO END **************//
+    }
+
+    /**
+     * Retrieves the amount of votes that leader received, no need for value for no value in VOTE
+     * @return Amount of votes that leader received
+     */
+    public int countVote() {
+        int counter = 0;
+        for (int i = 0; i < voteSetted.length; i++) {
+            if (voteSetted != null && voteSetted[i] ) {
+                counter++;
+            }
+        }
+        return counter;
     }
     
     /**

@@ -21,7 +21,7 @@ public class NewConsensusMessageTest {
     /**
      * to test the NewConsensusMessage class, there are several changes need to be taken,
      * they are in consensus.role.Proposer, consensus.role.Acceptor, communication.MessageHandler
-     * and the changes in Proposer do affect the behaviour of program when processing messages of ConsensusMessage class
-     * you can find those changes by searching ///, where changes are surrounded.
+     * and the changes in Proposer do affect the behaviour of program when processing messages of
+     * ConsensusMessage class. you can find those changes by searching ///, where changes are surrounded.
      */
 }

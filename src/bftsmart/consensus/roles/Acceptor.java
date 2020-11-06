@@ -273,7 +273,7 @@ public final class Acceptor {
 				}
 				executionManager.processOutOfContext(epoch.getConsensus());
 
-			} else if (epoch.deserializedPropValue == null 
+			} else if (epoch.deserializedPropValue == null
 					&& !tomLayer.isChangingLeader()) { // force a leader change
 				tomLayer.getSynchronizer().triggerTimeout(new LinkedList<>());
 			}
@@ -289,7 +289,7 @@ public final class Acceptor {
 	 */
 	private void writeReceived(Epoch epoch, int sender, byte[] value) {
 		int cid = epoch.getConsensus().getId();
-		logger.debug("WRITE received from:{}, for consensus cId:{}", 
+		logger.debug("WRITE received from:{}, for consensus cId:{}",
 				sender, cid);
 		epoch.setWrite(sender, value);
 
@@ -309,7 +309,7 @@ public final class Acceptor {
 
 		logger.debug("I have {}, WRITE's for cId:{}, Epoch timestamp:{},", writeAccepted, cid, epoch.getTimestamp());
 
-		if (writeAccepted > controller.getQuorum() 
+		if (writeAccepted > controller.getQuorum()
 				&& Arrays.equals(value, epoch.propValueHash)) {
 
 			if (!epoch.isAcceptSent()) {
@@ -384,10 +384,10 @@ public final class Acceptor {
 
 	/**
 	 * Create a cryptographic proof for a consensus message
-	 * 
+	 *
 	 * This method modifies the consensus message passed as an argument, so that it
 	 * contains a cryptographic proof.
-	 * 
+	 *
 	 * @param cm    The consensus message to which the proof shall be set
 	 * @param epoch The epoch during in which the consensus message was created
 	 */
@@ -413,7 +413,7 @@ public final class Acceptor {
 
 	/**
 	 * Called when a ACCEPT message is received
-	 * 
+	 *
 	 * @param epoch Epoch of the receives message
 	 * @param a     Replica that sent the message
 	 * @param value Value sent in the message
@@ -429,7 +429,7 @@ public final class Acceptor {
 
 	/**
 	 * Computes ACCEPT values according to the Byzantine consensus specification
-	 * 
+	 *
 	 * @param epoch Epoch of the receives message
 	 * @param value Value sent in the message
 	 */
@@ -445,7 +445,7 @@ public final class Acceptor {
 
 	/**
 	 * This is the method invoked when a value is decided by this process
-	 * 
+	 *
 	 * @param epoch Epoch at which the decision is made
 	 */
 	private void decide(Epoch epoch) {

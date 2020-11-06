@@ -55,6 +55,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import bftsmart.consensus.roles.NewAcceptor;
+
 /**
  * This class implements the state machine replication protocol described in
  * Joao Sousa's 'From Byzantine Consensus to BFT state machine replication: a latency-optimal transformation' (May 2012)
@@ -68,7 +70,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
     private boolean doWork = true;
     //other components used by the TOMLayer (they are never changed)
     public ExecutionManager execManager; // Execution manager
-    public Acceptor acceptor; // Acceptor role of the PaW algorithm
+    public NewAcceptor acceptor; // Acceptor role of the PaW algorithm
     private ServerCommunicationSystem communication; // Communication system between replicas
     //private OutOfContextMessageThread ot; // Thread which manages messages that do not belong to the current consensus
     private DeliveryThread dt; // Thread which delivers total ordered messages to the appication
@@ -135,7 +137,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
     public TOMLayer(ExecutionManager manager,
             ServiceReplica receiver,
             Recoverable recoverer,
-            Acceptor a,
+            NewAcceptor a,
             ServerCommunicationSystem cs,
             ServerViewController controller,
             RequestVerifier verifier) {

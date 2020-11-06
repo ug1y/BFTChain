@@ -33,6 +33,8 @@ import bftsmart.tom.core.messages.TOMMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import bftsmart.consensus.roles.NewAcceptor;
+
 /**
  *
  * @author alysson
@@ -83,7 +85,7 @@ public class ServerCommunicationSystem extends Thread {
     }
 
     //******* EDUARDO END **************//
-    public void setAcceptor(Acceptor acceptor) {
+    public void setAcceptor(NewAcceptor acceptor) {
         messageHandler.setAcceptor(acceptor);
     }
 

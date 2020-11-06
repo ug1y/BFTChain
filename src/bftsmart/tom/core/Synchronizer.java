@@ -43,6 +43,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import bftsmart.consensus.roles.NewAcceptor;
+
 /**
  *
  * This class implements the synchronization phase described in
@@ -72,7 +74,7 @@ public class Synchronizer {
     private final BatchBuilder bb;
     private final ServerCommunicationSystem communication;
     private final StateManager stateManager;
-    private final Acceptor acceptor;
+    private final NewAcceptor acceptor;
     private final MessageDigest md;
             
     // Attributes to temporarely store synchronization info
@@ -1013,7 +1015,7 @@ public class Synchronizer {
             tempBatchSize = batchSize;
             tempIAmLeader = iAmLeader;
 
-            execManager.getStoppedMsgs().add(acceptor.getFactory().createPropose(currentCID, 0, propose));
+//            execManager.getStoppedMsgs().add(acceptor.getFactory().createPropose(currentCID, 0, propose));
             stateManager.requestAppState(lastHighestCID.getCID());
 
             return;
@@ -1199,13 +1201,13 @@ public class Synchronizer {
             // send a WRITE/ACCEPT message to the other replicas
             if (this.controller.getStaticConf().isBFT()) {
                 logger.info("Sending WRITE message for CID " + currentCID + ", timestamp " + e.getTimestamp() + ", value " + Arrays.toString(e.propValueHash));
-                communication.send(this.controller.getCurrentViewOtherAcceptors(),
-                        acceptor.getFactory().createWrite(currentCID, e.getTimestamp(), e.propValueHash));
+//                communication.send(this.controller.getCurrentViewOtherAcceptors(),
+//                        acceptor.getFactory().createWrite(currentCID, e.getTimestamp(), e.propValueHash));
                 e.writeSent();
             } else {
                 logger.info("Sending ACCEPT message for CID " + currentCID + ", timestamp " + e.getTimestamp() + ", value " + Arrays.toString(e.propValueHash));
-                communication.send(this.controller.getCurrentViewOtherAcceptors(),
-                        acceptor.getFactory().createAccept(currentCID, e.getTimestamp(), e.propValueHash));
+//                communication.send(this.controller.getCurrentViewOtherAcceptors(),
+//                        acceptor.getFactory().createAccept(currentCID, e.getTimestamp(), e.propValueHash));
                 e.acceptSent();
             }
         } else {

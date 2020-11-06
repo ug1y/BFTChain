@@ -50,6 +50,9 @@ import java.security.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import bftsmart.consensus.messages.NewMessageFactory;
+import bftsmart.consensus.roles.NewAcceptor;
+
 /**
  * This class receives messages from DeliveryThread and manages the execution
  * from the application and reply to the clients. For applications where the
@@ -460,9 +463,9 @@ public class ServiceReplica {
         }
 
         // Assemble the total order messaging layer
-        MessageFactory messageFactory = new MessageFactory(id);
+        NewMessageFactory messageFactory = new NewMessageFactory(id);
 
-        Acceptor acceptor = new Acceptor(cs, messageFactory, SVController);
+        NewAcceptor acceptor = new NewAcceptor(cs, messageFactory, SVController);
         cs.setAcceptor(acceptor);
 
         Proposer proposer = new Proposer(cs, messageFactory, SVController);
