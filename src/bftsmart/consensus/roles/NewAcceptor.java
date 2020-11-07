@@ -79,11 +79,11 @@ public final class NewAcceptor {
      */
     public final void deliver(NewConsensusMessage msg) {
         if (executionManager.checkLimits(msg)) {
-            logger.info("Processing msg in view {}", msg.getViewNumber());
+            logger.debug("Processing msg in view {}", msg.getViewNumber());
             processMessage(msg);
         }
         else {
-            logger.info("Out of context msg in view {}", msg.getViewNumber());
+            logger.debug("Out of context msg in view {}", msg.getViewNumber());
             tomLayer.processOutOfContext();
         }
     }
@@ -97,10 +97,10 @@ public final class NewAcceptor {
         Consensus consensus = executionManager.getConsensus(msg.getEpoch());
         consensus.lock.lock();
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
-        logger.info("epoch number = {}", msg.getEpoch());
+        logger.debug("epoch number = {}", msg.getEpoch());
         switch (msg.getMessageType()) {
             case NewMessageFactory.PROPOSE:
-//                noConsensus(epoch, msg);
+//                noConsensus(msg);
                 proposeReceived(epoch, msg);
                 break;
             case NewMessageFactory.VOTE:
@@ -110,6 +110,11 @@ public final class NewAcceptor {
         consensus.lock.unlock();
     }
 
+    /**
+     * just for usability testing
+     * @param epoch
+     * @param msg
+     */
     public void noConsensus(Epoch epoch, NewConsensusMessage msg) {
         logger.info("jumping!");
         byte[] value = msg.getData();
@@ -118,8 +123,13 @@ public final class NewAcceptor {
         epoch.writeSent();
         epoch.acceptSent();
         epoch.acceptCreated();
-        logger.info("deserializedPropValue = {}", epoch.deserializedPropValue);
+        logger.debug("deserializedPropValue = {}", epoch.deserializedPropValue);
         decide(epoch);
+    }
+
+    public void noConsensus(NewConsensusMessage msg) {
+        logger.info("jjjumping!");
+        decide(msg);
     }
 
     /**
@@ -130,13 +140,13 @@ public final class NewAcceptor {
      */
     public void proposeReceived(Epoch epoch, NewConsensusMessage msg) {
         int cid = epoch.getConsensus().getId();
-        logger.info("PROPOSE received from:{}, for consensus cId:{}, I am:{}",
+        logger.debug("PROPOSE received from:{}, for consensus cId:{}, I am:{}",
                 msg.getSender(), cid, me);
         if (msg.getSender() == executionManager.getCurrentLeader()) {
             // Is the replica the leader?
             executePropose(epoch, msg);
         } else {
-            logger.info("Propose received is not from the expected leader");
+            logger.debug("Propose received is not from the expected leader");
         }
     }
 
@@ -149,13 +159,13 @@ public final class NewAcceptor {
         long consensusStartTime = System.nanoTime();
         byte[] data = msg.getData();
         int cid = epoch.getConsensus().getId();
-        logger.info("Executing propose for cId:{}, Epoch Timestamp:{}",
+        logger.debug("Executing propose for cId:{}, Epoch Timestamp:{}",
                 cid, epoch.getTimestamp());
         if(epoch.propValue == null) {//one propose per epoch
             epoch.propValue = data;
             epoch.propValueHash = tomLayer.computeHash(data);
             epoch.getConsensus().addWritten(data);
-            logger.info("I've written data {} in cid {} with timestamp {}.",
+            logger.debug("I've written data {} in cid {} with timestamp {}.",
                     data, cid, epoch.getConsensus().getEts());
             epoch.deserializedPropValue = tomLayer.checkProposedValue(data, true);
             if(epoch.deserializedPropValue != null && !epoch.isWriteSent()) {
@@ -179,32 +189,64 @@ public final class NewAcceptor {
                 epoch.acceptSent();
                 epoch.acceptCreated();
                 //some usage-unknown marks..
-                logger.info("Sent VOTE to {}",
+                logger.debug("Sent VOTE to {}",
                         this.executionManager.getCurrentLeader());
             }
         }
     }
 
+    /**
+     * the procedure when leader receives a VOTE message
+     * @param epoch the epoch related to the consensus, which usage is not clear
+     * @param msg the VOTE message
+     */
     public void voteReceived(Epoch epoch, NewConsensusMessage msg) {
         int cid = epoch.getConsensus().getId();
-        logger.info("VOTE from {} for consensus {}", msg.getSender(), cid);
+        logger.debug("VOTE from {} for consensus {}", msg.getSender(), cid);
         epoch.setVote(msg.getSender());
         computeVOTE(cid, epoch);
     }
 
+    /**
+     * counting VOTEs that the leader has received, if meet some value required,
+     * then decide this consensus
+     * @param cid consensus number, usage not clear
+     * @param epoch the epoch related to the consensus, which usage is not clear
+     */
     public void computeVOTE(int cid, Epoch epoch) {
-        logger.info("I have {} VOTEs for cId:{}, Timestamp:{} ", epoch.countVote(), cid,
+        logger.debug("I have {} VOTEs for cId:{}, Timestamp:{} ", epoch.countVote(), cid,
                 epoch.getTimestamp());
         if (epoch.countVote() > controller.getQuorum() && !epoch.getConsensus().isDecided()) {
-            logger.info("Deciding consensus {}", cid);
-            logger.info("deserializedPropValue = {}", epoch.deserializedPropValue);
+            logger.debug("Deciding consensus {}", cid);
+            logger.debug("deserializedPropValue = {}", epoch.deserializedPropValue);
             decide(epoch);
         }
     }
 
+    /**
+     * decide the consensus and send this to the client
+     * but now the client won't accept it for its unedit strategy of accepting
+     * @param epoch the epoch related to the consensus
+     */
     private void decide(Epoch epoch) {
         if (epoch.getConsensus().getDecision().firstMessageProposed != null)
             epoch.getConsensus().getDecision().firstMessageProposed.decisionTime = System.nanoTime();
         epoch.getConsensus().decided(epoch, true);
+    }
+
+    /**
+     * decide the consensus through message and send this to the client
+     * @param msg which to be sent
+     */
+    private void decide(NewConsensusMessage msg) {
+        Consensus consensus = executionManager.getConsensus(msg.getEpoch());
+        Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
+        byte[] value = msg.getData();
+        epoch.propValue = value;
+        epoch.deserializedPropValue = tomLayer.checkProposedValue(value, true);
+        epoch.writeSent();
+        epoch.acceptSent();
+        epoch.acceptCreated();
+        decide(epoch);
     }
 }

@@ -352,6 +352,10 @@ public class Epoch implements Serializable {
         return count(acceptSetted,accept, value);
     }
 
+    /**
+     * add a count of VOTE to this acceptor
+     * @param acceptor the acceptor of current leader
+     */
     public void setVote(int acceptor) { // TODO: add viewnumber or some identification else
 
         updateArrays();

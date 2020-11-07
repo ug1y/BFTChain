@@ -454,4 +454,20 @@ public final class Acceptor {
 
 		epoch.getConsensus().decided(epoch, true);
 	}
+
+	/**
+	 * decide the consensus through message and send this to the client
+	 * @param msg which to be sent
+	 */
+	private void decide(NewConsensusMessage msg) {
+		Consensus consensus = executionManager.getConsensus(msg.getEpoch());
+		Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
+		byte[] value = msg.getData();
+		epoch.propValue = value;
+		epoch.deserializedPropValue = tomLayer.checkProposedValue(value, true);
+		epoch.writeSent();
+		epoch.acceptSent();
+		epoch.acceptCreated();
+		decide(epoch);
+	}
 }

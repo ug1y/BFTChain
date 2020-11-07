@@ -1,8 +1,9 @@
 package bftsmart.consensus.messages;
-
 /**
  * This class work as a factory of messages used in the new protocol.
  */
+import bftsmart.consensus.blockchain.Block;
+
 public class NewMessageFactory{
 
     //constants for messages types
@@ -60,6 +61,20 @@ public class NewMessageFactory{
     public NewConsensusMessage createSYNC(int viewNumber, Object newMessage, int epoch){
         NewConsensusMessage m = new NewConsensusMessage(SYNC, viewNumber, epoch, from);
         m.setNewMessage(newMessage);
+        return m;
+    }
+
+    /**
+     * create a PROPOSE via exist block
+     * @param block which store necessary infos
+     * @return the PROPOSE message accroding to the block
+     */
+    public NewConsensusMessage getPROPOSE(Block block) {
+        NewConsensusMessage m = new NewConsensusMessage(PROPOSE,
+                block.getViewNumber(), block.getEpoch(), from);
+        m.setData(block.getData());
+        m.setHashValue(block.getHashValue());
+        m.setSetofProof(block.getSetofProof());
         return m;
     }
 //in wrong place

@@ -21,7 +21,7 @@ import bftsmart.reconfiguration.ServerViewController;
 
 ///
 import bftsmart.consensus.messages.NewMessageFactory;
-import bftsmart.consensus.messages.NewConsensusMessageTest;
+import bftsmart.consensus.blockchain.BlockChainTest;
 ///
 /**
  * This class represents the proposer role in the consensus protocol.
@@ -62,6 +62,8 @@ public class Proposer {
         ///
         communication.send(this.controller.getCurrentViewAcceptors(),
                 factory.createPROPOSE(value, 2, 1, cid, "no vote here"));
+//        BlockChainTest t = new BlockChainTest();
+//        t.test();
         ///
     }
 }
