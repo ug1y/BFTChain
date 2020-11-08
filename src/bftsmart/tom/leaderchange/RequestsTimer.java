@@ -77,13 +77,13 @@ public class RequestsTimer {
         this.shortTimeout = shortTimeout;
     }
     
-    public void startTimer() {
-        if (rtTask == null) {
-            long t = (shortTimeout > -1 ? shortTimeout : timeout);
-            //shortTimeout = -1;
-            rtTask = new RequestTimerTask();
-            if (controller.getCurrentViewN() > 1) timer.schedule(rtTask, t);
-        }
+    public void startTimer() {//to shutdown the timer, and which works
+//        if (rtTask == null) {
+//            long t = (shortTimeout > -1 ? shortTimeout : timeout);
+//            //shortTimeout = -1;
+//            rtTask = new RequestTimerTask();
+//            if (controller.getCurrentViewN() > 1) timer.schedule(rtTask, t);
+//        }
     }
     
     public void stopTimer() {

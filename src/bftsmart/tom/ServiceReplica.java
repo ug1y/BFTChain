@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 
 import bftsmart.consensus.messages.NewMessageFactory;
 import bftsmart.consensus.roles.NewAcceptor;
+import bftsmart.consensus.blockchain.Chain;
 
 /**
  * This class receives messages from DeliveryThread and manages the execution
@@ -465,10 +466,12 @@ public class ServiceReplica {
         // Assemble the total order messaging layer
         NewMessageFactory messageFactory = new NewMessageFactory(id);
 
-        NewAcceptor acceptor = new NewAcceptor(cs, messageFactory, SVController);
+        Chain chain = new Chain();
+
+        NewAcceptor acceptor = new NewAcceptor(cs, messageFactory, SVController, chain);
         cs.setAcceptor(acceptor);
 
-        Proposer proposer = new Proposer(cs, messageFactory, SVController);
+        Proposer proposer = new Proposer(cs, messageFactory, SVController, chain);
 
         ExecutionManager executionManager = new ExecutionManager(SVController, acceptor, proposer, id);
 

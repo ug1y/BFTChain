@@ -27,6 +27,8 @@ import bftsmart.consensus.messages.NewConsensusMessage;
 import bftsmart.consensus.messages.NewMessageFactory;
 import bftsmart.consensus.messages.NewConsensusMessageTest;
 import bftsmart.communication.SystemMessage;
+import bftsmart.consensus.blockchain.Chain;
+import bftsmart.consensus.blockchain.Block;
 
 public final class NewAcceptor {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -38,6 +40,7 @@ public final class NewAcceptor {
     private ServerViewController controller;
     private ExecutorService proofExecutor = null;// thread pool used to paralelise creation of consensus proofs
     private PrivateKey privKey;
+    private Chain chain;
 
     /**
      * Creates a new instance of Acceptor.
@@ -47,13 +50,14 @@ public final class NewAcceptor {
      * @param controller
      */
     public NewAcceptor(ServerCommunicationSystem communication,
-                       NewMessageFactory factory, ServerViewController controller) {
+                       NewMessageFactory factory, ServerViewController controller, Chain chain) {
         this.communication = communication;
         this.me = controller.getStaticConf().getProcessId();
         this.factory = factory;
         this.controller = controller;
         this.privKey = controller.getStaticConf().getPrivateKey();
         this.proofExecutor = Executors.newSingleThreadExecutor();
+        this.chain = chain;
     }
 
     /**
@@ -97,7 +101,7 @@ public final class NewAcceptor {
         Consensus consensus = executionManager.getConsensus(msg.getEpoch());
         consensus.lock.lock();
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
-        logger.debug("epoch number = {}", msg.getEpoch());
+        logger.debug("message = " + msg.toString());
         switch (msg.getMessageType()) {
             case NewMessageFactory.PROPOSE:
 //                noConsensus(msg);
@@ -105,6 +109,9 @@ public final class NewAcceptor {
                 break;
             case NewMessageFactory.VOTE:
                 voteReceived(epoch, msg);
+                break;
+            case NewMessageFactory.SUBMIT://using for calling leader's acceptor to work
+                computeVOTE(epoch, msg);
                 break;
         }
         consensus.lock.unlock();
@@ -161,14 +168,14 @@ public final class NewAcceptor {
         int cid = epoch.getConsensus().getId();
         logger.debug("Executing propose for cId:{}, Epoch Timestamp:{}",
                 cid, epoch.getTimestamp());
-        if(epoch.propValue == null) {//one propose per epoch
+        if(true){//one propose per epoch
             epoch.propValue = data;
             epoch.propValueHash = tomLayer.computeHash(data);
             epoch.getConsensus().addWritten(data);
             logger.debug("I've written data {} in cid {} with timestamp {}.",
                     data, cid, epoch.getConsensus().getEts());
             epoch.deserializedPropValue = tomLayer.checkProposedValue(data, true);
-            if(epoch.deserializedPropValue != null && !epoch.isWriteSent()) {
+            if(true) {
                 //some usage-unknown settings for epoch..
                 if (epoch.getConsensus().getDecision().firstMessageProposed == null) {
                     epoch.getConsensus().getDecision().firstMessageProposed = epoch.deserializedPropValue[0];
@@ -180,18 +187,31 @@ public final class NewAcceptor {
                 epoch.setWrite(me, epoch.propValueHash);
                 epoch.getConsensus().getDecision().firstMessageProposed.writeSentTime = System.nanoTime();
                 //some usage-unknown settings for epoch..
+                Block b = new Block(msg);// generating a block via PROPOSE message
+                if(!(this.executionManager.getCurrentLeader() == me)) {
+                    chain.addBlock(b);//add a block to the chain locally
+                    logger.info("I'm {}, I've just updated BLOCK" + msg.toString() + "to the chain locally.", me);
+                }
                 int[] leader = new int[1];
                 leader[0] = this.executionManager.getCurrentLeader();
-                communication.send(leader, factory.createVOTE(msg.getViewNumber(), 1, cid));
-                //1 stands for hash of block
+                communication.send(leader, factory.createVOTE(msg.getViewNumber(),
+                        b.computeHashValue(), cid + 1));// send VOTE to leader's acceptor
+                logger.info("Sent VOTE to {} for cid {} with hashvalue {}",
+                        this.executionManager.getCurrentLeader(), cid + 1, b.computeHashValue());
                 //some usage-unknown marks..
                 epoch.writeSent();
                 epoch.acceptSent();
                 epoch.acceptCreated();
                 //some usage-unknown marks..
-                logger.debug("Sent VOTE to {}",
-                        this.executionManager.getCurrentLeader());
             }
+        }
+        if((this.executionManager.getCurrentLeader() == me) &&
+                ((String)msg.getSetofProof()).equals("true")){// using for leader's acceptor to add the init block
+            //in the first time, and which can coded better than this...
+            decide(msg);
+            Block b = new Block(msg);
+            chain.addBlock(b);//add a previous block to the chain locally
+            logger.info("I'm {}, I've just updated BLOCK" + msg.toString() + "to the chain locally.", me);
         }
     }
 
@@ -203,8 +223,7 @@ public final class NewAcceptor {
     public void voteReceived(Epoch epoch, NewConsensusMessage msg) {
         int cid = epoch.getConsensus().getId();
         logger.debug("VOTE from {} for consensus {}", msg.getSender(), cid);
-        epoch.setVote(msg.getSender());
-        computeVOTE(cid, epoch);
+        epoch.setVote(msg.getSender());//just record the VOTEs
     }
 
     /**
@@ -213,13 +232,16 @@ public final class NewAcceptor {
      * @param cid consensus number, usage not clear
      * @param epoch the epoch related to the consensus, which usage is not clear
      */
-    public void computeVOTE(int cid, Epoch epoch) {
-        logger.debug("I have {} VOTEs for cId:{}, Timestamp:{} ", epoch.countVote(), cid,
-                epoch.getTimestamp());
-        if (epoch.countVote() > controller.getQuorum() && !epoch.getConsensus().isDecided()) {
-            logger.debug("Deciding consensus {}", cid);
-            logger.debug("deserializedPropValue = {}", epoch.deserializedPropValue);
-            decide(epoch);
+    public void computeVOTE(Epoch epoch, NewConsensusMessage msg) {
+        logger.info("I have {} VOTEs , Timestamp:{} ", epoch.countVote(), epoch.getTimestamp());
+        if (epoch.countVote() > controller.getQuorum()) {
+            msg.setHashValue(chain.getCurrentBlockHash());
+            msg.setMessageType(1110);
+            msg.setSetofProof(epoch.countVote() + " proofs here.");
+            chain.addBlock(new Block(msg));//add the current block to the chain locally
+            logger.info("I'm {}, I've just added BLOCK" + msg.toString() + "to the chain locally.", me);
+            communication.send(this.controller.getCurrentViewAcceptors(), msg);
+            decide(msg);
         }
     }
 

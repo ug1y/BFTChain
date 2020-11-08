@@ -149,6 +149,10 @@ public class NewConsensusMessage extends SystemMessage {
         this.newMessage = newMessage;
     }
 
+    public void setMessageType(int messageType) {
+        this.messageType = messageType;
+    }
+
     public int getMessageType() {
         return messageType;
     }

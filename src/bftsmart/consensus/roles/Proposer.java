@@ -21,7 +21,11 @@ import bftsmart.reconfiguration.ServerViewController;
 
 ///
 import bftsmart.consensus.messages.NewMessageFactory;
+import bftsmart.consensus.messages.NewConsensusMessage;
 import bftsmart.consensus.blockchain.BlockChainTest;
+import bftsmart.consensus.blockchain.Chain;
+import bftsmart.consensus.blockchain.Block;
+import java.util.*;
 ///
 /**
  * This class represents the proposer role in the consensus protocol.
@@ -31,6 +35,8 @@ public class Proposer {
     private NewMessageFactory factory; // Factory for PaW messages
     private ServerCommunicationSystem communication; // Replicas comunication system
     private ServerViewController controller;
+    private Chain chain;
+    private Boolean firstpropose;
 
     /**
      * Creates a new instance of Proposer
@@ -41,10 +47,12 @@ public class Proposer {
      * @param conf TOM configuration
      */
     public Proposer(ServerCommunicationSystem communication, NewMessageFactory factory,
-            ServerViewController controller) {
+            ServerViewController controller, Chain chain) {
         this.communication = communication;
         this.factory = factory;
         this.controller = controller;
+        this.chain = chain;
+        this.firstpropose = true;
     }
 
     /**
@@ -60,8 +68,17 @@ public class Proposer {
 //                factory.createPropose(cid, 0, value));
         //******* EDUARDO END **************//
         ///
-        communication.send(this.controller.getCurrentViewAcceptors(),
-                factory.createPROPOSE(value, 2, 1, cid, "no vote here"));
+        if(firstpropose){// for the first init, just send PROPOSE to all acceptor,
+            // "true" means decide directly without counting votes
+            NewConsensusMessage smsg = factory.createPROPOSE(value, 0, 0, cid, "true");
+            communication.send(this.controller.getCurrentViewAcceptors(), smsg);
+            firstpropose = false;
+        }else {// for the else consensus, send SUBMIT to leader's acceptor to process that
+            NewConsensusMessage pmsg = factory.createSUBMIT(value, 0, cid, "test");
+            int[] me = new int[1];
+            me[0] = this.controller.getStaticConf().getProcessId();
+            communication.send(me, pmsg);
+        }
 //        BlockChainTest t = new BlockChainTest();
 //        t.test();
         ///

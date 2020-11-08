@@ -42,12 +42,12 @@ public class Block  {
      */
     public int computeHashValue() {
         int hash = 1;
-        if (this.data != null) {
-            for (int i = 0; i < this.data.length; i++)
-                hash = hash * 31 + (int)this.data[i];
-        } else {
-            hash = hash * 31 + 0;
-        }
+//        if (this.data != null) {
+//            for (int i = 0; i < this.data.length; i++)
+//                hash = hash * 31 + (int)this.data[i];
+//        } else {
+//            hash = hash * 31 + 0;
+//        }
         hash = hash * 31 + this.viewNumber;
         hash = hash * 31 + this.hashValue;
         hash = hash * 31 + this.setofProof.hashCode();

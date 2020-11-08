@@ -22,13 +22,10 @@ public class Chain{
      * @param block the block added
      * @return the block 2 previous if exist, or return null
      */
-    public Block addBlock(Block block) {
+    public void addBlock(Block block) {
         this.CurrentBlockHash = block.computeHashValue();
         this.BlockMap.put(this.CurrentBlockHash, block);
         this.Height += 1;
-        if(this.Height > 2)
-            return getToSubmit();
-        return null;
     }
 
     /**
@@ -57,5 +54,9 @@ public class Chain{
 
     public int getCurrentBlockHash() {
         return CurrentBlockHash;
+    }
+
+    public Block getCurrentBlock(){
+        return this.BlockMap.get(this.CurrentBlockHash);
     }
 }
