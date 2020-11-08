@@ -10,7 +10,6 @@ public class NewMessageFactory{
     public static final int PROPOSE     = 1110;
     public static final int VOTE        = 1111;
     public static final int SYNC        = 1112;
-    public static final int SUBMIT      = 1113;
 //    public static final int VIEWCHANGE  = 1113;
 //    public static final int NEWVIEW     = 1114;
 //    in wrong place
@@ -62,22 +61,6 @@ public class NewMessageFactory{
     public NewConsensusMessage createSYNC(int viewNumber, Object newMessage, int epoch){
         NewConsensusMessage m = new NewConsensusMessage(SYNC, viewNumber, epoch, from);
         m.setNewMessage(newMessage);
-        return m;
-    }
-
-    /**
-     * Creates a SUBMIT message to be sent by this process
-     * @param data The proposal
-     * @param viewNumber The view which in
-     * @param hashValue The hash value of the previous block
-     * @param setofvotes The votes voted for previous block
-     * @return A message of PROPOSE type, with proper info
-     */
-    public NewConsensusMessage createSUBMIT(byte[] data, int viewNumber,
-                                            int epoch, Object setofvotes){
-        NewConsensusMessage m = new NewConsensusMessage(SUBMIT, viewNumber, epoch, from);
-        m.setData(data);
-        m.setSetofProof(setofvotes);
         return m;
     }
 

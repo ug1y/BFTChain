@@ -476,8 +476,9 @@ public class ServiceReplica {
         ExecutionManager executionManager = new ExecutionManager(SVController, acceptor, proposer, id);
 
         acceptor.setExecutionManager(executionManager);
+        proposer.setExecutionManager(executionManager);
 
-        tomLayer = new TOMLayer(executionManager, this, recoverer, acceptor, cs, SVController, verifier);
+        tomLayer = new TOMLayer(executionManager, this, recoverer, acceptor, proposer, cs, SVController, verifier);
 
         executionManager.setTOMLayer(tomLayer);
 
@@ -487,6 +488,7 @@ public class ServiceReplica {
         cs.setRequestReceiver(tomLayer);
 
         acceptor.setTOMLayer(tomLayer);
+        proposer.setTOMLayer(tomLayer);
 
         if (SVController.getStaticConf().isShutdownHookEnabled()) {
             Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(tomLayer));

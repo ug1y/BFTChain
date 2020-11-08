@@ -56,6 +56,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import bftsmart.consensus.roles.NewAcceptor;
+import bftsmart.consensus.roles.Proposer;
 
 /**
  * This class implements the state machine replication protocol described in
@@ -71,6 +72,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
     //other components used by the TOMLayer (they are never changed)
     public ExecutionManager execManager; // Execution manager
     public NewAcceptor acceptor; // Acceptor role of the PaW algorithm
+    public Proposer proposer;
     private ServerCommunicationSystem communication; // Communication system between replicas
     //private OutOfContextMessageThread ot; // Thread which manages messages that do not belong to the current consensus
     private DeliveryThread dt; // Thread which delivers total ordered messages to the appication
@@ -138,6 +140,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
             ServiceReplica receiver,
             Recoverable recoverer,
             NewAcceptor a,
+            Proposer p,
             ServerCommunicationSystem cs,
             ServerViewController controller,
             RequestVerifier verifier) {
@@ -146,6 +149,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
 
         this.execManager = manager;
         this.acceptor = a;
+        this.proposer = p;
         this.communication = cs;
         this.controller = controller;
         
