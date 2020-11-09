@@ -7,7 +7,7 @@ public class NewConsensusMessageTest {
         byte[] b = new byte[2];
         b[0] = 0x0;
         b[1] = 0xf;
-        NewConsensusMessage p = f.createPROPOSE(b, 2, 11, "no vote here");
+        NewConsensusMessage p = f.createPROPOSE(b, 2, 1, 11, "no vote here");
         System.out.println("propose message in origin = " + p.toString());
         return p;
     }
@@ -15,7 +15,7 @@ public class NewConsensusMessageTest {
     public void testResponse(NewConsensusMessage m) {
         System.out.println("received message = " + m.toString());
         NewMessageFactory f = new NewMessageFactory(1);
-        NewConsensusMessage v = f.createVOTE(2, 12);
+        NewConsensusMessage v = f.createVOTE(2, 12, 1);
         System.out.println("vote message in origin = " + v.toString());
     }
     /**
