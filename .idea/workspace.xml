@@ -21,6 +21,9 @@
     <expand />
     <select />
   </component>
+  <component name="Git.Settings">
+    <option name="UPDATE_TYPE" value="MERGE" />
+  </component>
   <component name="ProjectId" id="1jXcIQTTli477clBLVYqyyQOPAO" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -95,6 +98,10 @@
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="744" y="423" width="488" height="258" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/67.27.1853.1053@67.27.1853.1053" timestamp="1603957878722" />
+    <state x="437" y="39" width="860" height="843" key="CommitChangelistDialog2" timestamp="1604889861486">
+      <screen x="67" y="27" width="1611" height="869" />
+    </state>
+    <state x="437" y="39" width="860" height="843" key="CommitChangelistDialog2/67.27.1611.869@67.27.1611.869" timestamp="1604889861486" />
     <state x="707" y="254" key="SettingsEditor" timestamp="1603958065620">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
@@ -103,6 +110,10 @@
       <screen x="67" y="27" width="1851" height="861" />
     </state>
     <state x="648" y="285" key="com.intellij.ide.util.TipDialog/67.27.1851.861@67.27.1851.861" timestamp="1603953941998" />
+    <state x="640" y="380" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1604889884082">
+      <screen x="67" y="27" width="1611" height="869" />
+    </state>
+    <state x="640" y="380" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/67.27.1611.869@67.27.1611.869" timestamp="1604889884082" />
     <state x="656" y="205" key="run.anything.popup" timestamp="1604211353960">
       <screen x="67" y="27" width="1851" height="861" />
     </state>
