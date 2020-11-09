@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7e9156b9-c954-4ff8-a4a1-622cf0e175ab" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/bftsmart/consensus/messages/ChainConsensusMessage.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/bftsmart/consensus/messages/ProposalMessage.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/bftsmart/consensus/messages/SyncMessage.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/bftsmart/consensus/messages/VoteMessage.java" afterDir="false" />
+    <list default="true" id="7e9156b9-c954-4ff8-a4a1-622cf0e175ab" name="Default Changelist" comment="添加blockchain结构，直接使用proposal消息来存储区块集合">
+      <change afterPath="$PROJECT_DIR$/src/bftsmart/consensus/Blockchain.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/BFTChain-master.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BFTChain-master.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/BFT-SMaRt.jar" beforeDir="false" afterPath="$PROJECT_DIR$/bin/BFT-SMaRt.jar" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,16 +46,16 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/lib/slf4j-api-1.7.25.jar!/" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="project.structure.last.edited" value="Modules" />
-    <property name="project.structure.proportion" value="0.0" />
-    <property name="project.structure.side.proportion" value="0.0" />
+    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="project.kotlinCompiler" />
   </component>
@@ -102,8 +98,17 @@
       <workItem from="1604839860479" duration="2597000" />
       <workItem from="1604889393924" duration="36000" />
       <workItem from="1604890571496" duration="65000" />
-      <workItem from="1604892670018" duration="1394000" />
+      <workItem from="1604892670018" duration="2225000" />
+      <workItem from="1604894977728" duration="292000" />
     </task>
+    <task id="LOCAL-00001" summary="重新设计了一下共识的消息结构">
+      <created>1604894123792</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1604894123792</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -122,6 +127,10 @@
       </map>
     </option>
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="重新设计了一下共识的消息结构" />
+    <option name="LAST_COMMIT_MESSAGE" value="重新设计了一下共识的消息结构" />
+  </component>
   <component name="WindowStateProjectService">
     <state x="451" y="210" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1603958147999">
       <screen x="67" y="27" width="1853" height="1053" />
@@ -139,18 +148,27 @@
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="744" y="423" width="488" height="258" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/67.27.1853.1053@67.27.1853.1053" timestamp="1603957878722" />
-    <state x="437" y="39" width="860" height="843" key="CommitChangelistDialog2" timestamp="1604894076106">
+    <state x="325" y="53" width="860" height="843" key="CommitChangelistDialog2" timestamp="1604895105930">
       <screen x="67" y="27" width="1611" height="869" />
     </state>
-    <state x="437" y="39" width="860" height="843" key="CommitChangelistDialog2/67.27.1611.869@67.27.1611.869" timestamp="1604894076106" />
-    <state x="623" y="51" width="1024" height="845" key="SettingsEditor" timestamp="1604892748049">
+    <state x="325" y="53" width="860" height="843" key="CommitChangelistDialog2/67.27.1611.869@67.27.1611.869" timestamp="1604895105930" />
+    <state x="793" y="193" width="735" height="513" key="FileChooserDialogImpl" timestamp="1604895005069">
       <screen x="67" y="27" width="1611" height="869" />
     </state>
-    <state x="623" y="51" width="1024" height="845" key="SettingsEditor/67.27.1611.869@67.27.1611.869" timestamp="1604892748049" />
+    <state x="793" y="193" width="735" height="513" key="FileChooserDialogImpl/67.27.1611.869@67.27.1611.869" timestamp="1604895005069" />
+    <state x="313" y="51" width="1024" height="845" key="SettingsEditor" timestamp="1604895007193">
+      <screen x="67" y="27" width="1611" height="869" />
+    </state>
+    <state x="313" y="51" width="1024" height="845" key="SettingsEditor/67.27.1611.869@67.27.1611.869" timestamp="1604895007193" />
     <state x="707" y="254" key="SettingsEditor/67.27.1853.1053@67.27.1853.1053" timestamp="1603958065620" />
-    <state x="648" y="285" key="com.intellij.ide.util.TipDialog" timestamp="1603953941998">
-      <screen x="67" y="27" width="1851" height="861" />
+    <state x="467" y="196" width="800" height="528" key="Vcs.Push.Dialog.v2" timestamp="1604894136105">
+      <screen x="67" y="27" width="1611" height="869" />
     </state>
+    <state x="467" y="196" width="800" height="528" key="Vcs.Push.Dialog.v2/67.27.1611.869@67.27.1611.869" timestamp="1604894136105" />
+    <state x="573" y="287" key="com.intellij.ide.util.TipDialog" timestamp="1604894978775">
+      <screen x="67" y="27" width="1611" height="869" />
+    </state>
+    <state x="573" y="287" key="com.intellij.ide.util.TipDialog/67.27.1611.869@67.27.1611.869" timestamp="1604894978775" />
     <state x="648" y="285" key="com.intellij.ide.util.TipDialog/67.27.1851.861@67.27.1851.861" timestamp="1603953941998" />
     <state x="640" y="380" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1604889884082">
       <screen x="67" y="27" width="1611" height="869" />
