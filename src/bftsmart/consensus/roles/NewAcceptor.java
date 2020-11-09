@@ -110,6 +110,7 @@ public final class NewAcceptor {
             case NewMessageFactory.VOTE:
                 voteReceived(epoch, msg);
                 break;
+        }
         consensus.lock.unlock();
     }
 
