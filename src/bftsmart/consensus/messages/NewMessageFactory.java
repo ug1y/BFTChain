@@ -30,7 +30,7 @@ public class NewMessageFactory{
      * @param epoch the epoch this message in
      * @return a PROPOSAL message
      */
-    public ProposalMessage createPROPOSAL(byte[] data, int prevHash,
+    public ProposalMessage createPROPOSAL(byte[] data, byte[] prevHash,
                                           Set<VoteMessage> votes,
                                           int viewNumber, int epoch) {
         return new ProposalMessage(data, prevHash, votes, PROPOSAL,
@@ -45,7 +45,7 @@ public class NewMessageFactory{
      * @param epoch the epoch this message in
      * @return a VOTE message
      */
-    public VoteMessage createVOTE(int blockHash,int viewNumber,
+    public VoteMessage createVOTE(byte[] blockHash,int viewNumber,
                                   int epoch) {
         return new VoteMessage(blockHash,VOTE,viewNumber, epoch,
                 this.from);

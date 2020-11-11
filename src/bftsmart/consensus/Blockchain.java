@@ -21,9 +21,8 @@ public class Blockchain {
         this.committedHeight = 0;
     }
 
-    public int getCurrentHash(){
-        return 0;
+    public byte[] getCurrentHash(){
+        return new byte[1];
     }
 
-    //no concrete methods due to not knowing the usage of Map and List
 }

@@ -56,7 +56,7 @@ public class NewProposer {
     public void startConsensus(int cid, byte[] data) {
         this.data = data;
         this.cid = cid;
-        ProposalMessage p = factory.createPROPOSAL(data, blockchain.getCurrentHash(),
+        ProposalMessage p = factory.createPROPOSAL(data, new byte[1], //blockchain.getCurrentHash(),
                 null, 0, cid);
         p.addSignature();
         communication.send(this.controller.getCurrentViewOtherAcceptors(), p);

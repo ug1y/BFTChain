@@ -94,7 +94,7 @@ public final class NewAcceptor {
 
     public void startConsensus(int cid) {
         this.cid = cid;
-        VoteMessage v = factory.createVOTE(blockchain.getCurrentHash(),
+        VoteMessage v = factory.createVOTE(new byte[1],//blockchain.getCurrentHash(),
                 0, cid);
         v.addSignature();
         int[] leader = new int[1];

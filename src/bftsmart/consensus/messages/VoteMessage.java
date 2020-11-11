@@ -7,11 +7,11 @@ import java.io.ObjectOutput;
 
 public class VoteMessage extends ChainConsensusMessage {
 
-    private int blockHash; // the hash value of voted block
+    private byte[] blockHash; // the hash value of voted block
     private int replicaID; // identify the replica
     private byte[] signature; // signed by the replica
 
-    public VoteMessage(int blockHash,int messageType,
+    public VoteMessage(byte[] blockHash,int messageType,
                        int viewNumber, int epoch, int from) {
         super(messageType, viewNumber, epoch, from);
 

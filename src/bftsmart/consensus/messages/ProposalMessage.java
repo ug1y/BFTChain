@@ -9,14 +9,14 @@ import java.util.Set;
 public class ProposalMessage extends ChainConsensusMessage {
 
     private byte[] data; // the data that the block contains
-    private int prevHash; // the hash value of the referred block
+    private byte[] prevHash; // the hash value of the referred block
     private Set<VoteMessage> votes; // the set of votes to prove this block valid
     private int leaderID; // identify the current leader
     private byte[] signature; // signed by the current leader
 
     private int index; // the height of the block (extra)
 
-    public ProposalMessage(byte[] data, int prevHash,
+    public ProposalMessage(byte[] data, byte[] prevHash,
                            Set<VoteMessage> votes, int messageType,
                            int viewNumber, int epoch, int from) {
         super(messageType, viewNumber, epoch, from);
@@ -52,7 +52,7 @@ public class ProposalMessage extends ChainConsensusMessage {
         return leaderID;
     }
 
-    public int getPrevHash() {
+    public byte[] getPrevHash() {
         return prevHash;
     }
 
@@ -71,12 +71,74 @@ public class ProposalMessage extends ChainConsensusMessage {
     // Implemented method of the Externalizable interface
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
+
         super.writeExternal(out);
+
+        out.writeInt(leaderID);
+
+        if(data == null) {
+            out.writeInt(-1);
+        } else {
+            out.writeInt(data.length);
+            out.write(data);
+        }
+
+        if(prevHash == null) {
+            out.writeInt(-1);
+        } else {
+            out.writeInt(prevHash.length);
+            out.write(prevHash);
+        }
+
+        if(signature == null) {
+            out.writeInt(-1);
+        } else {
+            out.writeInt(signature.length);
+            out.write(signature);
+        }
+
+        if(votes == null) {
+            out.writeBoolean(false);
+        } else {
+            out.writeObject(votes);
+        }
+
     }
 
     // Implemented method of the Externalizable interface
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+
         super.readExternal(in);
+
+        leaderID = in.readInt();
+
+        int len = in.readInt();
+        if(len != -1) {
+            data = new byte[len];
+            do{
+                len -= in.read(data, data.length-len, len);
+            }while(len > 0);
+        }
+
+        len = in.readInt();
+        if(len != -1) {
+            prevHash = new byte[len];
+            do{
+                len -= in.read(prevHash, prevHash.length-len, len);
+            }while(len > 0);
+        }
+
+        len = in.readInt();
+        if(len != -1) {
+            signature = new byte[len];
+            do{
+                len -= in.read(signature, signature.length-len, len);
+            }while(len > 0);
+        }
+
+        boolean toRead = in.readBoolean();
+        if(toRead)
+            votes = (Set<VoteMessage>)in.readObject();
     }
 }
