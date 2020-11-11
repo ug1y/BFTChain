@@ -56,7 +56,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import bftsmart.consensus.roles.NewAcceptor;
-import bftsmart.consensus.roles.Proposer;
+import bftsmart.consensus.roles.NewProposer;
 
 /**
  * This class implements the state machine replication protocol described in
@@ -72,7 +72,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
     //other components used by the TOMLayer (they are never changed)
     public ExecutionManager execManager; // Execution manager
     public NewAcceptor acceptor; // Acceptor role of the PaW algorithm
-    public Proposer proposer;
+    public NewProposer proposer;
     private ServerCommunicationSystem communication; // Communication system between replicas
     //private OutOfContextMessageThread ot; // Thread which manages messages that do not belong to the current consensus
     private DeliveryThread dt; // Thread which delivers total ordered messages to the appication
@@ -140,7 +140,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
             ServiceReplica receiver,
             Recoverable recoverer,
             NewAcceptor a,
-            Proposer p,
+            NewProposer p,
             ServerCommunicationSystem cs,
             ServerViewController controller,
             RequestVerifier verifier) {
@@ -406,19 +406,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
         logger.debug("Running."); // TODO: can't this be outside of the loop?
         while (doWork) {
 
-            // blocks until this replica learns to be the leader for the current epoch of the current consensus
-            leaderLock.lock();
-            logger.debug("Next leader for CID=" + (getLastExec() + 1) + ": " + execManager.getCurrentLeader());
 
-            //******* EDUARDO BEGIN **************//
-            if (execManager.getCurrentLeader() != this.controller.getStaticConf().getProcessId()) {
-                iAmLeader.awaitUninterruptibly();
-                //waitForPaxosToFinish();
-            }
-            //******* EDUARDO END **************//
-            leaderLock.unlock();
-            
-            if (!doWork) break;
 
             // blocks until the current consensus finishes
             proposeLock.lock();
@@ -428,60 +416,55 @@ public final class TOMLayer extends Thread implements RequestReceiver {
                 canPropose.awaitUninterruptibly();
             }
             proposeLock.unlock();
-            
-            if (!doWork) break;
 
-            logger.debug("I'm the leader.");
+            if (!doWork) break;
 
             // blocks until there are requests to be processed/ordered
             messagesLock.lock();
             if (!clientsManager.havePendingRequests() ||
-                    (controller.getStaticConf().getBatchTimeout() > -1 
+                    (controller.getStaticConf().getBatchTimeout() > -1
                     		&& clientsManager.countPendingRequests() < controller.getStaticConf().getMaxBatchSize())) {
-                
+
                 logger.debug("Waiting for enough requests");
                 haveMessages.awaitUninterruptibly();
                 logger.debug("Got enough requests");
             }
             messagesLock.unlock();
-            
+
             if (!doWork) break;
-            
+
             logger.debug("There are requests to be ordered. I will propose.");
 
 
-            if ((execManager.getCurrentLeader() == this.controller.getStaticConf().getProcessId()) && //I'm the leader
-                    (clientsManager.havePendingRequests()) && //there are messages to be ordered
+            if ((clientsManager.havePendingRequests()) && //there are messages to be ordered
                     (getInExec() == -1)) { //there is no consensus in execution
 
                 // Sets the current consensus
                 int execId = getLastExec() + 1;
-                setInExec(execId);
 
                 Decision dec = execManager.getConsensus(execId).getDecision();
 
-                // Bypass protocol if service is not replicated
-                if (controller.getCurrentViewN() == 1) {
+                // blocks until this replica learns to be the leader for the current epoch of the current consensus
+                leaderLock.lock();
+                logger.debug("Next leader for CID=" + (getLastExec() + 1) + ": " + execManager.getCurrentLeader());
 
-                    logger.debug("Only one replica, bypassing consensus.");
-                    
-                    byte[] value = createPropose(dec);
-
-                    Consensus consensus = execManager.getConsensus(dec.getConsensusId());
-                    Epoch epoch = consensus.getEpoch(0, controller);
-                    epoch.propValue = value;
-                    epoch.propValueHash = computeHash(value);
-                    epoch.getConsensus().addWritten(value);
-                    epoch.deserializedPropValue = checkProposedValue(value, true);
-                    epoch.getConsensus().getDecision().firstMessageProposed = epoch.deserializedPropValue[0];
-                    dec.setDecisionEpoch(epoch);
-
-                    //System.out.println("ESTOU AQUI!");
-                    dt.delivery(dec);
-                    continue;
-
+                //******* EDUARDO BEGIN **************//
+                if (execManager.getCurrentLeader() != this.controller.getStaticConf().getProcessId()) {
+                    execManager.getAcceptor().startConsensus(execId);
+                    logger.info("I'm a follower, I'm going to start cid {}", execId);
+                    iAmLeader.awaitUninterruptibly();
+                    //waitForPaxosToFinish();
                 }
-                execManager.getProposer().startConsensus(execId, createPropose(dec));
+                //******* EDUARDO END **************//
+                leaderLock.unlock();
+
+                if (!doWork) break;
+
+                if(execManager.getCurrentLeader() == this.controller.getStaticConf().getProcessId()){
+                    setInExec(execId);
+                    execManager.getProposer().startConsensus(execId, createPropose(dec));
+                    logger.info("I'm the leader, I'm going to start cid {}", execId);
+                }
             }
         }
         logger.info("TOMLayer stopped.");

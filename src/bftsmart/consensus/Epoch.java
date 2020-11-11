@@ -28,6 +28,7 @@ import bftsmart.reconfiguration.views.View;
 import bftsmart.tom.core.messages.TOMMessage;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import bftsmart.consensus.messages.VoteMessage;
 
 
 /**
@@ -46,6 +47,7 @@ public class Epoch implements Serializable {
     private boolean[] voteSetted;
     private byte[][] write; // WRITE values from other processes
     private byte[][] accept; // accepted values from other processes
+    private Set<VoteMessage> votes;
     private boolean writeSent;
     private boolean acceptSent;
     private boolean acceptCreated;
@@ -91,6 +93,7 @@ public class Epoch implements Serializable {
 
         Arrays.fill(writeSetted, false);
         Arrays.fill(acceptSetted, false);
+        votes = new HashSet<VoteMessage>();
 
         writeSent = false;
         acceptSent = false;
@@ -356,13 +359,14 @@ public class Epoch implements Serializable {
      * add a count of VOTE to this acceptor
      * @param acceptor the acceptor of current leader
      */
-    public void setVote(int acceptor) { // TODO: add viewnumber or some identification else
+    public void setVote(int acceptor, VoteMessage msg) { // TODO: add viewnumber or some identification else
 
         updateArrays();
 
         //******* EDUARDO BEGIN **************//
         int p = this.controller.getCurrentViewPos(acceptor);
         if (p >= 0) { //it can only be setted once
+            votes.add(msg);
             voteSetted[p] = true;
         }
         //******* EDUARDO END **************//
@@ -381,7 +385,11 @@ public class Epoch implements Serializable {
         }
         return counter;
     }
-    
+
+    public Set<VoteMessage> getVotes() {
+        return votes;
+    }
+
     /**
      * Indicate that the consensus instance already sent its WRITE message
      */

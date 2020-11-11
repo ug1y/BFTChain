@@ -186,7 +186,7 @@ public class NewConsensusMessage extends SystemMessage {
      * @return message type
      */
     public String getMessageVerboseType() {
-        if (messageType == NewMessageFactory.PROPOSE)
+        if (messageType == NewMessageFactory.PROPOSAL)
             return "PROPOSE";
         else if (messageType == NewMessageFactory.VOTE)
             return "VOTE";

@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import bftsmart.consensus.messages.NewConsensusMessage;
 import bftsmart.consensus.roles.NewAcceptor;
+import bftsmart.consensus.roles.NewProposer;
 
 /**
  * This class manages consensus instances. It can have several epochs if
@@ -52,7 +53,7 @@ public final class ExecutionManager {
 
     private ServerViewController controller;
     private NewAcceptor acceptor; // Acceptor role of the PaW algorithm
-    private Proposer proposer; // Proposer role of the PaW algorithm
+    private NewProposer proposer; // Proposer role of the PaW algorithm
     //******* EDUARDO BEGIN: now these variables are all concentrated in the Reconfigurationmanager **************//
     //private int me; // This process ID
     //private int[] acceptors; // Process ID's of all replicas, including this one
@@ -95,7 +96,7 @@ public final class ExecutionManager {
      * @param me This process ID
      */
     public ExecutionManager(ServerViewController controller, NewAcceptor acceptor,
-            Proposer proposer, int me) {
+            NewProposer proposer, int me) {
         //******* EDUARDO BEGIN **************//
         this.controller = controller;
         this.acceptor = acceptor;
@@ -156,7 +157,7 @@ public final class ExecutionManager {
         return acceptor;
     }
 
-    public Proposer getProposer() {
+    public NewProposer getProposer() {
         return proposer;
     }
 

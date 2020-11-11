@@ -27,9 +27,11 @@ import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.leaderchange.LCMessage;
 import bftsmart.tom.util.TOMUtil;
 
-///
-import bftsmart.consensus.messages.NewConsensusMessage;
+
+import bftsmart.consensus.messages.ChainConsensusMessage;
+import bftsmart.consensus.messages.NewMessageFactory;
 import bftsmart.consensus.roles.NewAcceptor;
+import bftsmart.consensus.roles.NewProposer;
 ///
 /**
  *
@@ -40,12 +42,17 @@ public class MessageHandler {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private NewAcceptor acceptor;
+	private NewProposer proposer;
 	private TOMLayer tomLayer;
 
 	public MessageHandler() {}
 
 	public void setAcceptor(NewAcceptor acceptor) {
 		this.acceptor = acceptor;
+	}
+
+	public void setProposer(NewProposer proposer) {
+		this.proposer = proposer;
 	}
 
 	public void setTOMLayer(TOMLayer tomLayer) {
@@ -55,21 +62,32 @@ public class MessageHandler {
 	@SuppressWarnings("unchecked")
 	protected void processData(SystemMessage sm) {
 		///
-		if (sm instanceof NewConsensusMessage) {
-			NewConsensusMessage consMsg = (NewConsensusMessage) sm;
-			acceptor.deliver(consMsg);
+		if (sm instanceof ChainConsensusMessage) {
+			ChainConsensusMessage consMsg = (ChainConsensusMessage) sm;
+			logger.info("receiving a {} message", consMsg.getMessageType());
+			switch (consMsg.getMessageType()) {
+				case NewMessageFactory.PROPOSAL:
+					acceptor.deliver(consMsg);
+					break;
+				case NewMessageFactory.VOTE:
+					proposer.deliver(consMsg);
+					break;
+				case NewMessageFactory.SYNC:
+					acceptor.deliver(consMsg);
+					break;
+			}
 		}else
 		///
 		if (sm instanceof ConsensusMessage) {
 
-			int myId = tomLayer.controller.getStaticConf().getProcessId();
-
-			NewConsensusMessage consMsg = (NewConsensusMessage) sm;
-
+//			int myId = tomLayer.controller.getStaticConf().getProcessId();
+//
+//			ConsensusMessage consMsg = (ConsensusMessage) sm;
+//
 //			if (consMsg.authenticated || consMsg.getSender() == myId)
-				acceptor.deliver(consMsg);
+//				acceptor.deliver(consMsg);
 //			else {
-//				logger.warn("Discarding unauthenticated message from " + sm.getSender());
+				logger.warn("Discarding unauthenticated message from " + sm.getSender());
 //			}
 
 		} else {

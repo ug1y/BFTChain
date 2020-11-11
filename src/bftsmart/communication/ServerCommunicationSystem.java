@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import bftsmart.consensus.roles.NewAcceptor;
+import bftsmart.consensus.roles.NewProposer;
 
 /**
  *
@@ -87,6 +88,10 @@ public class ServerCommunicationSystem extends Thread {
     //******* EDUARDO END **************//
     public void setAcceptor(NewAcceptor acceptor) {
         messageHandler.setAcceptor(acceptor);
+    }
+
+    public void setProposer(NewProposer proposer) {
+        messageHandler.setProposer(proposer);
     }
 
     public void setTOMLayer(TOMLayer tomLayer) {

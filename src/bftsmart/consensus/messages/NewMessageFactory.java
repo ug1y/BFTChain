@@ -2,17 +2,14 @@ package bftsmart.consensus.messages;
 /**
  * This class work as a factory of messages used in the new protocol.
  */
-import bftsmart.consensus.blockchain.Block;
+import java.util.Set;
 
 public class NewMessageFactory{
 
     //constants for messages types
-    public static final int PROPOSE     = 1110;
+    public static final int PROPOSAL    = 1110;
     public static final int VOTE        = 1111;
     public static final int SYNC        = 1112;
-//    public static final int VIEWCHANGE  = 1113;
-//    public static final int NEWVIEW     = 1114;
-//    in wrong place
     private int from; //Replica ID of the process that send the message
 
     /**
@@ -24,81 +21,44 @@ public class NewMessageFactory{
     }
 
     /**
-     * Creates a PROPOSE message to be sent by this process
-     * @param data The proposal
-     * @param viewNumber The view which in
-     * @param hashValue The hash value of the previous block
-     * @param setofvotes The votes voted for previous block
-     * @return A message of PROPOSE type, with proper info
+     * create a PROPOSAL message
+     * @param data the data to propose
+     * @param prevHash the hash of previous block
+     * @param votes the votes voted for previous block
+     * @param signature the signature of current leader for this message
+     * @param viewNumber the view this message in
+     * @param epoch the epoch this message in
+     * @return a PROPOSAL message
      */
-    public NewConsensusMessage createPROPOSE(byte[] data, int viewNumber, int hashValue,
-                                             int epoch, Object setofvotes){
-        NewConsensusMessage m = new NewConsensusMessage(PROPOSE, viewNumber, epoch, from);
-        m.setData(data);
-        m.setHashValue(hashValue);
-        m.setSetofProof(setofvotes);
-        return m;
+    public ProposalMessage createPROPOSAL(byte[] data, int prevHash,
+                                          Set<VoteMessage> votes,
+                                          int viewNumber, int epoch) {
+        return new ProposalMessage(data, prevHash, votes, PROPOSAL,
+                viewNumber, epoch, this.from);
     }
 
     /**
-     * Creates a VOTE message to be sent by this process
-     * @param viewNumber The view which in
-     * @param hashValue The hash of the block voted for
-     * @return A message of VOTE type, with proper info
+     * create a VOTE message
+     * @param blockHash the hash of the block which is voted for
+     * @param signature the signature of this replica for this message
+     * @param viewNumber the view this message in
+     * @param epoch the epoch this message in
+     * @return a VOTE message
      */
-    public NewConsensusMessage createVOTE(int viewNumber, int hashValue, int epoch){
-        NewConsensusMessage m = new NewConsensusMessage(VOTE, viewNumber, epoch, from);
-        m.setHashValue(hashValue);
-        return m;
+    public VoteMessage createVOTE(int blockHash,int viewNumber,
+                                  int epoch) {
+        return new VoteMessage(blockHash,VOTE,viewNumber, epoch,
+                this.from);
     }
 
     /**
-     * Creates a SYMC message to be sent by this process
-     * @param viewNumber The view which in
-     * @param newMessage The proposal message which persuading for referred to
-     * @return A message of SYNC type, with proper info
+     * create a SYNC message
+     * @param msg the proposal message which trigger the voting
+     * @param viewNumber the view this message in
+     * @param epoch the epoch this message in
+     * @return a SYNC message
      */
-    public NewConsensusMessage createSYNC(int viewNumber, Object newMessage, int epoch){
-        NewConsensusMessage m = new NewConsensusMessage(SYNC, viewNumber, epoch, from);
-        m.setNewMessage(newMessage);
-        return m;
+    public SyncMessage createSYNC(ProposalMessage msg, int viewNumber, int epoch) {
+        return new SyncMessage(msg, SYNC, viewNumber, epoch, this.from);
     }
-
-    /**
-     * create a PROPOSE via exist block
-     * @param block which store necessary infos
-     * @return the PROPOSE message accroding to the block
-     */
-    public NewConsensusMessage getPROPOSE(Block block) {
-        NewConsensusMessage m = new NewConsensusMessage(PROPOSE,
-                block.getViewNumber(), block.getEpoch(), from);
-        m.setData(block.getData());
-        m.setHashValue(block.getHashValue());
-        m.setSetofProof(block.getSetofProof());
-        return m;
-    }
-//in wrong place
-//    /**
-//     * Creates a VIEWCHANGE message to be sent by this process
-//     * @param viewNumber The new view number (v+1)
-//     * @param hashValue The hash value of the last block that this process vote for
-//     * @return A message of VIEWCHANGE type, with proper info
-//     */
-//    public NewConsensusMessage createVIEWCHANGE(int viewNumber, int hashValue){
-//        NewConsensusMessage m = new NewConsensusMessage(VIEWCHANGE, viewNumber, from);
-//        m.setHashValue(hashValue);
-//        return m;
-//    }
-//
-//    /**
-//     * Creates a NEWVIEW message to be sent by this process
-//     * @param viewNumber The new view number (v+1)
-//     * @param setofviewchange The VIEWCHANGE messages in previous view
-//     * @return
-//     */
-//    public NewConsensusMessage createNEWVIEW(int viewNumber, Object setofviewchange){
-//        NewConsensusMessage m = new NewConsensusMessage(NEWVIEW, viewNumber, from);
-//        m.setSetofProof(setofviewchange);
-//        return m;
-//    }
 }

@@ -185,7 +185,7 @@ public class ServerConnection {
     	if (useSenderThread) {
 			// only enqueue messages if there queue is not full
 			if (!outQueue.offer(data)) {
-				logger.debug("Out queue for " + remoteId + " full (message discarded).");
+				logger.info("Out queue for " + remoteId + " full (message discarded).");
 			}
 		} else {
 			sendLock.lock();
