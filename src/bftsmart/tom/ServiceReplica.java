@@ -468,6 +468,7 @@ public class ServiceReplica {
         NewMessageFactory messageFactory = new NewMessageFactory(id);
 
         Blockchain blockchain = new Blockchain();
+        blockchain.initBlockchain();
 
         NewAcceptor acceptor = new NewAcceptor(cs, messageFactory, SVController, blockchain);
         cs.setAcceptor(acceptor);

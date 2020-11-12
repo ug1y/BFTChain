@@ -82,20 +82,24 @@ public final class NewAcceptor {
      * @param msg the message delivered by communication layer
      */
     public final void deliver(ChainConsensusMessage msg) {
-        if (true) {//executionManager.checkLimits(msg)) {
+        if (msg.getViewNumber() >= blockchain.getCurrentHeight()) {//executionManager.checkLimits(msg)) {
             logger.debug("Processing msg in view {}", msg.getViewNumber());
             processMessage(msg);
         }
         else {
-            logger.debug("Out of context msg in view {}", msg.getViewNumber());
+            logger.info("Out of context msg in view {}", msg.getViewNumber());
             tomLayer.processOutOfContext();
         }
     }
 
+    /**
+     * start a consensus by follower's voting
+     * @param cid
+     */
     public void startConsensus(int cid) {
         this.cid = cid;
         VoteMessage v = factory.createVOTE(new byte[1],//blockchain.getCurrentHash(),
-                0, cid);
+                cid, cid);
         v.addSignature();
         int[] leader = new int[1];
         leader[0] = executionManager.getCurrentLeader();
@@ -112,11 +116,10 @@ public final class NewAcceptor {
         Consensus consensus = executionManager.getConsensus(msg.getEpoch());
         consensus.lock.lock();
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
-        logger.info("message = " + msg.toString());
+//        logger.info("message = " + msg.toString());
         switch (msg.getMessageType()) {
             case NewMessageFactory.PROPOSAL:
-                startConsensus(msg.getEpoch());
-//                proposalReceived(epoch, (ProposalMessage)msg);
+                proposalReceived(epoch, (ProposalMessage)msg);
                 break;
             case NewMessageFactory.SYNC:
                 syncReceived(epoch, (SyncMessage)msg);
@@ -129,8 +132,7 @@ public final class NewAcceptor {
 
 
     /**
-     * called when a PROPOSE message is received, which checking whether it's
-     * from current leader, if so, then call executePropose to execute
+     * called when a PROPOSE message is received
      * @param epoch
      * @param msg the PROPOSE message
      */
@@ -139,7 +141,8 @@ public final class NewAcceptor {
         logger.info("PROPOSAL received from:{}, for consensus cId:{}",
                 msg.getSender(), cid);
         if (checkPROPOSAL(msg)) {
-            decide(epoch, msg);
+            blockchain.addBlock(msg);
+            decide(msg);
         } else {
             logger.info("PROPOSAL invalid.");
         }
@@ -157,6 +160,11 @@ public final class NewAcceptor {
         return false;
     }
 
+    /**
+     * called when a SYNC message is received
+     * @param epoch
+     * @param msg
+     */
     public void syncReceived(Epoch epoch, SyncMessage msg) {
         int cid = epoch.getConsensus().getId();
         logger.debug("SYNC received from:{}, for consensus cId:{}",
@@ -168,6 +176,11 @@ public final class NewAcceptor {
         }
     }
 
+    /**
+     * check whether a SYNC message is valid
+     * @param msg the SYNC message
+     * @return valid(true) or not(false)
+     */
     private boolean checkSYNC(SyncMessage msg) {
         return true;
     }
@@ -177,8 +190,9 @@ public final class NewAcceptor {
      * decide the consensus through message and send this to the client
      * @param msg which to be sent
      */
-    private void decide(Epoch epoch, ProposalMessage msg) {
+    private void decide(ProposalMessage msg) {
         Consensus consensus = executionManager.getConsensus(msg.getEpoch());
+        Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
         byte[] value = msg.getData();
         epoch.propValue = value;
         epoch.deserializedPropValue = tomLayer.checkProposedValue(value, true);

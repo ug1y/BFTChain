@@ -8,6 +8,11 @@ public class SyncMessage extends ChainConsensusMessage {
 
     private ProposalMessage msg; // the block that needs to sync
 
+    /**
+     * to avoid EOFException in Serializable
+     */
+    public SyncMessage(){}
+
     public SyncMessage(ProposalMessage msg, int messageType, int viewNumber,
                        int epoch, int from) {
         super(messageType, viewNumber, epoch, from);

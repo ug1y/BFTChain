@@ -124,7 +124,7 @@ public class ServerCommunicationSystem extends Thread {
                     logger.debug("<-- receiving, msg:" + sm);
                     messageHandler.processData(sm);
                     count++;
-                } else {                
+                } else {
                     messageHandler.verifyPending();               
                 }
             } catch (InterruptedException e) {

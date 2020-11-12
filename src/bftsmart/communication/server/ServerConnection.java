@@ -425,6 +425,8 @@ public class ServerConnection {
 						logger.info("Invalid message received. Ignoring!");
 					} catch (IOException ex) {
 						if (doWork) {
+//							logger.info("an EOFException:");
+//							ex.printStackTrace();
 							logger.debug("Closing socket and reconnecting");
 							closeSocket();
 							waitAndConnect();

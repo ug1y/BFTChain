@@ -406,8 +406,6 @@ public final class TOMLayer extends Thread implements RequestReceiver {
         logger.debug("Running."); // TODO: can't this be outside of the loop?
         while (doWork) {
 
-
-
             // blocks until the current consensus finishes
             proposeLock.lock();
 
@@ -435,39 +433,26 @@ public final class TOMLayer extends Thread implements RequestReceiver {
 
             logger.debug("There are requests to be ordered. I will propose.");
 
-
             if ((clientsManager.havePendingRequests()) && //there are messages to be ordered
                     (getInExec() == -1)) { //there is no consensus in execution
 
-                // Sets the current consensus
-                int execId = getLastExec() + 1;
-                setInExec(execId);
-                Decision dec = execManager.getConsensus(execId).getDecision();
-                execManager.getAcceptor().startConsensus(execId);
-                logger.info("I'm a follower, I'm going to start cid {}", execId);
-            }
-
-            // blocks until this replica learns to be the leader for the current epoch of the current consensus
-            leaderLock.lock();
-            logger.debug("Next leader for CID=" + (getLastExec() + 1) + ": " + execManager.getCurrentLeader());
-
-            //******* EDUARDO BEGIN **************//
-            if (execManager.getCurrentLeader() != this.controller.getStaticConf().getProcessId()) {
-                iAmLeader.awaitUninterruptibly();
-                //waitForPaxosToFinish();
-            }
-            //******* EDUARDO END **************//
-            leaderLock.unlock();
-
-            if (!doWork) break;
-            if ((execManager.getCurrentLeader() == this.controller.getStaticConf().getProcessId()) &&
-                    (clientsManager.havePendingRequests()) && //there are messages to be ordered
-                    (getInExec() == -1)) { //there is no consensus in execution
-                int execId = getLastExec() + 1;
-                Decision dec = execManager.getConsensus(execId).getDecision();
-                setInExec(execId);
-                execManager.getProposer().startConsensus(execId, createPropose(dec));
-                logger.info("I'm the leader, I'm going to start cid {}", execId);
+                if (execManager.getCurrentLeader() == this.controller.getStaticConf().getProcessId()) {// leader
+                    int execId = getLastExec() + 1;
+                    setInExec(execId);
+                    Decision dec = execManager.getConsensus(execId).getDecision();
+                    execManager.getProposer().startConsensus(execId, createPropose(dec));
+                    logger.info("I'm the leader, I'm going to start cid {} with data", execId);
+                    execManager.getAcceptor().startConsensus(execId);// leader's acceptor
+                    logger.info("I'm a follower, I'm going to start cid {}", execId);
+                }
+                else {
+                    // other followers
+                    int execId = getLastExec() + 1;
+                    setInExec(execId);
+                    Decision dec = execManager.getConsensus(execId).getDecision();
+                    execManager.getAcceptor().startConsensus(execId);
+                    logger.info("I'm a follower, I'm going to start cid {}", execId);
+                }
             }
         }
         logger.info("TOMLayer stopped.");

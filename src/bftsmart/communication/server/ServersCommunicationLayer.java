@@ -339,7 +339,7 @@ public class ServersCommunicationLayer extends Thread {
                     pendingConn.add(new PendingConnection(newSocket, remoteId));
                     waitViewLock.unlock();
                 } else {
-					logger.info("Trying establish connection with Replica: {}", remoteId);
+					logger.debug("Trying establish connection with Replica: {}", remoteId);
                     establishConnection(newSocket, remoteId);
                 }
                 //******* EDUARDO END **************//
@@ -373,7 +373,7 @@ public class ServersCommunicationLayer extends Thread {
                 			new ServerConnection(controller, newSocket, remoteId, inQueue, replica));
             } else {
                 //reconnection	
-            	logger.info("ReConnecting with replica: {}", remoteId);
+            	logger.debug("ReConnecting with replica: {}", remoteId);
                 this.connections.get(remoteId).reconnect(newSocket);
             }
             connectionsLock.unlock();

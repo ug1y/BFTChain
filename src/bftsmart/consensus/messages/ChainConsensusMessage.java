@@ -13,6 +13,11 @@ public abstract class ChainConsensusMessage extends SystemMessage {
     protected int viewNumber; // the view number that this message created in
     protected int epoch; // epoch to which this message belongs to
 
+    /**
+     * to avoid EOFException in Serializable
+     */
+    public ChainConsensusMessage(){}
+
     public ChainConsensusMessage(int messageType, int viewNumber, int epoch,
                                  int from) {
         super(from);

@@ -13,8 +13,12 @@ public class ProposalMessage extends ChainConsensusMessage {
     private Set<VoteMessage> votes; // the set of votes to prove this block valid
     private int leaderID; // identify the current leader
     private byte[] signature; // signed by the current leader
-
     private int index; // the height of the block (extra)
+
+    /**
+     * to avoid EOFException in Serializable
+     */
+    public ProposalMessage(){}
 
     public ProposalMessage(byte[] data, byte[] prevHash,
                            Set<VoteMessage> votes, int messageType,
@@ -25,11 +29,10 @@ public class ProposalMessage extends ChainConsensusMessage {
         this.prevHash = prevHash;
         this.votes = votes;
         this.leaderID = from;
-
     }
 
     public void addSignature() {
-        this.signature = null;
+//        this.signature = null;
     }
 
     public boolean verifySignature() {
@@ -54,6 +57,10 @@ public class ProposalMessage extends ChainConsensusMessage {
 
     public byte[] getPrevHash() {
         return prevHash;
+    }
+
+    public byte[] getHash() {
+        return new byte[1024];
     }
 
     @Override
@@ -97,11 +104,11 @@ public class ProposalMessage extends ChainConsensusMessage {
             out.write(signature);
         }
 
-        if(votes == null) {
-            out.writeBoolean(false);
-        } else {
-            out.writeObject(votes);
-        }
+//        if(votes == null) {
+//            out.writeBoolean(false);
+//        } else {
+//            out.writeObject(votes);
+//        }
 
     }
 
@@ -137,8 +144,8 @@ public class ProposalMessage extends ChainConsensusMessage {
             }while(len > 0);
         }
 
-        boolean toRead = in.readBoolean();
-        if(toRead)
-            votes = (Set<VoteMessage>)in.readObject();
+//        boolean toRead = in.readBoolean();
+//        if(toRead)
+//            votes = (Set<VoteMessage>)in.readObject();
     }
 }
