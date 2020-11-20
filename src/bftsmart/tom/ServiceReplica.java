@@ -23,9 +23,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import bftsmart.communication.ServerCommunicationSystem;
 import bftsmart.tom.core.ExecutionManager;
-import bftsmart.consensus.messages.MessageFactory;
-import bftsmart.consensus.roles.Acceptor;
-import bftsmart.consensus.roles.Proposer;
 import bftsmart.reconfiguration.ReconfigureReply;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.reconfiguration.VMMessage;
@@ -50,11 +47,12 @@ import java.security.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import bftsmart.consensus.messages.NewMessageFactory;
-import bftsmart.consensus.roles.NewAcceptor;
-import bftsmart.consensus.roles.NewProposer;
+///
+import bftsmart.consensus.chainmessages.ChainMessageFactory;
+import bftsmart.consensus.chainroles.ChainAcceptor;
+import bftsmart.consensus.chainroles.ChainProposer;
 import bftsmart.consensus.Blockchain;
-
+///
 /**
  * This class receives messages from DeliveryThread and manages the execution
  * from the application and reply to the clients. For applications where the
@@ -464,24 +462,40 @@ public class ServiceReplica {
             throw new RuntimeException("I'm not an acceptor!");
         }
 
+        /*
         // Assemble the total order messaging layer
-        NewMessageFactory messageFactory = new NewMessageFactory(id);
+        MessageFactory messageFactory = new MessageFactory(id);
 
-        Blockchain blockchain = new Blockchain();
-        blockchain.initBlockchain();
-
-        NewAcceptor acceptor = new NewAcceptor(cs, messageFactory, SVController, blockchain);
+        Acceptor acceptor = new Acceptor(cs, messageFactory, SVController);
         cs.setAcceptor(acceptor);
 
-        NewProposer proposer = new NewProposer(cs, messageFactory, SVController, blockchain);
-        cs.setProposer(proposer);
+        Proposer proposer = new Proposer(cs, messageFactory, SVController);
 
         ExecutionManager executionManager = new ExecutionManager(SVController, acceptor, proposer, id);
 
         acceptor.setExecutionManager(executionManager);
-        proposer.setExecutionManager(executionManager);
 
         tomLayer = new TOMLayer(executionManager, this, recoverer, acceptor, proposer, cs, SVController, verifier);
+        */
+        ///
+        ChainMessageFactory chainMessageFactory = new ChainMessageFactory(id);
+
+        Blockchain blockchain = new Blockchain();
+        blockchain.initBlockchain();
+
+        ChainAcceptor chainAcceptor = new ChainAcceptor(cs, chainMessageFactory, SVController, blockchain);
+        cs.setChainAcceptor(chainAcceptor);
+
+        ChainProposer chainProposer = new ChainProposer(cs, chainMessageFactory, SVController, blockchain);
+        cs.setChainProposer(chainProposer);
+
+        ExecutionManager executionManager = new ExecutionManager(SVController, chainAcceptor, chainProposer, id);
+
+        chainAcceptor.setExecutionManager(executionManager);
+        chainProposer.setExecutionManager(executionManager);
+
+        tomLayer = new TOMLayer(executionManager, this, recoverer, chainAcceptor, chainProposer, cs, SVController, verifier);
+        ///
 
         executionManager.setTOMLayer(tomLayer);
 
@@ -490,8 +504,11 @@ public class ServiceReplica {
         cs.setTOMLayer(tomLayer);
         cs.setRequestReceiver(tomLayer);
 
-        acceptor.setTOMLayer(tomLayer);
-        proposer.setTOMLayer(tomLayer);
+        /* acceptor.setTOMLayer(tomLayer); */
+        ///
+        chainAcceptor.setTOMLayer(tomLayer);
+        chainProposer.setTOMLayer(tomLayer);
+        ///
 
         if (SVController.getStaticConf().isShutdownHookEnabled()) {
             Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(tomLayer));

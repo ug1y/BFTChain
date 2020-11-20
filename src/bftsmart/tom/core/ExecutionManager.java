@@ -28,6 +28,7 @@ import java.util.TreeMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import bftsmart.consensus.Decision;
+import bftsmart.consensus.chainmessages.ChainConsensusMessage;
 import bftsmart.consensus.messages.MessageFactory;
 import bftsmart.consensus.messages.ConsensusMessage;
 import bftsmart.consensus.roles.Acceptor;
@@ -37,9 +38,8 @@ import bftsmart.reconfiguration.ServerViewController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import bftsmart.consensus.messages.NewConsensusMessage;
-import bftsmart.consensus.roles.NewAcceptor;
-import bftsmart.consensus.roles.NewProposer;
+import bftsmart.consensus.chainroles.ChainAcceptor;
+import bftsmart.consensus.chainroles.ChainProposer;
 
 /**
  * This class manages consensus instances. It can have several epochs if
@@ -52,8 +52,12 @@ public final class ExecutionManager {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private ServerViewController controller;
-    private NewAcceptor acceptor; // Acceptor role of the PaW algorithm
-    private NewProposer proposer; // Proposer role of the PaW algorithm
+    private Acceptor acceptor; // Acceptor role of the PaW algorithm
+    private Proposer proposer; // Proposer role of the PaW algorithm
+    ///
+    private ChainAcceptor chainAcceptor;
+    private ChainProposer chainProposer;
+    ///
     //******* EDUARDO BEGIN: now these variables are all concentrated in the Reconfigurationmanager **************//
     //private int me; // This process ID
     //private int[] acceptors; // Process ID's of all replicas, including this one
@@ -95,8 +99,8 @@ public final class ExecutionManager {
      * @param proposer Proposer role of the PaW algorithm
      * @param me This process ID
      */
-    public ExecutionManager(ServerViewController controller, NewAcceptor acceptor,
-            NewProposer proposer, int me) {
+    public ExecutionManager(ServerViewController controller, Acceptor acceptor,
+            Proposer proposer, int me) {
         //******* EDUARDO BEGIN **************//
         this.controller = controller;
         this.acceptor = acceptor;
@@ -110,6 +114,27 @@ public final class ExecutionManager {
         /******************************************************************/
         //******* EDUARDO END **************//
         
+        // Get initial leader
+        if (controller.getCurrentViewAcceptors().length > 0)
+            currentLeader = controller.getCurrentViewAcceptors()[0];
+        else currentLeader = 0;
+    }
+
+    public ExecutionManager(ServerViewController controller, ChainAcceptor chainAcceptor,
+                            ChainProposer chainProposer, int me) {
+        //******* EDUARDO BEGIN **************//
+        this.controller = controller;
+        this.chainAcceptor = chainAcceptor;
+        this.chainProposer = chainProposer;
+        //this.me = me;
+
+        this.paxosHighMark = this.controller.getStaticConf().getPaxosHighMark();
+        /** THIS IS JOAO'S CODE, TO HANDLE THE STATE TRANSFER */
+        this.revivalHighMark = this.controller.getStaticConf().getRevivalHighMark();
+        this.timeoutHighMark = this.controller.getStaticConf().getTimeoutHighMark();
+        /******************************************************************/
+        //******* EDUARDO END **************//
+
         // Get initial leader
         if (controller.getCurrentViewAcceptors().length > 0)
             currentLeader = controller.getCurrentViewAcceptors()[0];
@@ -153,14 +178,23 @@ public final class ExecutionManager {
      * Returns the acceptor role of the PaW algorithm
      * @return The acceptor role of the PaW algorithm
      */
-    public NewAcceptor getAcceptor() {
+    public Acceptor getAcceptor() {
         return acceptor;
     }
 
-    public NewProposer getProposer() {
+    public Proposer getProposer() {
         return proposer;
     }
 
+    ///
+    public ChainAcceptor getChainAcceptor() {
+        return chainAcceptor;
+    }
+
+    public ChainProposer getChainProposer() {
+        return chainProposer;
+    }
+    ///
     
     public boolean stopped() {
         return stopped;
@@ -205,7 +239,7 @@ public final class ExecutionManager {
         //process stopped messages
         while (!stoppedMsgs.isEmpty()) {
             ConsensusMessage pm = stoppedMsgs.remove();
-            if (pm.getNumber() > tomLayer.getLastExec()); ///acceptor.processMessage(pm);
+            if (pm.getNumber() > tomLayer.getLastExec()) acceptor.processMessage(pm);
         }
         stoppedMsgsLock.unlock();
         logger.debug("Finished stopped messages processing");
@@ -311,7 +345,7 @@ public final class ExecutionManager {
      * @param msg which is newConsensusMessage
      * @return true
      */
-    public final boolean checkLimits(NewConsensusMessage msg) {
+    public final boolean checkLimits(ChainConsensusMessage msg) {
         return true;
     }
 
@@ -450,7 +484,7 @@ public final class ExecutionManager {
         if (prop != null) {
             logger.debug("[Consensus " + consensus.getId()
                     + "] Processing out of context propose");
-///            acceptor.processMessage(prop);
+            acceptor.processMessage(prop);
         }
 
         /******* END OUTOFCONTEXT CRITICAL SECTION *******/
@@ -459,28 +493,28 @@ public final class ExecutionManager {
 
     public void processOutOfContext(Consensus consensus) {
         outOfContextLock.lock();
-//        /******* BEGIN OUTOFCONTEXT CRITICAL SECTION *******/
-//
-//        //then we have to put the pending paxos messages
-//        List<ConsensusMessage> messages = outOfContext.remove(consensus.getId());
-//        if (messages != null) {
-//            logger.debug("[Consensus " + consensus.getId()
-//                    + "] Processing other " + messages.size()
-//                    + " out of context messages.");
-//
-//            for (Iterator<ConsensusMessage> i = messages.iterator(); i.hasNext();) {
-//                acceptor.processMessage(i.next());
-//                if (consensus.isDecided()) {
-//                    logger.debug("Consensus "
-//                            + consensus.getId() + " decided.");
-//                    break;
-//                }
-//            }
-//            logger.debug("[Consensus " + consensus.getId()
-//                    + "] Finished out of context processing");
-//        }
-//
-//        /******* END OUTOFCONTEXT CRITICAL SECTION *******/
+        /******* BEGIN OUTOFCONTEXT CRITICAL SECTION *******/
+
+        //then we have to put the pending paxos messages
+        List<ConsensusMessage> messages = outOfContext.remove(consensus.getId());
+        if (messages != null) {
+            logger.debug("[Consensus " + consensus.getId()
+                    + "] Processing other " + messages.size()
+                    + " out of context messages.");
+
+            for (Iterator<ConsensusMessage> i = messages.iterator(); i.hasNext();) {
+                acceptor.processMessage(i.next());
+                if (consensus.isDecided()) {
+                    logger.debug("Consensus "
+                            + consensus.getId() + " decided.");
+                    break;
+                }
+            }
+            logger.debug("[Consensus " + consensus.getId()
+                    + "] Finished out of context processing");
+        }
+
+        /******* END OUTOFCONTEXT CRITICAL SECTION *******/
         outOfContextLock.unlock();
     }
 

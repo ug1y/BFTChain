@@ -27,11 +27,11 @@ import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.leaderchange.LCMessage;
 import bftsmart.tom.util.TOMUtil;
 
-
-import bftsmart.consensus.messages.ChainConsensusMessage;
-import bftsmart.consensus.messages.NewMessageFactory;
-import bftsmart.consensus.roles.NewAcceptor;
-import bftsmart.consensus.roles.NewProposer;
+///
+import bftsmart.consensus.chainmessages.ChainConsensusMessage;
+import bftsmart.consensus.chainmessages.ChainMessageFactory;
+import bftsmart.consensus.chainroles.ChainAcceptor;
+import bftsmart.consensus.chainroles.ChainProposer;
 ///
 /**
  *
@@ -41,20 +41,28 @@ public class MessageHandler {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private NewAcceptor acceptor;
-	private NewProposer proposer;
+	private Acceptor acceptor;
+	///
+	private ChainAcceptor chainAcceptor;
+	private ChainProposer chainProposer;
+	///
 	private TOMLayer tomLayer;
 
 	public MessageHandler() {}
 
-	public void setAcceptor(NewAcceptor acceptor) {
+	public void setAcceptor(Acceptor acceptor) {
 		this.acceptor = acceptor;
 	}
 
-	public void setProposer(NewProposer proposer) {
-		this.proposer = proposer;
+	///
+	public void setChainAcceptor(ChainAcceptor chainAcceptor) {
+		this.chainAcceptor = chainAcceptor;
 	}
 
+	public void setChainProposer(ChainProposer chainProposer) {
+		this.chainProposer = chainProposer;
+	}
+	///
 	public void setTOMLayer(TOMLayer tomLayer) {
 		this.tomLayer = tomLayer;
 	}
@@ -63,32 +71,32 @@ public class MessageHandler {
 	protected void processData(SystemMessage sm) {
 		///
 		if (sm instanceof ChainConsensusMessage) {
-			ChainConsensusMessage consMsg = (ChainConsensusMessage) sm;
-			logger.info("receiving a {} message", consMsg.getMessageType());
-			switch (consMsg.getMessageType()) {
-				case NewMessageFactory.PROPOSAL:
-					acceptor.deliver(consMsg);
+			ChainConsensusMessage ccMsg = (ChainConsensusMessage) sm;
+			logger.info("Received chain consensus message from replilca {}", ccMsg.getSender());
+			switch (ccMsg.getMessageType()) {
+				case ChainMessageFactory.PROPOSAL:
+					chainAcceptor.deliver(ccMsg);
 					break;
-				case NewMessageFactory.VOTE:
-					proposer.deliver(consMsg);
+				case ChainMessageFactory.VOTE:
+					chainProposer.deliver(ccMsg);
 					break;
-				case NewMessageFactory.SYNC:
-					acceptor.deliver(consMsg);
+				case ChainMessageFactory.SYNC:
+					chainAcceptor.deliver(ccMsg);
 					break;
 			}
 		}else
 		///
 		if (sm instanceof ConsensusMessage) {
 
-//			int myId = tomLayer.controller.getStaticConf().getProcessId();
-//
-//			ConsensusMessage consMsg = (ConsensusMessage) sm;
-//
-//			if (consMsg.authenticated || consMsg.getSender() == myId)
-//				acceptor.deliver(consMsg);
-//			else {
+			int myId = tomLayer.controller.getStaticConf().getProcessId();
+
+			ConsensusMessage consMsg = (ConsensusMessage) sm;
+
+			if (consMsg.authenticated || consMsg.getSender() == myId)
+				acceptor.deliver(consMsg);
+			else {
 				logger.warn("Discarding unauthenticated message from " + sm.getSender());
-//			}
+			}
 
 		} else {
 			if (sm.authenticated) {

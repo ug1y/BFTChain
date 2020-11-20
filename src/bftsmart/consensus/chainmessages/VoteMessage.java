@@ -1,4 +1,4 @@
-package bftsmart.consensus.messages;
+package bftsmart.consensus.chainmessages;
 
 
 import java.io.IOException;
@@ -16,9 +16,8 @@ public class VoteMessage extends ChainConsensusMessage {
      */
     public VoteMessage(){}
 
-    public VoteMessage(byte[] blockHash,int messageType,
-                       int viewNumber, int epoch, int from) {
-        super(messageType, viewNumber, epoch, from);
+    public VoteMessage(byte[] blockHash, int viewNumber, int epoch, int from) {
+        super(ChainMessageFactory.VOTE, viewNumber, epoch, from);
 
         this.blockHash = blockHash;
         this.replicaID = from;

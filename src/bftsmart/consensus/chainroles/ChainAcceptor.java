@@ -1,10 +1,5 @@
-package bftsmart.consensus.roles;
+package bftsmart.consensus.chainroles;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -17,22 +12,19 @@ import bftsmart.consensus.Epoch;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.tom.core.ExecutionManager;
 import bftsmart.tom.core.TOMLayer;
-import bftsmart.tom.core.messages.TOMMessage;
-import bftsmart.tom.util.TOMUtil;
 
-import bftsmart.communication.SystemMessage;
-import bftsmart.consensus.messages.ChainConsensusMessage;
-import bftsmart.consensus.messages.ProposalMessage;
-import bftsmart.consensus.messages.VoteMessage;
-import bftsmart.consensus.messages.SyncMessage;
-import bftsmart.consensus.messages.NewMessageFactory;
+import bftsmart.consensus.chainmessages.ChainConsensusMessage;
+import bftsmart.consensus.chainmessages.ProposalMessage;
+import bftsmart.consensus.chainmessages.VoteMessage;
+import bftsmart.consensus.chainmessages.SyncMessage;
+import bftsmart.consensus.chainmessages.ChainMessageFactory;
 import bftsmart.consensus.Blockchain;
 
-public final class NewAcceptor {
+public final class ChainAcceptor {
     private Logger logger = LoggerFactory.getLogger(this.getClass());// logger
     private int me; // This replica ID
     private ExecutionManager executionManager; // Execution manager of consensus's executions
-    private NewMessageFactory factory; // Factory for OUR messages
+    private ChainMessageFactory factory; // Factory for OUR messages
     private ServerCommunicationSystem communication; // Replicas comunication system
     private TOMLayer tomLayer; // TOM layer
     private ServerViewController controller;// ServerViewController
@@ -48,10 +40,10 @@ public final class NewAcceptor {
      * @param factory       Message factory for PaW messages
      * @param controller
      */
-    public NewAcceptor(ServerCommunicationSystem communication,
-                       NewMessageFactory factory,
-                       ServerViewController controller,
-                       Blockchain blockchain) {
+    public ChainAcceptor(ServerCommunicationSystem communication,
+                         ChainMessageFactory factory,
+                         ServerViewController controller,
+                         Blockchain blockchain) {
         this.communication = communication;
         this.me = controller.getStaticConf().getProcessId();
         this.factory = factory;
@@ -63,7 +55,7 @@ public final class NewAcceptor {
     /**
      * some get&set method for this class
      */
-    public NewMessageFactory getFactory() {
+    public ChainMessageFactory getFactory() {
         return factory;
     }
 
@@ -98,9 +90,9 @@ public final class NewAcceptor {
      */
     public void startConsensus(int cid) {
         this.cid = cid;
-        VoteMessage v = factory.createVOTE(new byte[1],//blockchain.getCurrentHash(),
-                cid, cid);
+        VoteMessage v = factory.createVOTE(blockchain.getCurrentHash(), cid, cid);
         v.addSignature();
+
         int[] leader = new int[1];
         leader[0] = executionManager.getCurrentLeader();
         communication.send(leader, v);
@@ -118,10 +110,10 @@ public final class NewAcceptor {
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
 //        logger.info("message = " + msg.toString());
         switch (msg.getMessageType()) {
-            case NewMessageFactory.PROPOSAL:
+            case ChainMessageFactory.PROPOSAL:
                 proposalReceived(epoch, (ProposalMessage)msg);
                 break;
-            case NewMessageFactory.SYNC:
+            case ChainMessageFactory.SYNC:
                 syncReceived(epoch, (SyncMessage)msg);
                 break;
             default:
@@ -141,7 +133,7 @@ public final class NewAcceptor {
         logger.info("PROPOSAL received from:{}, for consensus cId:{}",
                 msg.getSender(), cid);
         if (checkPROPOSAL(msg)) {
-            blockchain.addBlock(msg);
+            blockchain.appendBlock(msg);
             decide(msg);
         } else {
             logger.info("PROPOSAL invalid.");

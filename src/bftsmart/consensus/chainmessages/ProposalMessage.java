@@ -1,9 +1,10 @@
-package bftsmart.consensus.messages;
+package bftsmart.consensus.chainmessages;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import java.util.Arrays;
 import java.util.Set;
 
 public class ProposalMessage extends ChainConsensusMessage {
@@ -11,8 +12,10 @@ public class ProposalMessage extends ChainConsensusMessage {
     private byte[] data; // the data that the block contains
     private byte[] prevHash; // the hash value of the referred block
     private Set<VoteMessage> votes; // the set of votes to prove this block valid
+
     private int leaderID; // identify the current leader
     private byte[] signature; // signed by the current leader
+
     private int index; // the height of the block (extra)
 
     /**
@@ -20,10 +23,9 @@ public class ProposalMessage extends ChainConsensusMessage {
      */
     public ProposalMessage(){}
 
-    public ProposalMessage(byte[] data, byte[] prevHash,
-                           Set<VoteMessage> votes, int messageType,
+    public ProposalMessage(byte[] data, byte[] prevHash, Set<VoteMessage> votes,
                            int viewNumber, int epoch, int from) {
-        super(messageType, viewNumber, epoch, from);
+        super(ChainMessageFactory.PROPOSAL, viewNumber, epoch, from);
 
         this.data = data;
         this.prevHash = prevHash;
@@ -68,11 +70,11 @@ public class ProposalMessage extends ChainConsensusMessage {
         return "\ntype = PROPOSAL" +
                 "\nviewNumber = " + super.viewNumber +
                 "\nepoch = " + super.epoch +
-                "\ndata = " + this.data +
-                "\nprevHash = " + this.prevHash +
+                "\ndata = " + Arrays.toString(this.data) +
+                "\nprevHash = " + Arrays.toString(this.prevHash) +
                 "\nvotes = " + this.votes +
                 "\nleaderID = " + this.leaderID +
-                "\nsignature = " + this.signature;
+                "\nsignature = " + Arrays.toString(this.signature);
     }
 
     // Implemented method of the Externalizable interface
@@ -104,11 +106,7 @@ public class ProposalMessage extends ChainConsensusMessage {
             out.write(signature);
         }
 
-//        if(votes == null) {
-//            out.writeBoolean(false);
-//        } else {
-//            out.writeObject(votes);
-//        }
+        out.writeObject(votes);
 
     }
 
@@ -144,8 +142,7 @@ public class ProposalMessage extends ChainConsensusMessage {
             }while(len > 0);
         }
 
-//        boolean toRead = in.readBoolean();
-//        if(toRead)
-//            votes = (Set<VoteMessage>)in.readObject();
+        votes = (Set<VoteMessage>)in.readObject();
+
     }
 }

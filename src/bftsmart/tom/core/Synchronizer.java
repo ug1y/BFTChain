@@ -12,7 +12,6 @@ import bftsmart.consensus.Consensus;
 import bftsmart.consensus.TimestampValuePair;
 import bftsmart.consensus.messages.ConsensusMessage;
 import bftsmart.consensus.messages.MessageFactory;
-import bftsmart.consensus.roles.Acceptor;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.statemanagement.StateManager;
 import bftsmart.tom.core.messages.TOMMessage;
@@ -43,7 +42,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import bftsmart.consensus.roles.NewAcceptor;
+import bftsmart.consensus.chainroles.ChainAcceptor;
 
 /**
  *
@@ -74,7 +73,7 @@ public class Synchronizer {
     private final BatchBuilder bb;
     private final ServerCommunicationSystem communication;
     private final StateManager stateManager;
-    private final NewAcceptor acceptor;
+    private final ChainAcceptor chainAcceptor;
     private final MessageDigest md;
             
     // Attributes to temporarely store synchronization info
@@ -97,7 +96,7 @@ public class Synchronizer {
         this.bb = this.tom.bb;
         this.communication = this.tom.getCommunication();
         this.stateManager = this.tom.stateManager;
-        this.acceptor = this.tom.acceptor;
+        this.chainAcceptor = this.tom.chainAcceptor;
         this.md = this.tom.md;
         
         this.outOfContextLC = new HashSet<>();

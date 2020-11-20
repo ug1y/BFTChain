@@ -219,10 +219,10 @@ public class TOMUtil {
     }
 
     public static boolean equalsHash(byte[] h1, byte[] h2) {
-        return Arrays.equals(h2, h2);
+        return Arrays.equals(h1, h2);
     }
 
-    public static final byte[] computeHash(byte[] data) {
+    public static byte[] computeHash(byte[] data) {
         
         byte[] result = null;
         

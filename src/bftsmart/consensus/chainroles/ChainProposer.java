@@ -1,29 +1,25 @@
-package bftsmart.consensus.roles;
+package bftsmart.consensus.chainroles;
 
 import bftsmart.communication.ServerCommunicationSystem;
-import bftsmart.consensus.messages.MessageFactory;
 import bftsmart.reconfiguration.ServerViewController;
 
 ///
-import bftsmart.consensus.messages.NewMessageFactory;
-import bftsmart.consensus.messages.ProposalMessage;
-import bftsmart.consensus.messages.VoteMessage;
-import bftsmart.consensus.messages.ChainConsensusMessage;
+import bftsmart.consensus.chainmessages.ChainMessageFactory;
+import bftsmart.consensus.chainmessages.ProposalMessage;
+import bftsmart.consensus.chainmessages.VoteMessage;
+import bftsmart.consensus.chainmessages.ChainConsensusMessage;
 import bftsmart.consensus.Blockchain;
 import bftsmart.tom.core.ExecutionManager;
 import bftsmart.tom.core.TOMLayer;
-import bftsmart.tom.core.messages.TOMMessage;
-import bftsmart.tom.util.TOMUtil;
-import java.util.*;
 import bftsmart.consensus.Consensus;
 import bftsmart.consensus.Epoch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 ///
-public class NewProposer {
+public class ChainProposer {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private NewMessageFactory factory; // Factory for PaW messages
+    private ChainMessageFactory factory; // Factory for PaW messages
     private ServerCommunicationSystem communication; // Replicas comunication system
     private ServerViewController controller;
     private Blockchain blockchain;
@@ -35,10 +31,10 @@ public class NewProposer {
 
 
 
-    public NewProposer(ServerCommunicationSystem communication,
-                       NewMessageFactory factory,
-                    ServerViewController controller,
-                       Blockchain blockchain) {
+    public ChainProposer(ServerCommunicationSystem communication,
+                         ChainMessageFactory factory,
+                         ServerViewController controller,
+                         Blockchain blockchain) {
         this.communication = communication;
         this.factory = factory;
         this.controller = controller;
@@ -92,7 +88,7 @@ public class NewProposer {
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
 //        logger.info("message = " + msg.toString());
         switch (msg.getMessageType()) {
-            case NewMessageFactory.VOTE:
+            case ChainMessageFactory.VOTE:
                 voteReceived(epoch, (VoteMessage)msg);
                 break;
             default:

@@ -33,9 +33,10 @@ import bftsmart.tom.core.messages.TOMMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import bftsmart.consensus.roles.NewAcceptor;
-import bftsmart.consensus.roles.NewProposer;
-
+///
+import bftsmart.consensus.chainroles.ChainAcceptor;
+import bftsmart.consensus.chainroles.ChainProposer;
+///
 /**
  *
  * @author alysson
@@ -86,14 +87,19 @@ public class ServerCommunicationSystem extends Thread {
     }
 
     //******* EDUARDO END **************//
-    public void setAcceptor(NewAcceptor acceptor) {
+    public void setAcceptor(Acceptor acceptor) {
         messageHandler.setAcceptor(acceptor);
     }
 
-    public void setProposer(NewProposer proposer) {
-        messageHandler.setProposer(proposer);
+    ///
+    public void setChainAcceptor(ChainAcceptor chainAcceptor) {
+        messageHandler.setChainAcceptor(chainAcceptor);
     }
 
+    public void setChainProposer(ChainProposer chainProposer) {
+        messageHandler.setChainProposer(chainProposer);
+    }
+    ///
     public void setTOMLayer(TOMLayer tomLayer) {
         messageHandler.setTOMLayer(tomLayer);
     }

@@ -30,9 +30,6 @@ import bftsmart.clientsmanagement.RequestList;
 import bftsmart.communication.ServerCommunicationSystem;
 import bftsmart.communication.client.RequestReceiver;
 import bftsmart.consensus.Decision;
-import bftsmart.consensus.Consensus;
-import bftsmart.consensus.Epoch;
-import bftsmart.consensus.roles.Acceptor;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.statemanagement.StateManager;
 import bftsmart.tom.ServiceReplica;
@@ -55,8 +52,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import bftsmart.consensus.roles.NewAcceptor;
-import bftsmart.consensus.roles.NewProposer;
+import bftsmart.consensus.chainroles.ChainAcceptor;
+import bftsmart.consensus.chainroles.ChainProposer;
 
 /**
  * This class implements the state machine replication protocol described in
@@ -71,8 +68,8 @@ public final class TOMLayer extends Thread implements RequestReceiver {
     private boolean doWork = true;
     //other components used by the TOMLayer (they are never changed)
     public ExecutionManager execManager; // Execution manager
-    public NewAcceptor acceptor; // Acceptor role of the PaW algorithm
-    public NewProposer proposer;
+    public ChainAcceptor chainAcceptor; // Acceptor role of the PaW algorithm
+    public ChainProposer chainProposer;
     private ServerCommunicationSystem communication; // Communication system between replicas
     //private OutOfContextMessageThread ot; // Thread which manages messages that do not belong to the current consensus
     private DeliveryThread dt; // Thread which delivers total ordered messages to the appication
@@ -139,8 +136,8 @@ public final class TOMLayer extends Thread implements RequestReceiver {
     public TOMLayer(ExecutionManager manager,
             ServiceReplica receiver,
             Recoverable recoverer,
-            NewAcceptor a,
-            NewProposer p,
+            ChainAcceptor a,
+            ChainProposer p,
             ServerCommunicationSystem cs,
             ServerViewController controller,
             RequestVerifier verifier) {
@@ -148,8 +145,8 @@ public final class TOMLayer extends Thread implements RequestReceiver {
         super("TOM Layer");
 
         this.execManager = manager;
-        this.acceptor = a;
-        this.proposer = p;
+        this.chainAcceptor = a;
+        this.chainProposer = p;
         this.communication = cs;
         this.controller = controller;
         
@@ -431,28 +428,20 @@ public final class TOMLayer extends Thread implements RequestReceiver {
 
             if (!doWork) break;
 
-            logger.debug("There are requests to be ordered. I will propose.");
+//            logger.debug("There are requests to be ordered. I will propose.");
+            logger.info("There are requests to be ordered. I will start to vote.");
 
             if ((clientsManager.havePendingRequests()) && //there are messages to be ordered
                     (getInExec() == -1)) { //there is no consensus in execution
 
-                if (execManager.getCurrentLeader() == this.controller.getStaticConf().getProcessId()) {// leader
-                    int execId = getLastExec() + 1;
-                    setInExec(execId);
-                    Decision dec = execManager.getConsensus(execId).getDecision();
-                    execManager.getProposer().startConsensus(execId, createPropose(dec));
-                    logger.info("I'm the leader, I'm going to start cid {} with data", execId);
-                    execManager.getAcceptor().startConsensus(execId);// leader's acceptor
-                    logger.info("I'm a follower, I'm going to start cid {}", execId);
-                }
-                else {
-                    // other followers
-                    int execId = getLastExec() + 1;
-                    setInExec(execId);
-                    Decision dec = execManager.getConsensus(execId).getDecision();
-                    execManager.getAcceptor().startConsensus(execId);
-                    logger.info("I'm a follower, I'm going to start cid {}", execId);
-                }
+                // Sets the current consensus
+                int execId = getLastExec() + 1;
+                setInExec(execId);
+
+                // Decision dec = execManager.getConsensus(execId).getDecision();
+
+                execManager.getChainAcceptor().startConsensus(execId);
+                logger.info("I'm a follower, I'm going to start cid {}", execId);
             }
         }
         logger.info("TOMLayer stopped.");

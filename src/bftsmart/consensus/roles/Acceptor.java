@@ -1,18 +1,18 @@
 /**
-Copyright (c) 2007-2013 Alysson Bessani, Eduardo Alchieri, Paulo Sousa, and the authors indicated in the @author tags
+ Copyright (c) 2007-2013 Alysson Bessani, Eduardo Alchieri, Paulo Sousa, and the authors indicated in the @author tags
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 package bftsmart.consensus.roles;
 
 import java.io.ByteArrayOutputStream;
@@ -38,12 +38,6 @@ import bftsmart.tom.core.TOMLayer;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.util.TOMUtil;
 
-///
-import bftsmart.consensus.messages.NewConsensusMessage;
-import bftsmart.consensus.messages.NewMessageFactory;
-import bftsmart.consensus.messages.NewConsensusMessageTest;
-import bftsmart.communication.SystemMessage;
-///
 /**
  * This class represents the acceptor role in the consensus protocol. This class
  * work together with the TOMLayer class in order to supply a atomic multicast
@@ -72,7 +66,7 @@ public final class Acceptor {
 
 	/**
 	 * Creates a new instance of Acceptor.
-	 * 
+	 *
 	 * @param communication Replicas communication system
 	 * @param factory       Message factory for PaW messages
 	 * @param controller
@@ -103,7 +97,7 @@ public final class Acceptor {
 
 	/**
 	 * Sets the execution manager for this acceptor
-	 * 
+	 *
 	 * @param manager Execution manager for this acceptor
 	 */
 	public void setExecutionManager(ExecutionManager manager) {
@@ -112,7 +106,7 @@ public final class Acceptor {
 
 	/**
 	 * Sets the TOM layer for this acceptor
-	 * 
+	 *
 	 * @param tom TOM layer for this acceptor
 	 */
 	public void setTOMLayer(TOMLayer tom) {
@@ -135,12 +129,7 @@ public final class Acceptor {
 			tomLayer.processOutOfContext();
 		}
 	}
-///
-	public final void deliver(NewConsensusMessage msg) {
-		NewConsensusMessageTest t = new NewConsensusMessageTest();
-		t.testResponse(msg);
-	}
-///
+
 	/**
 	 * Called when a Consensus message is received or when a out of context message
 	 * must be processed. It processes the received message according to its type
@@ -153,32 +142,19 @@ public final class Acceptor {
 		consensus.lock.lock();
 		Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
 		switch (msg.getType()) {
-		case MessageFactory.PROPOSE: {
-			noConsensus(epoch, msg);
-//			proposeReceived(epoch, msg);
-		}
+			case MessageFactory.PROPOSE: {
+				proposeReceived(epoch, msg);
+			}
 			break;
-		case MessageFactory.WRITE: {
-			writeReceived(epoch, msg.getSender(), msg.getValue());
-		}
+			case MessageFactory.WRITE: {
+				writeReceived(epoch, msg.getSender(), msg.getValue());
+			}
 			break;
-		case MessageFactory.ACCEPT: {
-			acceptReceived(epoch, msg);
-		}
+			case MessageFactory.ACCEPT: {
+				acceptReceived(epoch, msg);
+			}
 		}
 		consensus.lock.unlock();
-	}
-
-	public void noConsensus(Epoch epoch, ConsensusMessage msg) {
-		logger.info("jumping!");
-		byte[] value = msg.getValue();
-		epoch.propValue = value;
-		epoch.deserializedPropValue = tomLayer.checkProposedValue(value, true);
-		epoch.writeSent();
-		epoch.acceptSent();
-		epoch.acceptCreated();
-		logger.info("deserializedPropValue = {}", epoch.deserializedPropValue);
-		decide(epoch);
 	}
 
 	/**
@@ -332,8 +308,8 @@ public final class Acceptor {
 				epoch.acceptSent();
 
 				if (Arrays.equals(cm.getValue(), value)) { // make sure the ACCEPT message generated upon receiving the
-															// PROPOSE message
-															// still matches the value that ended up being written...
+					// PROPOSE message
+					// still matches the value that ended up being written...
 
 					logger.debug(
 							"Speculative ACCEPT message for consensus {} matches the written value, sending it to the other replicas",
@@ -342,7 +318,7 @@ public final class Acceptor {
 					communication.getServersConn().send(targets, cm, true);
 
 				} else { // ... and if not, create the ACCEPT message again (with the correct value), and
-							// send it
+					// send it
 
 					ConsensusMessage correctAccept = factory.createAccept(cid, epoch.getTimestamp(), value);
 
@@ -361,11 +337,11 @@ public final class Acceptor {
 			}
 
 		} else if (!epoch.isAcceptCreated()) { // start creating the ACCEPT message and its respective proof ASAP, to
-												// increase performance.
-												// since this is done after a PROPOSE message is received, this is done
-												// speculatively, hence
-												// the value must be verified before sending the ACCEPT message to the
-												// other replicas
+			// increase performance.
+			// since this is done after a PROPOSE message is received, this is done
+			// speculatively, hence
+			// the value must be verified before sending the ACCEPT message to the
+			// other replicas
 
 			ConsensusMessage cm = factory.createAccept(cid, epoch.getTimestamp(), value);
 			epoch.acceptCreated();
@@ -453,21 +429,5 @@ public final class Acceptor {
 			epoch.getConsensus().getDecision().firstMessageProposed.decisionTime = System.nanoTime();
 
 		epoch.getConsensus().decided(epoch, true);
-	}
-
-	/**
-	 * decide the consensus through message and send this to the client
-	 * @param msg which to be sent
-	 */
-	private void decide(NewConsensusMessage msg) {
-		Consensus consensus = executionManager.getConsensus(msg.getEpoch());
-		Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
-		byte[] value = msg.getData();
-		epoch.propValue = value;
-		epoch.deserializedPropValue = tomLayer.checkProposedValue(value, true);
-		epoch.writeSent();
-		epoch.acceptSent();
-		epoch.acceptCreated();
-		decide(epoch);
 	}
 }

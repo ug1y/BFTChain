@@ -1,4 +1,4 @@
-package bftsmart.consensus.messages;
+package bftsmart.consensus.chainmessages;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -13,9 +13,8 @@ public class SyncMessage extends ChainConsensusMessage {
      */
     public SyncMessage(){}
 
-    public SyncMessage(ProposalMessage msg, int messageType, int viewNumber,
-                       int epoch, int from) {
-        super(messageType, viewNumber, epoch, from);
+    public SyncMessage(ProposalMessage msg, int viewNumber, int epoch, int from) {
+        super(ChainMessageFactory.SYNC, viewNumber, epoch, from);
 
         this.msg = msg;
     }
@@ -33,11 +32,15 @@ public class SyncMessage extends ChainConsensusMessage {
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         super.writeExternal(out);
+
+        out.writeObject(msg);
     }
 
     // Implemented method of the Externalizable interface
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
+
+        msg = (ProposalMessage)in.readObject();
     }
 }

@@ -32,7 +32,9 @@ public class MessageFactory{
      * @param from Replica ID of the process which sent this message
      */
     public MessageFactory(int from) {
+
         this.from = from;
+
     }
 
     /**
@@ -74,6 +76,7 @@ public class MessageFactory{
         return new ConsensusMessage(ACCEPT,id,epoch, from, value);
 
     }
+
 
 }
 

@@ -1,4 +1,4 @@
-package bftsmart.consensus.messages;
+package bftsmart.consensus.chainmessages;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -18,8 +18,14 @@ public abstract class ChainConsensusMessage extends SystemMessage {
      */
     public ChainConsensusMessage(){}
 
-    public ChainConsensusMessage(int messageType, int viewNumber, int epoch,
-                                 int from) {
+    /**
+     * Creates a consensus message. Used by the message factory to create a chain consensus message
+     * @param messageType This should be NewMessageFactory.PROPOSAL or NewMessageFactory.VOTE or NewMessageFactory.SYNC
+     * @param viewNumber The view number of the block proposed in
+     * @param epoch Epoch timestamp
+     * @param from This should be this process ID
+     */
+    public ChainConsensusMessage(int messageType, int viewNumber, int epoch, int from) {
         super(from);
 
         this.messageType = messageType;
@@ -41,10 +47,8 @@ public abstract class ChainConsensusMessage extends SystemMessage {
 
     @Override
     public String toString(){
-        return "\ntype = " + this.messageType +
-                "\nviewNumber = " + this.viewNumber +
-                "\nepoch = " + this.epoch +
-                "\nfrom = " + super.getSender();
+        return "type = " + this.messageType + ", viewNumber = " + this.viewNumber +
+                ", epoch = " + this.epoch + ", from = " + super.getSender();
     }
 
     // Implemented method of the Externalizable interface

@@ -1,10 +1,11 @@
-package bftsmart.consensus.messages;
+package bftsmart.consensus.chainmessages;
 /**
  * This class work as a factory of messages used in the new protocol.
  */
+
 import java.util.Set;
 
-public class NewMessageFactory{
+public class ChainMessageFactory {
 
     //constants for messages types
     public static final int PROPOSAL    = 1110;
@@ -16,7 +17,7 @@ public class NewMessageFactory{
      * create a message factory
      * @param from Replica ID of the process that send the message
      */
-    public NewMessageFactory(int from) {
+    public ChainMessageFactory(int from) {
         this.from = from;
     }
 
@@ -25,30 +26,24 @@ public class NewMessageFactory{
      * @param data the data to propose
      * @param prevHash the hash of previous block
      * @param votes the votes voted for previous block
-     * @param signature the signature of current leader for this message
      * @param viewNumber the view this message in
      * @param epoch the epoch this message in
      * @return a PROPOSAL message
      */
-    public ProposalMessage createPROPOSAL(byte[] data, byte[] prevHash,
-                                          Set<VoteMessage> votes,
+    public ProposalMessage createPROPOSAL(byte[] data, byte[] prevHash, Set<VoteMessage> votes,
                                           int viewNumber, int epoch) {
-        return new ProposalMessage(data, prevHash, votes, PROPOSAL,
-                viewNumber, epoch, this.from);
+        return new ProposalMessage(data, prevHash, votes, viewNumber, epoch, this.from);
     }
 
     /**
      * create a VOTE message
      * @param blockHash the hash of the block which is voted for
-     * @param signature the signature of this replica for this message
      * @param viewNumber the view this message in
      * @param epoch the epoch this message in
      * @return a VOTE message
      */
-    public VoteMessage createVOTE(byte[] blockHash,int viewNumber,
-                                  int epoch) {
-        return new VoteMessage(blockHash,VOTE,viewNumber, epoch,
-                this.from);
+    public VoteMessage createVOTE(byte[] blockHash,int viewNumber, int epoch) {
+        return new VoteMessage(blockHash,viewNumber, epoch, this.from);
     }
 
     /**
@@ -59,6 +54,6 @@ public class NewMessageFactory{
      * @return a SYNC message
      */
     public SyncMessage createSYNC(ProposalMessage msg, int viewNumber, int epoch) {
-        return new SyncMessage(msg, SYNC, viewNumber, epoch, this.from);
+        return new SyncMessage(msg, viewNumber, epoch, this.from);
     }
 }

@@ -28,7 +28,7 @@ import bftsmart.reconfiguration.views.View;
 import bftsmart.tom.core.messages.TOMMessage;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import bftsmart.consensus.messages.VoteMessage;
+import bftsmart.consensus.chainmessages.VoteMessage;
 
 
 /**
