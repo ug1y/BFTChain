@@ -2,32 +2,28 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7e9156b9-c954-4ff8-a4a1-622cf0e175ab" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/ant.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/lib.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BFTChain.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/BFTChain-master.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BFTChain-master.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ant.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ant.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/lib.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/lib.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BFTChain.iml" beforeDir="false" afterPath="$PROJECT_DIR$/BFTChain.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/BFT-SMaRt.jar" beforeDir="false" afterPath="$PROJECT_DIR$/bin/BFT-SMaRt.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/communication/MessageHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/communication/MessageHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/communication/ServerCommunicationSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/communication/ServerCommunicationSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/Blockchain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/Blockchain.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/Epoch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/Epoch.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/blockchain/Block.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/blockchain/BlockChainTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/blockchain/Chain.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/messages/ChainConsensusMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ChainConsensusMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ChainConsensusMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ChainConsensusMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ChainMessageFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ChainMessageFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ProposalMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ProposalMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/SyncMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/SyncMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/VoteMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/VoteMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainroles/ChainAcceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainroles/ChainAcceptor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainroles/ChainProposer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainroles/ChainProposer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/messages/MessageFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/messages/MessageFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/messages/NewConsensusMessage.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/messages/NewConsensusMessageTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/messages/NewMessageFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/NewMessageFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/messages/ProposalMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ProposalMessage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/messages/SyncMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/SyncMessage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/messages/VoteMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/VoteMessage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Acceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Acceptor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/roles/NewAcceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainroles/NewAcceptor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/roles/NewProposer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainroles/NewProposer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Proposer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Proposer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/ServiceReplica.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/ServiceReplica.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/core/ExecutionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/core/ExecutionManager.java" afterDir="false" />
@@ -68,7 +64,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/lib/slf4j-api-1.7.25.jar!/" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -130,6 +126,8 @@
       <workItem from="1605090500818" duration="80000" />
       <workItem from="1605095957223" duration="1299000" />
       <workItem from="1605100680706" duration="17316000" />
+      <workItem from="1605875561502" duration="1206000" />
+      <workItem from="1605942663031" duration="4903000" />
     </task>
     <servers />
   </component>

@@ -16,6 +16,8 @@ import bftsmart.consensus.Epoch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+
 ///
 public class ChainProposer {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -25,6 +27,7 @@ public class ChainProposer {
     private Blockchain blockchain;
     private ExecutionManager executionManager;// Execution manager of consensus's executions
     private TOMLayer tomLayer; // TOM layer
+    private ArrayList<byte[]> proposalData;
     private byte[] data;
     private int cid;
     private boolean valueChanged = false;// to avoid that enough VOTEs received but data not changed(quick followers)
@@ -39,6 +42,7 @@ public class ChainProposer {
         this.factory = factory;
         this.controller = controller;
         this.blockchain = blockchain;
+        this.proposalData = new ArrayList<byte[]>();
     }
 
     public void setExecutionManager(ExecutionManager executionManager) {
@@ -58,6 +62,14 @@ public class ChainProposer {
         this.data = data;
         this.cid = cid;
         this.valueChanged = true;
+    }
+
+    /**
+     * to get and store PROPOSAL data from TOMLayer
+     * @param data the data to be proposed in some consensuses
+     */
+    public final void getProposalValue(byte[] data) {
+        this.proposalData.add(data);
     }
 
     /**
@@ -130,13 +142,12 @@ public class ChainProposer {
      */
     public void executeVOTE(Epoch epoch, VoteMessage msg) {
         epoch.setVote(msg.getSender(), msg);//record the VOTEs
-        if(epoch.countVote() > controller.getQuorum() && valueChanged == true) {
-            ProposalMessage p = factory.createPROPOSAL(this.data, blockchain.getCurrentHash(),
+        if(epoch.countVote() > controller.getQuorum() && this.proposalData.size() > blockchain.getCurrentHeight()) {
+            ProposalMessage p = factory.createPROPOSAL(this.proposalData.get(blockchain.getCurrentHeight()), blockchain.getCurrentHash(),
                     epoch.getVotes(), msg.getViewNumber(), blockchain.getCurrentHeight());
             p.addSignature();
-            logger.info("get enough votes, proposing...");
+            logger.info("get enough votes, proposing {}", p);
             communication.send(this.controller.getCurrentViewAcceptors(), p);
-            valueChanged = false;
         }
     }
 

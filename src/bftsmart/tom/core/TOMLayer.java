@@ -441,6 +441,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
                 // Decision dec = execManager.getConsensus(execId).getDecision();
 
                 execManager.getChainAcceptor().startConsensus(execId);
+                execManager.getChainProposer().getProposalValue(createPropose(execManager.getConsensus(execId).getDecision()));
                 logger.info("I'm a follower, I'm going to start cid {}", execId);
             }
         }

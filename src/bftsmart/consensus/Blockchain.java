@@ -36,6 +36,7 @@ public class Blockchain {
         blocks.put(geniusHash,geniusBlock);
 
         this.currentHash = geniusHash;
+        this.currentHeight += 1;
         logger.info("I've init the blockchain with a genius block {}", geniusBlock);
     }
 
@@ -90,7 +91,8 @@ public class Blockchain {
             blocks.put(currentHash,msg);
 
             // return the committed block
-            return chain.get(currentHeight-2);
+            if(currentHeight >= 3)
+                return chain.get(currentHeight-2);
         }
         return null;
     }
