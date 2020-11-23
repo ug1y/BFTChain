@@ -29,6 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import bftsmart.consensus.Decision;
 import bftsmart.consensus.chainmessages.ChainConsensusMessage;
+import bftsmart.consensus.chainmessages.ChainMessageFactory;
 import bftsmart.consensus.messages.MessageFactory;
 import bftsmart.consensus.messages.ConsensusMessage;
 import bftsmart.consensus.roles.Acceptor;
@@ -67,8 +68,10 @@ public final class ExecutionManager {
     private ReentrantLock consensusesLock = new ReentrantLock(); //lock for consensuses table
     // Paxos messages that were out of context (that didn't belong to the consensus that was/is is progress
     private Map<Integer, List<ConsensusMessage>> outOfContext = new HashMap<Integer, List<ConsensusMessage>>();
+    private Map<Integer, List<ChainConsensusMessage>> outOfContextchain = new HashMap<Integer, List<ChainConsensusMessage>>();
     // Proposes that were out of context (that belonged to future consensuses, and not the one running at the time)
     private Map<Integer, ConsensusMessage> outOfContextProposes = new HashMap<Integer, ConsensusMessage>();
+    private Map<Integer, ChainConsensusMessage> outOfContextProposeschain = new HashMap<Integer, ChainConsensusMessage>();
     private ReentrantLock outOfContextLock = new ReentrantLock(); //lock for out of context
     private boolean stopped = false; // Is the execution manager stopped?
     // When the execution manager is stopped, incoming paxos messages are stored here
@@ -340,13 +343,35 @@ public final class ExecutionManager {
         return canProcessTheMessage;
     }
 
+
     /**
      * a temporary method
      * @param msg which is newConsensusMessage
      * @return true
      */
     public final boolean checkLimits(ChainConsensusMessage msg) {
-        return true;
+
+        boolean isRetrievingState = tomLayer.isRetrievingState();
+        int lastConsId = tomLayer.getLastExec();
+        int inExec = tomLayer.getInExec();
+        logger.debug("I'm at consensus " +
+                inExec + " and my last consensus is " + lastConsId);
+
+        boolean canProcessTheMessage = false;
+        if(isRetrievingState ||
+                msg.getViewNumber() > (lastConsId + 1) ||
+                (inExec != -1 && inExec < msg.getViewNumber())||
+                (inExec == -1 && msg.getMessageType() != ChainMessageFactory.PROPOSAL)
+        ) {
+            logger.info("out of context message with viewnumber {}.", msg.getViewNumber());
+            addOutOfContextMessage(msg);
+        }
+        else {// can process
+            logger.info("can process message with viewnumber {}.", msg.getViewNumber());
+            canProcessTheMessage = true;
+        }
+
+        return canProcessTheMessage;
     }
 
     /**
@@ -535,6 +560,33 @@ public final class ExecutionManager {
             if (messages == null) {
                 messages = new LinkedList<ConsensusMessage>();
                 outOfContext.put(m.getNumber(), messages);
+            }
+            logger.debug("Adding " + m);
+            messages.add(m);
+
+        }
+
+        /******* END OUTOFCONTEXT CRITICAL SECTION *******/
+        outOfContextLock.unlock();
+    }
+
+    /**
+     * Stores a message established as being out of context (a message that
+     * doesn't belong to current executing consensus).
+     *
+     * @param m Out of context message to be stored
+     */
+    public void addOutOfContextMessage(ChainConsensusMessage m) {
+        outOfContextLock.lock();
+        /******* BEGIN OUTOFCONTEXT CRITICAL SECTION *******/
+        if (m.getMessageType() == ChainMessageFactory.PROPOSAL) {
+            logger.debug("Adding " + m);
+            outOfContextProposeschain.put(m.getViewNumber(), m);
+        } else {
+            List<ChainConsensusMessage> messages = outOfContextchain.get(m.getViewNumber());
+            if (messages == null) {
+                messages = new LinkedList<ChainConsensusMessage>();
+                outOfContextchain.put(m.getViewNumber(), messages);
             }
             logger.debug("Adding " + m);
             messages.add(m);

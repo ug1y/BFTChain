@@ -74,7 +74,7 @@ public final class ChainAcceptor {
      * @param msg the message delivered by communication layer
      */
     public final void deliver(ChainConsensusMessage msg) {
-        if (msg.getViewNumber() >= blockchain.getCurrentHeight()) {//executionManager.checkLimits(msg)) {
+        if (executionManager.checkLimits(msg)) {
             logger.debug("Processing msg in view {}", msg.getViewNumber());
             processMessage(msg);
         }

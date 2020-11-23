@@ -64,12 +64,20 @@ public class ChainProposer {
         this.valueChanged = true;
     }
 
-    /**
-     * to get and store PROPOSAL data from TOMLayer
-     * @param data the data to be proposed in some consensuses
-     */
-    public final void getProposalValue(byte[] data) {
+    public final void getProposalValue(int cid, byte[] data) {
+        Consensus consensus = executionManager.getConsensus(cid);
+        consensus.lock.lock();
+        Epoch epoch = consensus.getEpoch(cid, controller);
+        logger.info("data received for consensus {}", cid);
         this.proposalData.add(data);
+        if(epoch.countVote() > controller.getQuorum() && this.proposalData.size() > blockchain.getCurrentHeight()) {
+            ProposalMessage p = factory.createPROPOSAL(this.proposalData.get(blockchain.getCurrentHeight()), blockchain.getCurrentHash(),
+                    epoch.getVotes(), cid, blockchain.getCurrentHeight());
+            p.addSignature();
+            logger.info("get enough votes before data received, proposing {}", p);
+            communication.send(this.controller.getCurrentViewAcceptors(), p);
+        }
+        consensus.lock.unlock();
     }
 
     /**

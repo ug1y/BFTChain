@@ -26,6 +26,7 @@
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Acceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Acceptor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Proposer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Proposer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/ServiceReplica.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/ServiceReplica.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/core/DeliveryThread.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/core/DeliveryThread.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/core/ExecutionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/core/ExecutionManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/core/Synchronizer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/core/Synchronizer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/core/TOMLayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/core/TOMLayer.java" afterDir="false" />
@@ -128,6 +129,7 @@
       <workItem from="1605100680706" duration="17316000" />
       <workItem from="1605875561502" duration="1206000" />
       <workItem from="1605942663031" duration="4903000" />
+      <workItem from="1606096016059" duration="3645000" />
     </task>
     <servers />
   </component>
