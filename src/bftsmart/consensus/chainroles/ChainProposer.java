@@ -68,13 +68,13 @@ public class ChainProposer {
         Consensus consensus = executionManager.getConsensus(cid);
         consensus.lock.lock();
         Epoch epoch = consensus.getEpoch(cid, controller);
-        logger.info("data received for consensus {}", cid);
+        logger.debug("data received for consensus {}", cid);
         this.proposalData.add(data);
         if(epoch.countVote() > controller.getQuorum() && this.proposalData.size() > blockchain.getCurrentHeight()) {
             ProposalMessage p = factory.createPROPOSAL(this.proposalData.get(blockchain.getCurrentHeight()), blockchain.getCurrentHash(),
                     epoch.getVotes(), cid, blockchain.getCurrentHeight());
             p.addSignature();
-            logger.info("get enough votes before data received, proposing {}", p);
+            logger.debug("get enough votes before data received, proposing {}", p);
             communication.send(this.controller.getCurrentViewAcceptors(), p);
         }
         consensus.lock.unlock();
@@ -87,13 +87,12 @@ public class ChainProposer {
      * @param msg the message delivered by communication layer
      */
     public final void deliver(ChainConsensusMessage msg) {
-        if (msg.getViewNumber() >= blockchain.getCurrentHeight()) {//executionManager.checkLimits(msg)) {
+        if (executionManager.checkLimits(msg)) {
             logger.debug("Processing msg in view {}", msg.getViewNumber());
             processMessage(msg);
         }
         else {
-            logger.info("Out of context msg in view {}", msg.getViewNumber());
-            tomLayer.processOutOfContext();
+            logger.debug("Out of context msg in view {}", msg.getViewNumber());
         }
     }
 
@@ -106,7 +105,7 @@ public class ChainProposer {
         Consensus consensus = executionManager.getConsensus(msg.getEpoch());
         consensus.lock.lock();
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
-//        logger.info("message = " + msg.toString());
+        logger.debug("message = " + msg.toString());
         switch (msg.getMessageType()) {
             case ChainMessageFactory.VOTE:
                 voteReceived(epoch, (VoteMessage)msg);

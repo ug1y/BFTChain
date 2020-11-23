@@ -359,15 +359,12 @@ public final class ExecutionManager {
 
         boolean canProcessTheMessage = false;
         if(isRetrievingState ||
-                msg.getViewNumber() > (lastConsId + 1) ||
-                (inExec != -1 && inExec < msg.getViewNumber())||
-                (inExec == -1 && msg.getMessageType() != ChainMessageFactory.PROPOSAL)
+                (msg.getViewNumber() <= lastConsId)
         ) {
-            logger.info("out of context message with viewnumber {}.", msg.getViewNumber());
-            addOutOfContextMessage(msg);
+            logger.debug("out of context message with viewnumber {}.", msg.getViewNumber());
         }
         else {// can process
-            logger.info("can process message with viewnumber {}.", msg.getViewNumber());
+            logger.debug("can process message with viewnumber {}.", msg.getViewNumber());
             canProcessTheMessage = true;
         }
 
@@ -560,33 +557,6 @@ public final class ExecutionManager {
             if (messages == null) {
                 messages = new LinkedList<ConsensusMessage>();
                 outOfContext.put(m.getNumber(), messages);
-            }
-            logger.debug("Adding " + m);
-            messages.add(m);
-
-        }
-
-        /******* END OUTOFCONTEXT CRITICAL SECTION *******/
-        outOfContextLock.unlock();
-    }
-
-    /**
-     * Stores a message established as being out of context (a message that
-     * doesn't belong to current executing consensus).
-     *
-     * @param m Out of context message to be stored
-     */
-    public void addOutOfContextMessage(ChainConsensusMessage m) {
-        outOfContextLock.lock();
-        /******* BEGIN OUTOFCONTEXT CRITICAL SECTION *******/
-        if (m.getMessageType() == ChainMessageFactory.PROPOSAL) {
-            logger.debug("Adding " + m);
-            outOfContextProposeschain.put(m.getViewNumber(), m);
-        } else {
-            List<ChainConsensusMessage> messages = outOfContextchain.get(m.getViewNumber());
-            if (messages == null) {
-                messages = new LinkedList<ChainConsensusMessage>();
-                outOfContextchain.put(m.getViewNumber(), messages);
             }
             logger.debug("Adding " + m);
             messages.add(m);

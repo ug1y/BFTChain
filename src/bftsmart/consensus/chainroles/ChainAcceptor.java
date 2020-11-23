@@ -79,8 +79,8 @@ public final class ChainAcceptor {
             processMessage(msg);
         }
         else {
-            logger.info("Out of context msg in view {}", msg.getViewNumber());
-            tomLayer.processOutOfContext();
+            logger.debug("Out of context msg in view {}", msg.getViewNumber());
+            // using SYNC asking for latest blocks
         }
     }
 
@@ -108,7 +108,7 @@ public final class ChainAcceptor {
         Consensus consensus = executionManager.getConsensus(msg.getEpoch());
         consensus.lock.lock();
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
-//        logger.info("message = " + msg.toString());
+        logger.debug("message = " + msg.toString());
         switch (msg.getMessageType()) {
             case ChainMessageFactory.PROPOSAL:
                 proposalReceived(epoch, (ProposalMessage)msg);
