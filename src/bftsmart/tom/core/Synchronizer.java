@@ -910,7 +910,7 @@ public class Synchronizer {
     // and also sends the message
     private void catch_up(int regency) {
 
-        logger.debug("Verifying STOPDATA info");
+        logger.info("Verifying STOPDATA info");
         ObjectOutputStream out = null;
         ByteArrayOutputStream bos = null;
 

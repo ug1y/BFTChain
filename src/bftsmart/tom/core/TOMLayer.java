@@ -422,7 +422,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
 
                 logger.debug("Waiting for enough requests");
                 haveMessages.awaitUninterruptibly();
-                logger.debug("Got enough requests");
+                logger.info("Got enough requests");
             }
             messagesLock.unlock();
 
@@ -437,12 +437,12 @@ public final class TOMLayer extends Thread implements RequestReceiver {
                 // Sets the current consensus
                 int execId = getLastExec() + 1;
                 setInExec(execId);
-
-                // Decision dec = execManager.getConsensus(execId).getDecision();
-
-                execManager.getChainProposer().getProposalValue(execId, createPropose(execManager.getConsensus(execId).getDecision()));
+                if(execManager.getCurrentLeader() == this.controller.getStaticConf().getProcessId()) {
+                    Decision dec = execManager.getConsensus(execId).getDecision();
+                    execManager.getChainProposer().getProposalValue(execId, dec);
+                }
                 execManager.getChainAcceptor().startConsensus(execId);
-                logger.info("I'm a follower, I'm going to start cid {}", execId);
+                logger.debug("I'm a follower, I'm going to start cid {}", execId);
             }
         }
         logger.info("TOMLayer stopped.");
