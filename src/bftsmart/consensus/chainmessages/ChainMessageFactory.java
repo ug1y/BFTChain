@@ -31,8 +31,8 @@ public class ChainMessageFactory {
      * @return a PROPOSAL message
      */
     public ProposalMessage createPROPOSAL(byte[] data, byte[] prevHash, Set<VoteMessage> votes,
-                                          int viewNumber, int epoch) {
-        return new ProposalMessage(data, prevHash, votes, viewNumber, epoch, this.from);
+                                          int viewNumber, int epoch, int id) {
+        return new ProposalMessage(data, prevHash, votes, viewNumber, epoch, this.from, id);
     }
 
     /**
@@ -42,8 +42,8 @@ public class ChainMessageFactory {
      * @param epoch the epoch this message in
      * @return a VOTE message
      */
-    public VoteMessage createVOTE(byte[] blockHash,int viewNumber, int epoch) {
-        return new VoteMessage(blockHash,viewNumber, epoch, this.from);
+    public VoteMessage createVOTE(byte[] blockHash,int viewNumber, int epoch, int id) {
+        return new VoteMessage(blockHash,viewNumber, epoch, this.from, id);
     }
 
     /**
@@ -53,7 +53,7 @@ public class ChainMessageFactory {
      * @param epoch the epoch this message in
      * @return a SYNC message
      */
-    public SyncMessage createSYNC(ProposalMessage msg, int viewNumber, int epoch) {
-        return new SyncMessage(msg, viewNumber, epoch, this.from);
+    public SyncMessage createSYNC(ProposalMessage msg, int viewNumber, int epoch, int id) {
+        return new SyncMessage(msg, viewNumber, epoch, this.from, id);
     }
 }

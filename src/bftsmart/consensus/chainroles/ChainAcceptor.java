@@ -29,8 +29,6 @@ public final class ChainAcceptor {
     private TOMLayer tomLayer; // TOM layer
     private ServerViewController controller;// ServerViewController
     private ExecutorService proofExecutor = null;// thread pool used to paralelise creation of consensus proofs
-    private byte[] data;
-    private int cid;
     private Blockchain blockchain;
 
     /**
@@ -89,8 +87,7 @@ public final class ChainAcceptor {
      * @param cid
      */
     public void startConsensus(int cid) {
-        this.cid = cid;
-        VoteMessage v = factory.createVOTE(blockchain.getCurrentHash(), cid, cid);
+        VoteMessage v = factory.createVOTE(blockchain.getCurrentHash(), 0, 0, cid);
         v.addSignature();
 
         int[] leader = new int[1];
@@ -105,7 +102,7 @@ public final class ChainAcceptor {
      * @param msg
      */
     public final void processMessage(ChainConsensusMessage msg) {
-        Consensus consensus = executionManager.getConsensus(msg.getEpoch());
+        Consensus consensus = executionManager.getConsensus(msg.getId());
         consensus.lock.lock();
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
         logger.debug("message = " + msg.toString());
@@ -183,7 +180,7 @@ public final class ChainAcceptor {
      * @param msg which to be sent
      */
     private void decide(ProposalMessage msg) {
-        Consensus consensus = executionManager.getConsensus(msg.getEpoch());
+        Consensus consensus = executionManager.getConsensus(msg.getId());
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
         byte[] value = msg.getData();
         epoch.propValue = value;

@@ -29,7 +29,7 @@ public class Blockchain {
      * add the genesis block into
      */
     public void initBlockchain(){
-        ProposalMessage geniusBlock = new ProposalMessage(null,null,null,-1,-1,-1);
+        ProposalMessage geniusBlock = new ProposalMessage(null,null,null,-1,-1,-1, -1);
         chain.add(geniusBlock);
 
         byte[] geniusHash = computeBlockHash(geniusBlock);

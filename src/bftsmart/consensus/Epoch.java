@@ -51,6 +51,7 @@ public class Epoch implements Serializable {
     private boolean writeSent;
     private boolean acceptSent;
     private boolean acceptCreated;
+    private boolean proposalSent;
     
     private boolean alreadyRemoved = false; // indicates if this epoch was removed from its consensus
 
@@ -98,6 +99,7 @@ public class Epoch implements Serializable {
         writeSent = false;
         acceptSent = false;
         acceptCreated = false;
+        proposalSent = false;
             
         if (timestamp == 0) {
             this.write = new byte[n][];
@@ -410,6 +412,10 @@ public class Epoch implements Serializable {
     public void acceptCreated() {
         acceptCreated = true;
     }
+
+    public void proposalSent() {
+        proposalSent = true;
+    }
     
     /**
      * Indicates if the consensus instance already sent its WRITE message
@@ -433,6 +439,10 @@ public class Epoch implements Serializable {
      */
     public boolean isAcceptCreated() {
         return acceptCreated;
+    }
+
+    public boolean isProposalSent() {
+        return proposalSent;
     }
 
     /**

@@ -12,6 +12,7 @@ public abstract class ChainConsensusMessage extends SystemMessage {
     protected int messageType; // message type, including proposal, vote, and sync
     protected int viewNumber; // the view number that this message created in
     protected int epoch; // epoch to which this message belongs to
+    protected int id;
 
     /**
      * to avoid EOFException in Serializable
@@ -25,12 +26,13 @@ public abstract class ChainConsensusMessage extends SystemMessage {
      * @param epoch Epoch timestamp
      * @param from This should be this process ID
      */
-    public ChainConsensusMessage(int messageType, int viewNumber, int epoch, int from) {
+    public ChainConsensusMessage(int messageType, int viewNumber, int epoch, int from, int id) {
         super(from);
 
         this.messageType = messageType;
         this.viewNumber = viewNumber;
         this.epoch = epoch;
+        this.id = id;
     }
 
     public int getEpoch() {
@@ -43,6 +45,10 @@ public abstract class ChainConsensusMessage extends SystemMessage {
 
     public int getMessageType() {
         return messageType;
+    }
+
+    public int getId() {
+        return id;
     }
 
     @Override
@@ -60,6 +66,7 @@ public abstract class ChainConsensusMessage extends SystemMessage {
         out.writeInt(messageType);
         out.writeInt(viewNumber);
         out.writeInt(epoch);
+        out.writeInt(id);
     }
 
     // Implemented method of the Externalizable interface
@@ -71,6 +78,7 @@ public abstract class ChainConsensusMessage extends SystemMessage {
         messageType = in.readInt();
         viewNumber = in.readInt();
         epoch = in.readInt();
+        id = in.readInt();
     }
 }
 

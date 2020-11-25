@@ -13,8 +13,8 @@ public class SyncMessage extends ChainConsensusMessage {
      */
     public SyncMessage(){}
 
-    public SyncMessage(ProposalMessage msg, int viewNumber, int epoch, int from) {
-        super(ChainMessageFactory.SYNC, viewNumber, epoch, from);
+    public SyncMessage(ProposalMessage msg, int viewNumber, int epoch, int from, int id) {
+        super(ChainMessageFactory.SYNC, viewNumber, epoch, from, id);
 
         this.msg = msg;
     }

@@ -28,8 +28,9 @@ public class ChainProposer {
     private Blockchain blockchain;
     private ExecutionManager executionManager;// Execution manager of consensus's executions
     private TOMLayer tomLayer; // TOM layer
-    private ArrayList<Decision> decs;
     private byte[] data;
+    private int cid;
+    private boolean newcid = false;
 
 
     public ChainProposer(ServerCommunicationSystem communication,
@@ -40,7 +41,6 @@ public class ChainProposer {
         this.factory = factory;
         this.controller = controller;
         this.blockchain = blockchain;
-        this.decs = new ArrayList<Decision>();
     }
 
     public void setExecutionManager(ExecutionManager executionManager) {
@@ -51,21 +51,10 @@ public class ChainProposer {
         this.tomLayer = tomLayer;
     }
 
-    public final void getProposalValue(int cid, Decision dec) {
-        Consensus consensus = executionManager.getConsensus(cid);
-        consensus.lock.lock();
-        Epoch epoch = consensus.getEpoch(cid, controller);
-        logger.info("data received for consensus {}", cid);
-        this.decs.add(dec);
-        if(epoch.countVote() > controller.getQuorum() && this.decs.size() > blockchain.getCurrentHeight()) {
-            int viewNumber = ((VoteMessage)epoch.getVotes().toArray()[0]).getViewNumber();
-            ProposalMessage p = factory.createPROPOSAL(this.data, blockchain.getCurrentHash(),
-                    epoch.getVotes(), viewNumber, blockchain.getCurrentHeight());
-            p.addSignature();
-            logger.info("get enough votes, proposing");
-            communication.send(this.controller.getCurrentViewAcceptors(), p);
-        }
-        consensus.lock.unlock();
+    public final void getProposalValue(int cid) {
+        logger.info("prepare cid for consensus {}", cid);
+        this.cid = cid;
+        this.newcid = true;
     }
 
     /**
@@ -76,11 +65,11 @@ public class ChainProposer {
      */
     public final void deliver(ChainConsensusMessage msg) {
         if (executionManager.checkLimits(msg)) {
-            logger.debug("Processing msg in number {}", msg.getEpoch());
+            logger.debug("Processing msg in number {}", msg.getId());
             processMessage(msg);
         }
         else {
-            logger.debug("Out of context msg in number {}", msg.getEpoch());
+            logger.debug("Out of context msg in number {}", msg.getId());
         }
     }
 
@@ -90,7 +79,7 @@ public class ChainProposer {
      * @param msg
      */
     public final void processMessage(ChainConsensusMessage msg) {
-        Consensus consensus = executionManager.getConsensus(msg.getEpoch());
+        Consensus consensus = executionManager.getConsensus(msg.getId());
         consensus.lock.lock();
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
         logger.debug("message = " + msg.toString());
@@ -137,18 +126,16 @@ public class ChainProposer {
      */
     public void executeVOTE(Epoch epoch, VoteMessage msg) {
         epoch.setVote(msg.getSender(), msg);//record the VOTEs
-        if(epoch.countVote() > controller.getQuorum()){
-            byte[] data = tomLayer.createPropose(this.decs.get(blockchain.getCurrentHeight()));
-            this.data = data;
-            if(this.decs.size() > blockchain.getCurrentHeight()) {
-                logger.info("get enough votes");
-                ProposalMessage p = factory.createPROPOSAL(this.data, blockchain.getCurrentHash(),
-                        epoch.getVotes(), msg.getViewNumber(), blockchain.getCurrentHeight());
-                p.addSignature();
-                logger.info("proposing");
-                communication.send(this.controller.getCurrentViewAcceptors(), p);
-            }
+        if(epoch.countVote() > controller.getQuorum() && !epoch.isProposalSent() && newcid && tomLayer.clientsManager.havePendingRequests()){
+            epoch.proposalSent();
+            logger.info("id {} proposalSent turned to true", msg.getId());
+            this.newcid = false;
+            this.data = tomLayer.createPropose(tomLayer.execManager.getConsensus(msg.getId()).getDecision());
+            ProposalMessage p = factory.createPROPOSAL(this.data, blockchain.getCurrentHash(),
+                    epoch.getVotes(), 0, 0, msg.getId());
+            p.addSignature();
+            logger.info("get enough votes, proposing");
+            communication.send(this.controller.getCurrentViewAcceptors(), p);
         }
     }
-
 }

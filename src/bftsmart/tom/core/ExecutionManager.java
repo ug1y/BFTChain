@@ -359,12 +359,12 @@ public final class ExecutionManager {
 
         boolean canProcessTheMessage = false;
         if(isRetrievingState ||
-                (msg.getEpoch() <= lastConsId)
+                (msg.getId() <= lastConsId)
         ) {
-            logger.info("out of context message with number {}.", msg.getEpoch());
+            logger.info("out of context message with number {}.", msg.getId());
         }
         else {// can process
-            logger.debug("can process message with number {}.", msg.getEpoch());
+            logger.debug("can process message with number {}.", msg.getId());
             canProcessTheMessage = true;
         }
 

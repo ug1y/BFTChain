@@ -411,8 +411,14 @@ public final class TOMLayer extends Thread implements RequestReceiver {
                 canPropose.awaitUninterruptibly();
             }
             proposeLock.unlock();
-
             if (!doWork) break;
+
+            int execId = getLastExec() + 1;
+            if(execManager.getCurrentLeader() == this.controller.getStaticConf().getProcessId()) {
+                execManager.getChainProposer().getProposalValue(execId);
+            }
+
+
 
             // blocks until there are requests to be processed/ordered
             messagesLock.lock();
@@ -428,19 +434,11 @@ public final class TOMLayer extends Thread implements RequestReceiver {
 
             if (!doWork) break;
 
-//            logger.debug("There are requests to be ordered. I will propose.");
-            logger.info("There are requests to be ordered. I will start to vote.");
 
-            if ((clientsManager.havePendingRequests()) && //there are messages to be ordered
+            if ((clientsManager.havePendingRequests()) &&
                     (getInExec() == -1)) { //there is no consensus in execution
-
-                // Sets the current consensus
-                int execId = getLastExec() + 1;
+                logger.info("There are requests to be ordered. I will start to vote.");
                 setInExec(execId);
-                if(execManager.getCurrentLeader() == this.controller.getStaticConf().getProcessId()) {
-                    Decision dec = execManager.getConsensus(execId).getDecision();
-                    execManager.getChainProposer().getProposalValue(execId, dec);
-                }
                 execManager.getChainAcceptor().startConsensus(execId);
                 logger.debug("I'm a follower, I'm going to start cid {}", execId);
             }
