@@ -9,10 +9,10 @@ import bftsmart.communication.SystemMessage;
 
 public abstract class ChainConsensusMessage extends SystemMessage {
 
-    protected int messageType; // message type, including proposal, vote, and sync
+    protected int msgType; // message type, including proposal, vote, and sync
     protected int viewNumber; // the view number that this message created in
+    protected int consId; // consensus ID for this message
     protected int epoch; // epoch to which this message belongs to
-    protected int id;
 
     /**
      * to avoid EOFException in Serializable
@@ -21,18 +21,18 @@ public abstract class ChainConsensusMessage extends SystemMessage {
 
     /**
      * Creates a consensus message. Used by the message factory to create a chain consensus message
-     * @param messageType This should be NewMessageFactory.PROPOSAL or NewMessageFactory.VOTE or NewMessageFactory.SYNC
+     * @param msgType This should be NewMessageFactory.PROPOSAL or NewMessageFactory.VOTE or NewMessageFactory.SYNC
      * @param viewNumber The view number of the block proposed in
      * @param epoch Epoch timestamp
      * @param from This should be this process ID
      */
-    public ChainConsensusMessage(int messageType, int viewNumber, int epoch, int from, int id) {
+    public ChainConsensusMessage(int msgType, int viewNumber, int consId, int epoch, int from) {
         super(from);
 
-        this.messageType = messageType;
+        this.msgType = msgType;
         this.viewNumber = viewNumber;
+        this.consId = consId;
         this.epoch = epoch;
-        this.id = id;
     }
 
     public int getEpoch() {
@@ -43,17 +43,17 @@ public abstract class ChainConsensusMessage extends SystemMessage {
         return viewNumber;
     }
 
-    public int getMessageType() {
-        return messageType;
+    public int getMsgType() {
+        return msgType;
     }
 
-    public int getId() {
-        return id;
+    public int getConsId() {
+        return consId;
     }
 
     @Override
     public String toString(){
-        return "type = " + this.messageType + ", viewNumber = " + this.viewNumber +
+        return "type = " + this.msgType + ", viewNumber = " + this.viewNumber + "consId = " + this.consId +
                 ", epoch = " + this.epoch + ", from = " + super.getSender();
     }
 
@@ -63,10 +63,10 @@ public abstract class ChainConsensusMessage extends SystemMessage {
 
         super.writeExternal(out);
 
-        out.writeInt(messageType);
+        out.writeInt(msgType);
         out.writeInt(viewNumber);
+        out.writeInt(consId);
         out.writeInt(epoch);
-        out.writeInt(id);
     }
 
     // Implemented method of the Externalizable interface
@@ -75,10 +75,10 @@ public abstract class ChainConsensusMessage extends SystemMessage {
 
         super.readExternal(in);
 
-        messageType = in.readInt();
+        msgType = in.readInt();
         viewNumber = in.readInt();
+        consId = in.readInt();
         epoch = in.readInt();
-        id = in.readInt();
     }
 }
 

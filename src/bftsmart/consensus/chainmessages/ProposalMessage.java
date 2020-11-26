@@ -24,8 +24,8 @@ public class ProposalMessage extends ChainConsensusMessage {
     public ProposalMessage(){}
 
     public ProposalMessage(byte[] data, byte[] prevHash, Set<VoteMessage> votes,
-                           int viewNumber, int epoch, int from, int id) {
-        super(ChainMessageFactory.PROPOSAL, viewNumber, epoch, from, id);
+                           int viewNumber, int consId, int epoch, int from) {
+        super(ChainMessageFactory.PROPOSAL, viewNumber, consId, epoch, from);
 
         this.data = data;
         this.prevHash = prevHash;

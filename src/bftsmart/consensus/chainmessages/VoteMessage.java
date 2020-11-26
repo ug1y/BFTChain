@@ -4,6 +4,7 @@ package bftsmart.consensus.chainmessages;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Arrays;
 
 public class VoteMessage extends ChainConsensusMessage {
 
@@ -16,8 +17,8 @@ public class VoteMessage extends ChainConsensusMessage {
      */
     public VoteMessage(){}
 
-    public VoteMessage(byte[] blockHash, int viewNumber, int epoch, int from, int id) {
-        super(ChainMessageFactory.VOTE, viewNumber, epoch, from, id);
+    public VoteMessage(byte[] blockHash, int viewNumber, int consId, int epoch, int from) {
+        super(ChainMessageFactory.VOTE, viewNumber, consId, epoch, from);
 
         this.blockHash = blockHash;
         this.replicaID = from;
@@ -32,9 +33,9 @@ public class VoteMessage extends ChainConsensusMessage {
         return "\ntype = VOTE" +
                 "\nviewNumber = " + super.viewNumber +
                 "\nepoch = " + super.epoch +
-                "\nblockHash = " + this.blockHash +
+                "\nblockHash = " + Arrays.toString(this.blockHash) +
                 "\nreplicaID = " + this.replicaID +
-                "\nsignature = " + this.signature;
+                "\nsignature = " + Arrays.toString(this.signature);
     }
 
     // Implemented method of the Externalizable interface

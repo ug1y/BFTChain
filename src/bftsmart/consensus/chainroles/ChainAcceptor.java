@@ -87,7 +87,7 @@ public final class ChainAcceptor {
      * @param cid
      */
     public void startConsensus(int cid) {
-        VoteMessage v = factory.createVOTE(blockchain.getCurrentHash(), 0, 0, cid);
+        VoteMessage v = factory.createVOTE(blockchain.getCurrentHash(), 0, cid, 0);
         v.addSignature();
 
         int[] leader = new int[1];
@@ -102,11 +102,11 @@ public final class ChainAcceptor {
      * @param msg
      */
     public final void processMessage(ChainConsensusMessage msg) {
-        Consensus consensus = executionManager.getConsensus(msg.getId());
+        Consensus consensus = executionManager.getConsensus(msg.getConsId());
         consensus.lock.lock();
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
         logger.debug("message = " + msg.toString());
-        switch (msg.getMessageType()) {
+        switch (msg.getMsgType()) {
             case ChainMessageFactory.PROPOSAL:
                 proposalReceived(epoch, (ProposalMessage)msg);
                 break;
@@ -180,7 +180,7 @@ public final class ChainAcceptor {
      * @param msg which to be sent
      */
     private void decide(ProposalMessage msg) {
-        Consensus consensus = executionManager.getConsensus(msg.getId());
+        Consensus consensus = executionManager.getConsensus(msg.getConsId());
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
         byte[] value = msg.getData();
         epoch.propValue = value;

@@ -29,7 +29,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import bftsmart.consensus.Decision;
 import bftsmart.consensus.chainmessages.ChainConsensusMessage;
-import bftsmart.consensus.chainmessages.ChainMessageFactory;
 import bftsmart.consensus.messages.MessageFactory;
 import bftsmart.consensus.messages.ConsensusMessage;
 import bftsmart.consensus.roles.Acceptor;
@@ -359,12 +358,12 @@ public final class ExecutionManager {
 
         boolean canProcessTheMessage = false;
         if(isRetrievingState ||
-                (msg.getId() <= lastConsId)
+                (msg.getConsId() <= lastConsId)
         ) {
-            logger.info("out of context message with number {}.", msg.getId());
+            logger.info("out of context message with number {}.", msg.getConsId());
         }
         else {// can process
-            logger.debug("can process message with number {}.", msg.getId());
+            logger.debug("can process message with number {}.", msg.getConsId());
             canProcessTheMessage = true;
         }
 
