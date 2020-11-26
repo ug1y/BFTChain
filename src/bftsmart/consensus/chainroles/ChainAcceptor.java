@@ -1,5 +1,9 @@
 package bftsmart.consensus.chainroles;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -130,6 +134,14 @@ public final class ChainAcceptor {
         logger.info("PROPOSAL received from:{}, for consensus cId:{}",
                 msg.getSender(), cid);
         if (checkPROPOSAL(msg)) {
+            ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+            try {
+                new ObjectOutputStream(bOut).writeObject(msg.getVotes());
+            } catch (IOException ex) {
+                logger.error("Failed to serialize message", ex);
+            }
+            System.out.println(Arrays.toString(bOut.toByteArray()));
+
             blockchain.appendBlock(msg);
             decide(msg);
         } else {
@@ -143,10 +155,13 @@ public final class ChainAcceptor {
      * @return valid(true) or not(false)
      */
     private boolean checkPROPOSAL(ProposalMessage msg) {
-        if(msg.getSender() == executionManager.getCurrentLeader()) {
+//        if(msg.getSender() == executionManager.getCurrentLeader() &&
+//                Arrays.equals(msg.getPrevHash(), blockchain.getCurrentHash()) &&
+//                msg.verifySignature() &&
+//                msg.verifyVotes()) {
             return true;
-        }
-        return false;
+//        }
+//        return false;
     }
 
     /**

@@ -4,6 +4,7 @@ package bftsmart.consensus.chainmessages;
  */
 
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 public class ChainMessageFactory {
 
@@ -30,7 +31,7 @@ public class ChainMessageFactory {
      * @param epoch the epoch this message in
      * @return a PROPOSAL message
      */
-    public ProposalMessage createPROPOSAL(byte[] data, byte[] prevHash, Set<VoteMessage> votes,
+    public ProposalMessage createPROPOSAL(byte[] data, byte[] prevHash, LinkedHashSet<VoteMessage> votes,
                                           int viewNumber, int consId, int epoch) {
         return new ProposalMessage(data, prevHash, votes, viewNumber, consId, epoch, this.from);
     }

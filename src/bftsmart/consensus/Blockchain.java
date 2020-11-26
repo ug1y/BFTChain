@@ -1,6 +1,7 @@
 package bftsmart.consensus;
 
 import bftsmart.consensus.chainmessages.ProposalMessage;
+import bftsmart.consensus.chainmessages.VoteMessage;
 import bftsmart.tom.util.TOMUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class Blockchain {
 
         this.currentHash = geniusHash;
         this.currentHeight += 1;
-        logger.info("I've init the blockchain with a genius block {}", geniusBlock);
+        logger.debug("I've init the blockchain with a genius block {}", geniusBlock);
     }
 
     public byte[] computeBlockHash(ProposalMessage msg) {

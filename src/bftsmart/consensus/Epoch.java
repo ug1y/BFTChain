@@ -26,6 +26,8 @@ import bftsmart.consensus.messages.ConsensusMessage;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.reconfiguration.views.View;
 import bftsmart.tom.core.messages.TOMMessage;
+
+import java.util.LinkedHashSet;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import bftsmart.consensus.chainmessages.VoteMessage;
@@ -47,7 +49,7 @@ public class Epoch implements Serializable {
     private boolean[] voteSetted;
     private byte[][] write; // WRITE values from other processes
     private byte[][] accept; // accepted values from other processes
-    private Set<VoteMessage> votes;
+    private LinkedHashSet<VoteMessage> votes;
     private boolean writeSent;
     private boolean acceptSent;
     private boolean acceptCreated;
@@ -94,7 +96,7 @@ public class Epoch implements Serializable {
 
         Arrays.fill(writeSetted, false);
         Arrays.fill(acceptSetted, false);
-        votes = new HashSet<VoteMessage>();
+        votes = new LinkedHashSet<VoteMessage>();
 
         writeSent = false;
         acceptSent = false;
@@ -388,7 +390,7 @@ public class Epoch implements Serializable {
         return counter;
     }
 
-    public Set<VoteMessage> getVotes() {
+    public LinkedHashSet<VoteMessage> getVotes() {
         return votes;
     }
 

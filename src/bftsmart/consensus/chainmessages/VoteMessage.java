@@ -28,6 +28,14 @@ public class VoteMessage extends ChainConsensusMessage {
 //        this.signature = null;
     }
 
+    public boolean verifySignature(){
+        return true;
+    }
+
+    public byte[] getBlockHash() {
+        return blockHash;
+    }
+
     @Override
     public String toString(){
         return "\ntype = VOTE" +

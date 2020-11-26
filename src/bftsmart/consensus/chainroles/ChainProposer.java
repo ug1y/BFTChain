@@ -16,6 +16,12 @@ import bftsmart.consensus.Epoch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.sql.Array;
+import java.util.Arrays;
+
 ///
 public class ChainProposer {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -26,8 +32,6 @@ public class ChainProposer {
     private ExecutionManager executionManager;// Execution manager of consensus's executions
     private TOMLayer tomLayer; // TOM layer
     private byte[] data;
-    private int cid;
-    private boolean newcid = false;
 
 
     public ChainProposer(ServerCommunicationSystem communication,
@@ -46,12 +50,6 @@ public class ChainProposer {
 
     public void setTOMLayer(TOMLayer tomLayer) {
         this.tomLayer = tomLayer;
-    }
-
-    public final void getProposalValue(int cid) {
-        logger.info("prepare cid for consensus {}", cid);
-        this.cid = cid;
-        this.newcid = true;
     }
 
     /**
@@ -113,7 +111,13 @@ public class ChainProposer {
      * @return valid(true) or not(false)
      */
     private boolean checkVOTE(VoteMessage msg) {
-        return true;
+//        if(msg.verifySignature() &&
+//                Arrays.equals(msg.getBlockHash(), blockchain.getCurrentHash())) {
+            return true;
+//        }
+//        else {
+//            return false;
+//        }
     }
 
     /**
@@ -122,11 +126,12 @@ public class ChainProposer {
      * @param msg
      */
     public void executeVOTE(Epoch epoch, VoteMessage msg) {
-        epoch.setVote(msg.getSender(), msg);//record the VOTEs
-        if(epoch.countVote() > controller.getQuorum() && !epoch.isProposalSent() && newcid && tomLayer.clientsManager.havePendingRequests()){
+        if(epoch.countVote() <= controller.getQuorum()){
+            epoch.setVote(msg.getSender(), msg);//record the VOTEs
+        }
+        if(epoch.countVote() > controller.getQuorum() && !epoch.isProposalSent() && tomLayer.clientsManager.havePendingRequests()){
             epoch.proposalSent();
             logger.info("id {} proposalSent turned to true", msg.getConsId());
-            this.newcid = false;
             this.data = tomLayer.createPropose(tomLayer.execManager.getConsensus(msg.getConsId()).getDecision());
             ProposalMessage p = factory.createPROPOSAL(this.data, blockchain.getCurrentHash(),
                     epoch.getVotes(), 0, msg.getConsId(),0);

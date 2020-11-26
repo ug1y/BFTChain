@@ -6,12 +6,13 @@ import java.io.ObjectOutput;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 public class ProposalMessage extends ChainConsensusMessage {
 
     private byte[] data; // the data that the block contains
     private byte[] prevHash; // the hash value of the referred block
-    private Set<VoteMessage> votes; // the set of votes to prove this block valid
+    private LinkedHashSet<VoteMessage> votes; // the set of votes to prove this block valid
 
     private int leaderID; // identify the current leader
     private byte[] signature; // signed by the current leader
@@ -23,7 +24,7 @@ public class ProposalMessage extends ChainConsensusMessage {
      */
     public ProposalMessage(){}
 
-    public ProposalMessage(byte[] data, byte[] prevHash, Set<VoteMessage> votes,
+    public ProposalMessage(byte[] data, byte[] prevHash, LinkedHashSet<VoteMessage> votes,
                            int viewNumber, int consId, int epoch, int from) {
         super(ChainMessageFactory.PROPOSAL, viewNumber, consId, epoch, from);
 
@@ -38,6 +39,16 @@ public class ProposalMessage extends ChainConsensusMessage {
     }
 
     public boolean verifySignature() {
+        return true;
+    }
+
+    public boolean verifyVotes() {
+        for(VoteMessage vote : this.votes) {
+            if(!vote.verifySignature() ||
+                    !Arrays.equals(vote.getBlockHash(), this.prevHash)) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -59,10 +70,6 @@ public class ProposalMessage extends ChainConsensusMessage {
 
     public byte[] getPrevHash() {
         return prevHash;
-    }
-
-    public byte[] getHash() {
-        return new byte[1024];
     }
 
     @Override
@@ -142,7 +149,7 @@ public class ProposalMessage extends ChainConsensusMessage {
             }while(len > 0);
         }
 
-        votes = (Set<VoteMessage>)in.readObject();
+        votes = (LinkedHashSet<VoteMessage>)in.readObject();
 
     }
 }
