@@ -139,5 +139,6 @@ public class ChainProposer {
             logger.info("get enough votes, proposing");
             communication.send(this.controller.getCurrentViewAcceptors(), p);
         }
+        executionManager.processOutOfContext(epoch.getConsensus());
     }
 }
