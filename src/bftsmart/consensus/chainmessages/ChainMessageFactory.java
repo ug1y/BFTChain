@@ -31,7 +31,7 @@ public class ChainMessageFactory {
      * @param epoch the epoch this message in
      * @return a PROPOSAL message
      */
-    public ProposalMessage createPROPOSAL(byte[] data, byte[] prevHash, LinkedHashSet<VoteMessage> votes,
+    public ProposalMessage createPROPOSAL(byte[] data, byte[] prevHash, VoteMessage[] votes,
                                           int viewNumber, int consId, int epoch) {
         return new ProposalMessage(data, prevHash, votes, viewNumber, consId, epoch, this.from);
     }

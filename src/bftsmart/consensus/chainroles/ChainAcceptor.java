@@ -134,14 +134,7 @@ public final class ChainAcceptor {
         logger.info("PROPOSAL received from:{}, for consensus cId:{}",
                 msg.getSender(), cid);
         if (checkPROPOSAL(msg)) {
-            ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-            try {
-                new ObjectOutputStream(bOut).writeObject(msg.getVotes());
-            } catch (IOException ex) {
-                logger.error("Failed to serialize message", ex);
-            }
-            System.out.println(Arrays.toString(bOut.toByteArray()));
-
+//            System.out.println(msg);
             blockchain.appendBlock(msg);
             decide(msg);
         } else {
@@ -155,13 +148,13 @@ public final class ChainAcceptor {
      * @return valid(true) or not(false)
      */
     private boolean checkPROPOSAL(ProposalMessage msg) {
-//        if(msg.getSender() == executionManager.getCurrentLeader() &&
-//                Arrays.equals(msg.getPrevHash(), blockchain.getCurrentHash()) &&
-//                msg.verifySignature() &&
-//                msg.verifyVotes()) {
+        if(msg.getSender() == executionManager.getCurrentLeader() &&
+                Arrays.equals(msg.getPrevHash(), blockchain.getCurrentHash()) &&
+                msg.verifySignature() &&
+                msg.verifyVotes(controller.getQuorum())) {
             return true;
-//        }
-//        return false;
+        }
+        return false;
     }
 
     /**

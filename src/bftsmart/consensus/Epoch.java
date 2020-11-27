@@ -49,7 +49,7 @@ public class Epoch implements Serializable {
     private boolean[] voteSetted;
     private byte[][] write; // WRITE values from other processes
     private byte[][] accept; // accepted values from other processes
-    private LinkedHashSet<VoteMessage> votes;
+    private VoteMessage[] votes;
     private boolean writeSent;
     private boolean acceptSent;
     private boolean acceptCreated;
@@ -96,7 +96,7 @@ public class Epoch implements Serializable {
 
         Arrays.fill(writeSetted, false);
         Arrays.fill(acceptSetted, false);
-        votes = new LinkedHashSet<VoteMessage>();
+        votes = new VoteMessage[4];
 
         writeSent = false;
         acceptSent = false;
@@ -370,7 +370,7 @@ public class Epoch implements Serializable {
         //******* EDUARDO BEGIN **************//
         int p = this.controller.getCurrentViewPos(acceptor);
         if (p >= 0) { //it can only be setted once
-            votes.add(msg);
+            votes[p] = msg;
             voteSetted[p] = true;
         }
         //******* EDUARDO END **************//
@@ -390,7 +390,7 @@ public class Epoch implements Serializable {
         return counter;
     }
 
-    public LinkedHashSet<VoteMessage> getVotes() {
+    public VoteMessage[] getVotes() {
         return votes;
     }
 

@@ -12,19 +12,19 @@ public class ProposalMessage extends ChainConsensusMessage {
 
     private byte[] data; // the data that the block contains
     private byte[] prevHash; // the hash value of the referred block
-    private LinkedHashSet<VoteMessage> votes; // the set of votes to prove this block valid
+    private VoteMessage[] votes; // the set of votes to prove this block valid
 
     private int leaderID; // identify the current leader
     private byte[] signature; // signed by the current leader
 
-    private int index; // the height of the block (extra)
+//    private int index; // the height of the block (extra)
 
     /**
      * to avoid EOFException in Serializable
      */
     public ProposalMessage(){}
 
-    public ProposalMessage(byte[] data, byte[] prevHash, LinkedHashSet<VoteMessage> votes,
+    public ProposalMessage(byte[] data, byte[] prevHash, VoteMessage[] votes,
                            int viewNumber, int consId, int epoch, int from) {
         super(ChainMessageFactory.PROPOSAL, viewNumber, consId, epoch, from);
 
@@ -42,12 +42,20 @@ public class ProposalMessage extends ChainConsensusMessage {
         return true;
     }
 
-    public boolean verifyVotes() {
+    public boolean verifyVotes(int Quorum) {
+        int count = 0;
         for(VoteMessage vote : this.votes) {
+            if(vote == null){
+                continue;
+            }
             if(!vote.verifySignature() ||
                     !Arrays.equals(vote.getBlockHash(), this.prevHash)) {
                 return false;
             }
+            count += 1;
+        }
+        if(count <= Quorum) {
+            return false;
         }
         return true;
     }
@@ -56,7 +64,7 @@ public class ProposalMessage extends ChainConsensusMessage {
         return data;
     }
 
-    public Set<VoteMessage> getVotes() {
+    public VoteMessage[] getVotes() {
         return votes;
     }
 
@@ -79,7 +87,7 @@ public class ProposalMessage extends ChainConsensusMessage {
                 "\nepoch = " + super.epoch +
                 "\ndata = " + Arrays.toString(this.data) +
                 "\nprevHash = " + Arrays.toString(this.prevHash) +
-                "\nvotes = " + this.votes +
+                "\nvotes = " + Arrays.toString(this.votes) +
                 "\nleaderID = " + this.leaderID +
                 "\nsignature = " + Arrays.toString(this.signature);
     }
@@ -149,7 +157,7 @@ public class ProposalMessage extends ChainConsensusMessage {
             }while(len > 0);
         }
 
-        votes = (LinkedHashSet<VoteMessage>)in.readObject();
+        votes = (VoteMessage[])in.readObject();
 
     }
 }

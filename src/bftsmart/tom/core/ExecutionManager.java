@@ -29,6 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import bftsmart.consensus.Decision;
 import bftsmart.consensus.chainmessages.ChainConsensusMessage;
+import bftsmart.consensus.chainmessages.VoteMessage;
 import bftsmart.consensus.messages.MessageFactory;
 import bftsmart.consensus.messages.ConsensusMessage;
 import bftsmart.consensus.roles.Acceptor;
@@ -256,15 +257,15 @@ public final class ExecutionManager {
      */
     public final boolean checkLimits(ConsensusMessage msg) {
         outOfContextLock.lock();
-        
+
         int lastConsId = tomLayer.getLastExec();
-        
+
         int inExec = tomLayer.getInExec();
-        
+
         logger.debug("Received message  " + msg);
-        logger.debug("I'm at consensus " + 
+        logger.debug("I'm at consensus " +
                 inExec + " and my last consensus is " + lastConsId);
-        
+
         boolean isRetrievingState = tomLayer.isRetrievingState();
 
         if (isRetrievingState) {
@@ -278,8 +279,8 @@ public final class ExecutionManager {
         // while a replica is receiving the state of the others and updating itself
         if (isRetrievingState || // Is this replica retrieving a state?
                 (!(lastConsId == -1 && msg.getNumber() >= (lastConsId + revivalHighMark)) && //not a recovered replica
-                (msg.getNumber() > lastConsId && (msg.getNumber() < (lastConsId + paxosHighMark))) && // not an ahead of time message
-                !(stopped && msg.getNumber() >= (lastConsId + timeoutHighMark)))) { // not a timed-out replica which needs to fetch the state
+                        (msg.getNumber() > lastConsId && (msg.getNumber() < (lastConsId + paxosHighMark))) && // not an ahead of time message
+                        !(stopped && msg.getNumber() >= (lastConsId + timeoutHighMark)))) { // not a timed-out replica which needs to fetch the state
 
             if (stopped) {//just an optimization to avoid calling the lock in normal case
                 stoppedMsgsLock.lock();
@@ -291,23 +292,23 @@ public final class ExecutionManager {
                 }
                 stoppedMsgsLock.unlock();
             } else {
-                if (isRetrievingState || 
-                        msg.getNumber() > (lastConsId + 1) || 
-                        (inExec != -1 && inExec < msg.getNumber()) || 
+                if (isRetrievingState ||
+                        msg.getNumber() > (lastConsId + 1) ||
+                        (inExec != -1 && inExec < msg.getNumber()) ||
                         (inExec == -1 && msg.getType() != MessageFactory.PROPOSE)) { //not propose message for the next consensus
-                    logger.debug("Message for consensus " + 
+                    logger.debug("Message for consensus " +
                             msg.getNumber() + " is out of context, adding it to out of context set");
-                    
+
 
                     //System.out.println("(ExecutionManager.checkLimits) Message for consensus " + 
-                     //       msg.getNumber() + " is out of context, adding it to out of context set; isRetrievingState="+isRetrievingState);
-                    
-                    
+                    //       msg.getNumber() + " is out of context, adding it to out of context set; isRetrievingState="+isRetrievingState);
+
+
                     addOutOfContextMessage(msg);
                 } else { //can process!
-                    logger.debug("Message for consensus " + 
+                    logger.debug("Message for consensus " +
                             msg.getNumber() + " can be processed");
-            
+
                     //Logger.debug = false;
                     canProcessTheMessage = true;
                 }
@@ -336,7 +337,7 @@ public final class ExecutionManager {
             }
             /******************************************************************/
         }
-        
+
         outOfContextLock.unlock();
 
         return canProcessTheMessage;

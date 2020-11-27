@@ -2,9 +2,21 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7e9156b9-c954-4ff8-a4a1-622cf0e175ab" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/BFTChain-master.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BFTChain-master.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ant.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ant.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/lib.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/lib.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BFTChain.iml" beforeDir="false" afterPath="$PROJECT_DIR$/BFTChain.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/BFT-SMaRt.jar" beforeDir="false" afterPath="$PROJECT_DIR$/bin/BFT-SMaRt.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/clientsmanagement/RequestList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/clientsmanagement/RequestList.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/communication/MessageHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/communication/MessageHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/communication/ServerCommunicationSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/communication/ServerCommunicationSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/Blockchain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/Blockchain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/Epoch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/Epoch.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ChainConsensusMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ChainConsensusMessage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ChainMessageFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ChainMessageFactory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ProposalMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ProposalMessage.java" afterDir="false" />
@@ -12,10 +24,16 @@
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/VoteMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/VoteMessage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainroles/ChainAcceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainroles/ChainAcceptor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainroles/ChainProposer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainroles/ChainProposer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/messages/MessageFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/messages/MessageFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Acceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Acceptor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Proposer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Proposer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/ServiceReplica.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/ServiceReplica.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/core/ExecutionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/core/ExecutionManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/core/Synchronizer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/core/Synchronizer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/core/TOMLayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/core/TOMLayer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/core/messages/TOMMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/core/messages/TOMMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/util/TOMUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/util/TOMUtil.java" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -73,18 +91,6 @@
       <recent name="$PROJECT_DIR$/src/bftsmart/consensus/blockchain" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
-  </component>
   <component name="RunManager">
     <configuration default="true" type="Application" factoryName="Application">
       <module name="BFTChain-master" />
@@ -134,6 +140,8 @@
       <workItem from="1606294833453" duration="9462000" />
       <workItem from="1606317736848" duration="27000" />
       <workItem from="1606358367329" duration="3681000" />
+      <workItem from="1606374609569" duration="12166000" />
+      <workItem from="1606445105986" duration="2302000" />
     </task>
     <servers />
   </component>
@@ -197,10 +205,11 @@
       <screen x="67" y="27" width="1611" height="869" />
     </state>
     <state x="325" y="37" width="1084" height="847" key="CommitChangelistDialog2/67.27.1611.869@67.27.1611.869" timestamp="1605861140742" />
-    <state x="182" y="145" width="1411" height="671" key="DiffContextDialog" timestamp="1605861016962">
-      <screen x="67" y="27" width="1611" height="869" />
+    <state x="199" y="170" width="1623" height="814" key="DiffContextDialog" timestamp="1606375195091">
+      <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="182" y="145" width="1411" height="671" key="DiffContextDialog/67.27.1611.869@67.27.1611.869" timestamp="1605861016962" />
+    <state x="199" y="170" width="1623" height="814" key="DiffContextDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1606375195091" />
     <state x="683" y="261" width="735" height="400" key="FileChooserDialogImpl" timestamp="1605753730672">
       <screen x="67" y="27" width="1611" height="869" />
     </state>
@@ -215,6 +224,10 @@
       <screen x="67" y="27" width="1851" height="861" />
     </state>
     <state x="648" y="285" key="com.intellij.ide.util.TipDialog/67.27.1851.861@67.27.1851.861" timestamp="1603953941998" />
+    <state x="726" y="323" width="524" height="458" key="extract.method.dialog" timestamp="1606397863693">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="726" y="323" width="524" height="458" key="extract.method.dialog/67.27.1853.1053@67.27.1853.1053" timestamp="1606397863693" />
     <state x="517" y="70" width="713" height="780" key="find.popup" timestamp="1605776595725">
       <screen x="67" y="27" width="1611" height="869" />
     </state>
@@ -225,10 +238,10 @@
     <state x="580" y="207" key="run.anything.popup/67.27.1611.869@67.27.1611.869" timestamp="1605860625487" />
     <state x="656" y="205" key="run.anything.popup/67.27.1851.861@67.27.1851.861" timestamp="1604211353960" />
     <state x="657" y="245" key="run.anything.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1605172059480" />
-    <state x="656" y="250" width="673" height="830" key="search.everywhere.popup" timestamp="1604989074051">
+    <state x="656" y="250" width="673" height="830" key="search.everywhere.popup" timestamp="1606392944460">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="655" y="209" width="672" height="678" key="search.everywhere.popup/67.27.1851.861@67.27.1851.861" timestamp="1604211417418" />
-    <state x="656" y="250" width="673" height="830" key="search.everywhere.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1604989074051" />
+    <state x="656" y="250" width="673" height="830" key="search.everywhere.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1606392944460" />
   </component>
 </project>

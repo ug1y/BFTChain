@@ -106,18 +106,18 @@ public class ChainProposer {
     }
 
     /**
-     * check whether a VOTE message is valid
+     * js  whether a VOTE message is valid
      * @param msg the VOTE message
      * @return valid(true) or not(false)
      */
     private boolean checkVOTE(VoteMessage msg) {
-//        if(msg.verifySignature() &&
-//                Arrays.equals(msg.getBlockHash(), blockchain.getCurrentHash())) {
+        if(msg.verifySignature() &&
+                Arrays.equals(msg.getBlockHash(), blockchain.getCurrentHash())) {
             return true;
-//        }
-//        else {
-//            return false;
-//        }
+        }
+        else {
+            return false;
+        }
     }
 
     /**
