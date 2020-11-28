@@ -30,6 +30,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import bftsmart.consensus.Decision;
 import bftsmart.consensus.chainmessages.ChainConsensusMessage;
 import bftsmart.consensus.chainmessages.ChainMessageFactory;
+import bftsmart.consensus.chainmessages.ProposalMessage;
 import bftsmart.consensus.chainmessages.VoteMessage;
 import bftsmart.consensus.messages.MessageFactory;
 import bftsmart.consensus.messages.ConsensusMessage;
@@ -70,10 +71,9 @@ public final class ExecutionManager {
     // Paxos messages that were out of context (that didn't belong to the consensus that was/is is progress
     private Map<Integer, List<ConsensusMessage>> outOfContext = new HashMap<Integer, List<ConsensusMessage>>();
     private Map<Integer, List<VoteMessage>> outOfContextVote = new HashMap<Integer, List<VoteMessage>>();
-    private Map<Integer, List<ChainConsensusMessage>> outOfContextchain = new HashMap<Integer, List<ChainConsensusMessage>>();
     // Proposes that were out of context (that belonged to future consensuses, and not the one running at the time)
     private Map<Integer, ConsensusMessage> outOfContextProposes = new HashMap<Integer, ConsensusMessage>();
-    private Map<Integer, ChainConsensusMessage> outOfContextProposeschain = new HashMap<Integer, ChainConsensusMessage>();
+    private Map<Integer, ProposalMessage> outOfContextProposal = new HashMap<Integer, ProposalMessage>();
     private ReentrantLock outOfContextLock = new ReentrantLock(); //lock for out of context
     private boolean stopped = false; // Is the execution manager stopped?
     // When the execution manager is stopped, incoming paxos messages are stored here
@@ -364,9 +364,9 @@ public final class ExecutionManager {
                 (msg.getConsId() < inExec)
         ) {
             logger.info("too old message with number {}.", msg.getConsId());
-        }else if(msg.getConsId() > inExec && msg.getMsgType() == ChainMessageFactory.VOTE) {
-            addOutOfContextVoteMessage((VoteMessage)msg);
-            logger.info("too new message with number {}.", msg.getConsId());
+        }else if(msg.getConsId() > inExec && inExec != -1){
+            addOutOfContextChainMessage(msg);
+            logger.info("too new vote message with number {}.", msg.getConsId());
         }
         else {// can process
             logger.debug("can process message with number {}.", msg.getConsId());
@@ -385,6 +385,17 @@ public final class ExecutionManager {
         outOfContextLock.lock();
         /******* BEGIN OUTOFCONTEXT CRITICAL SECTION *******/
         boolean result = outOfContextProposes.get(cid) != null;
+        /******* END OUTOFCONTEXT CRITICAL SECTION *******/
+        outOfContextLock.unlock();
+
+        return result;
+    }
+
+
+    public boolean receivedOutOfContextProposal(int cid) {
+        outOfContextLock.lock();
+        /******* BEGIN OUTOFCONTEXT CRITICAL SECTION *******/
+        boolean result = outOfContextProposal.get(cid) != null;
         /******* END OUTOFCONTEXT CRITICAL SECTION *******/
         outOfContextLock.unlock();
 
@@ -411,6 +422,7 @@ public final class ExecutionManager {
         outOfContextLock.lock();
         /******* BEGIN OUTOFCONTEXT CRITICAL SECTION *******/
         outOfContextProposes.remove(id);
+        outOfContextProposal.remove(id);
         outOfContext.remove(id);
         outOfContextVote.remove(id);
 
@@ -430,6 +442,14 @@ public final class ExecutionManager {
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] <= id) {
                 outOfContextProposes.remove(keys[i]);
+            }
+        }
+
+        keys = new Integer[outOfContextProposal.keySet().size()];
+        outOfContextProposal.keySet().toArray(keys);
+        for (int i = 0; i < keys.length; i++) {
+            if (keys[i] <= id) {
+                outOfContextProposal.remove(keys[i]);
             }
         }
 
@@ -463,7 +483,7 @@ public final class ExecutionManager {
     public Consensus getConsensus(int cid) {
         consensusesLock.lock();
         /******* BEGIN CONSENSUS CRITICAL SECTION *******/
-        
+
         Consensus consensus = consensuses.get(cid);
 
         if (consensus == null) {//there is no consensus created with the given cid
@@ -481,7 +501,7 @@ public final class ExecutionManager {
 
         return consensus;
     }
-    
+
     public boolean isDecidable(int cid) {
         if (receivedOutOfContextPropose(cid)) {
             Consensus cons = getConsensus(cid);
@@ -493,16 +513,16 @@ public final class ExecutionManager {
             int countAccepts = 0;
             if (msgs != null) {
                 for (ConsensusMessage msg : msgs) {
-                    
+
                     if (msg.getEpoch() == epoch.getTimestamp() &&
                             Arrays.equals(propHash, msg.getValue())) {
-                        
+
                         if (msg.getType() == MessageFactory.WRITE) countWrites++;
                         else if (msg.getType() == MessageFactory.ACCEPT) countAccepts++;
                     }
                 }
             }
-            
+
             if(controller.getStaticConf().isBFT()){
             	return ((countWrites > (2*controller.getCurrentViewF())) &&
             			(countAccepts > (2*controller.getCurrentViewF())));
@@ -512,15 +532,22 @@ public final class ExecutionManager {
         }
         return false;
     }
+
     public void processOutOfContextPropose(Consensus consensus) {
         outOfContextLock.lock();
         /******* BEGIN OUTOFCONTEXT CRITICAL SECTION *******/
-        
+
         ConsensusMessage prop = outOfContextProposes.remove(consensus.getId());
         if (prop != null) {
             logger.debug("[Consensus " + consensus.getId()
                     + "] Processing out of context propose");
             acceptor.processMessage(prop);
+        }
+        ProposalMessage proposal = outOfContextProposal.remove(consensus.getId());
+        if (proposal != null) {
+            logger.debug("[Consensus " + consensus.getId()
+                    + "] Processing out of context propose");
+            chainAcceptor.processMessage(proposal);
         }
 
         /******* END OUTOFCONTEXT CRITICAL SECTION *******/
@@ -598,17 +625,21 @@ public final class ExecutionManager {
         outOfContextLock.unlock();
     }
 
-    public void addOutOfContextVoteMessage(VoteMessage v) {
+    public void addOutOfContextChainMessage(ChainConsensusMessage msg) {
         outOfContextLock.lock();
-        /******* BEGIN OUTOFCONTEXT CRITICAL SECTION *******/
-        List<VoteMessage> messages = outOfContextVote.get(v.getConsId());
-        if (messages == null) {
-            messages = new LinkedList<VoteMessage>();
-            outOfContextVote.put(v.getConsId(), messages);
+        if (msg.getMsgType() == ChainMessageFactory.PROPOSAL) {
+            logger.debug("Adding " + msg);
+            outOfContextProposal.put(msg.getConsId(), (ProposalMessage) msg);
         }
-        logger.debug("Adding " + v);
-        messages.add(v);
-        /******* END OUTOFCONTEXT CRITICAL SECTION *******/
+        else {
+            List<VoteMessage> messages = outOfContextVote.get(msg.getConsId());
+            if (messages == null) {
+                messages = new LinkedList<VoteMessage>();
+                outOfContextVote.put(msg.getConsId(), messages);
+            }
+            logger.debug("Adding " + msg);
+            messages.add((VoteMessage) msg);
+        }
         outOfContextLock.unlock();
     }
 

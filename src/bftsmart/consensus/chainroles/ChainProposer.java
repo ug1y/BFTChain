@@ -99,6 +99,9 @@ public class ChainProposer {
         logger.info("VOTE received from:{}, for consensus cId:{}",
                 msg.getSender(), cid);
         if (checkVOTE(msg)) {
+            if(epoch.countVote() <= controller.getQuorum()){//votes still not enough
+                epoch.setVote(msg.getSender(), msg);//record the VOTEs
+            }
             executeVOTE(epoch, msg);
         } else {
             logger.info("VOTE invalid.");
@@ -106,13 +109,13 @@ public class ChainProposer {
     }
 
     /**
-     * js  whether a VOTE message is valid
+     * check whether a VOTE message is valid
      * @param msg the VOTE message
      * @return valid(true) or not(false)
      */
     private boolean checkVOTE(VoteMessage msg) {
-        if(msg.verifySignature() &&
-                Arrays.equals(msg.getBlockHash(), blockchain.getCurrentHash())) {
+        if(msg.verifySignature() &&// is the signature valid?
+                Arrays.equals(msg.getBlockHash(), blockchain.getCurrentHash())) {// is the vote's blockhash equals to the one which voting for?
             return true;
         }
         else {
@@ -126,10 +129,9 @@ public class ChainProposer {
      * @param msg
      */
     public void executeVOTE(Epoch epoch, VoteMessage msg) {
-        if(epoch.countVote() <= controller.getQuorum()){
-            epoch.setVote(msg.getSender(), msg);//record the VOTEs
-        }
-        if(epoch.countVote() > controller.getQuorum() && !epoch.isProposalSent() && tomLayer.clientsManager.havePendingRequests()){
+        if(epoch.countVote() > controller.getQuorum() && // there are enough votes
+                !epoch.isProposalSent() && // proposal haven't been sent yet
+                tomLayer.clientsManager.havePendingRequests()){// there are requests can be gotten
             epoch.proposalSent();
             logger.info("id {} proposalSent turned to true", msg.getConsId());
             this.data = tomLayer.createPropose(tomLayer.execManager.getConsensus(msg.getConsId()).getDecision());

@@ -579,8 +579,13 @@ public final class TOMLayer extends Thread implements RequestReceiver {
 
     public void processOutOfContext() {
         for (int nextConsensus = getLastExec() + 1;
-                execManager.receivedOutOfContextPropose(nextConsensus);
-                nextConsensus = getLastExec() + 1) {
+             execManager.receivedOutOfContextPropose(nextConsensus);
+             nextConsensus = getLastExec() + 1) {
+            execManager.processOutOfContextPropose(execManager.getConsensus(nextConsensus));
+        }
+        for (int nextConsensus = getLastExec() + 1;
+             execManager.receivedOutOfContextProposal(nextConsensus);
+             nextConsensus = getLastExec() + 1) {
             execManager.processOutOfContextPropose(execManager.getConsensus(nextConsensus));
         }
     }

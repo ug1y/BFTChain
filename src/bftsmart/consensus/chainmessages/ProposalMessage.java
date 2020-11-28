@@ -121,7 +121,14 @@ public class ProposalMessage extends ChainConsensusMessage {
             out.write(signature);
         }
 
-        out.writeObject(votes);
+        if(votes == null) {
+            out.writeInt(-1);
+        } else {
+            out.writeInt(votes.length);
+            for(VoteMessage v : votes) {
+                out.writeObject(v);
+            }
+        }
 
     }
 
@@ -157,7 +164,13 @@ public class ProposalMessage extends ChainConsensusMessage {
             }while(len > 0);
         }
 
-        votes = (VoteMessage[])in.readObject();
+        len = in.readInt();
+        if(len != -1) {
+            votes = new VoteMessage[len];
+            for(int i = 0; i < len; i++) {
+                votes[i] = (VoteMessage)in.readObject();
+            }
+        }
 
     }
 }

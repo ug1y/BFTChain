@@ -96,7 +96,10 @@ public class Epoch implements Serializable {
 
         Arrays.fill(writeSetted, false);
         Arrays.fill(acceptSetted, false);
-        votes = new VoteMessage[4];
+        votes = new VoteMessage[this.controller.getCurrentViewAcceptors().length];
+        for(VoteMessage v : votes){
+            v = null;
+        }
 
         writeSent = false;
         acceptSent = false;

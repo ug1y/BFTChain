@@ -82,6 +82,7 @@ public final class ChainAcceptor {
         }
         else {
             logger.debug("Out of context msg in view {}", msg.getViewNumber());
+            tomLayer.processOutOfContext();
             // using SYNC asking for latest blocks
         }
     }
@@ -134,7 +135,6 @@ public final class ChainAcceptor {
         logger.info("PROPOSAL received from:{}, for consensus cId:{}",
                 msg.getSender(), cid);
         if (checkPROPOSAL(msg)) {
-//            System.out.println(msg);
             blockchain.appendBlock(msg);
             decide(msg);
         } else {
@@ -148,10 +148,10 @@ public final class ChainAcceptor {
      * @return valid(true) or not(false)
      */
     private boolean checkPROPOSAL(ProposalMessage msg) {
-        if(msg.getSender() == executionManager.getCurrentLeader() &&
-                Arrays.equals(msg.getPrevHash(), blockchain.getCurrentHash()) &&
-                msg.verifySignature() &&
-                msg.verifyVotes(controller.getQuorum())) {
+        if(msg.getSender() == executionManager.getCurrentLeader() &&// is the message from the leader?
+                Arrays.equals(msg.getPrevHash(), blockchain.getCurrentHash()) &&// is the hash link valid?
+                msg.verifySignature() &&// is the signature valid?
+                msg.verifyVotes(controller.getQuorum())) {//if all votes are valid?
             return true;
         }
         return false;
