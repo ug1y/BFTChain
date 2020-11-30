@@ -1,21 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7e9156b9-c954-4ff8-a4a1-622cf0e175ab" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/BFTChain-master.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BFTChain-master.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ant.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ant.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/lib.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/lib.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="7e9156b9-c954-4ff8-a4a1-622cf0e175ab" name="Default Changelist" comment="调整了一些变量命名，重新整理了一下tomlayer线程逻辑。">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BFTChain.iml" beforeDir="false" afterPath="$PROJECT_DIR$/BFTChain.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/BFT-SMaRt.jar" beforeDir="false" afterPath="$PROJECT_DIR$/bin/BFT-SMaRt.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/clientsmanagement/RequestList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/clientsmanagement/RequestList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/communication/MessageHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/communication/MessageHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/communication/ServerCommunicationSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/communication/ServerCommunicationSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/Blockchain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/Blockchain.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/Epoch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/Epoch.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ChainConsensusMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ChainConsensusMessage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ChainMessageFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/ChainMessageFactory.java" afterDir="false" />
@@ -23,16 +10,6 @@
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/SyncMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/SyncMessage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/VoteMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainmessages/VoteMessage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainroles/ChainAcceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainroles/ChainAcceptor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/chainroles/ChainProposer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/chainroles/ChainProposer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/messages/MessageFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/messages/MessageFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Acceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Acceptor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Proposer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/consensus/roles/Proposer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/ServiceReplica.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/ServiceReplica.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/core/ExecutionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/core/ExecutionManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/core/Synchronizer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/core/Synchronizer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/core/TOMLayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/core/TOMLayer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/core/messages/TOMMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/core/messages/TOMMessage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bftsmart/tom/util/TOMUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bftsmart/tom/util/TOMUtil.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,6 +67,18 @@
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/bftsmart/consensus/blockchain" />
     </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
   </component>
   <component name="RunManager">
     <configuration default="true" type="Application" factoryName="Application">
