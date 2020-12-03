@@ -82,7 +82,9 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 	//the reply associated with this message
 	public transient TOMMessage reply = null;
 	public transient boolean alreadyProposed = false;
-	
+
+	private boolean isConfirmed = false;
+
 	private int replyServer = -1;
 
 	public TOMMessage() {
@@ -187,6 +189,14 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 	 */
 	public byte[] getContent() {
 		return content;
+	}
+
+	public void confirm() {
+		isConfirmed = true;
+	}
+
+	public boolean isConfirmed() {
+		return isConfirmed;
 	}
 
 	/**

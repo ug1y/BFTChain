@@ -83,18 +83,18 @@ public final class DeliveryThread extends Thread {
 	 * 
 	 * @param dec Decision established from the consensus
 	 */
-	public void delivery(Decision dec) {
+	public void delivery(Decision dec) {// not sure about how to rewrite here...
 
 		try {
 			decidedLock.lock();
 			decided.put(dec);
-
-			// clean the ordered messages from the pending buffer
-			TOMMessage[] requests = extractMessagesFromDecision(dec);
-			logger.debug("requests = {}", requests);
-			tomLayer.clientsManager.requestsOrdered(requests);
-
-			notEmptyQueue.signalAll();
+			if(dec.isConfirmed()) {
+				// clean the ordered messages from the pending buffer
+				TOMMessage[] requests = extractMessagesFromDecision(dec);
+				logger.debug("requests = {}", requests);
+				tomLayer.clientsManager.requestsOrdered(requests);
+				notEmptyQueue.signalAll();
+			}
 			decidedLock.unlock();
 			logger.info("Consensus " + dec.getConsensusId() + " finished. Decided size=" + decided.size());
 		} catch (Exception e) {
@@ -102,12 +102,13 @@ public final class DeliveryThread extends Thread {
 		}
 
 		if (!containsReconfig(dec)) {
-
-			logger.debug("Decision from consensus " + dec.getConsensusId() + " does not contain reconfiguration");
-			// set this decision as the last one from this replica
-			tomLayer.setLastExec(dec.getConsensusId());
-			// define that end of this execution
-			tomLayer.setInExec(-1);
+			if(!dec.isConfirmed()) {
+				logger.debug("Decision from consensus " + dec.getConsensusId() + " does not contain reconfiguration");
+				// set this decision as the last one from this replica
+				tomLayer.setLastExec(dec.getConsensusId());
+				// define that end of this execution
+				tomLayer.setInExec(-1);
+			}
 		} // else if (tomLayer.controller.getStaticConf().getProcessId() == 0)
 			// System.exit(0);
 		else {
@@ -309,6 +310,9 @@ public final class DeliveryThread extends Thread {
 			requests = batchReader.deserialiseRequests(controller);
 		} else {
 			logger.debug("Using cached requests from the propose.");
+			for(TOMMessage t : requests) {
+				t.confirm();
+			}
 		}
 
 		return requests;
