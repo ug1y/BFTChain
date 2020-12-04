@@ -292,7 +292,18 @@ public class ServiceReplica {
             int requestCount = 0;
             noop = true;
             for (TOMMessage request : requestsFromConsensus) {
-                
+
+                if(!request.isConfirmed()) {
+                    noop = false;
+//                    byte[] a = new byte[1];
+//                    a[0] = -1;
+//                    TOMMessage unexecutedResponse = new TOMMessage(id, 0, 0, 0, a, 0, TOMMessageType.ORDERED_REQUEST);
+//                    logger.info("sending unexecuted reply to " + unexecutedResponse.getSender());
+//                    replier.manageReply(unexecutedResponse, null);
+                    System.out.println("UNEXECUTE REQUEST!");
+                    continue;
+                }
+
                 logger.debug("Processing TOMMessage from client " + request.getSender() + " with sequence number " + request.getSequence() + " for session " + request.getSession() + " decided in consensus " + consId[consensusCount]);
 
                 if (request.getViewID() == SVController.getCurrentViewId()) {
