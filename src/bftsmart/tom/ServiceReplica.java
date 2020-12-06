@@ -285,7 +285,6 @@ public class ServiceReplica {
         List<TOMMessage> toBatch = new ArrayList<>();
         List<MessageContext> msgCtxts = new ArrayList<>();
         boolean noop = true;
-
         for (TOMMessage[] requestsFromConsensus : requests) {
 
             TOMMessage firstRequest = requestsFromConsensus[0];
@@ -295,12 +294,7 @@ public class ServiceReplica {
 
                 if(!request.isConfirmed()) {
                     noop = false;
-//                    byte[] a = new byte[1];
-//                    a[0] = -1;
-//                    TOMMessage unexecutedResponse = new TOMMessage(id, 0, 0, 0, a, 0, TOMMessageType.ORDERED_REQUEST);
-//                    logger.info("sending unexecuted reply to " + unexecutedResponse.getSender());
-//                    replier.manageReply(unexecutedResponse, null);
-                    System.out.println("UNEXECUTE REQUEST!");
+                    logger.debug("UNEXECUTE REQUEST");
                     continue;
                 }
 

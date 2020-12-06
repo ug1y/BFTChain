@@ -216,7 +216,6 @@ public final class ChainAcceptor {
 
         ProposalMessage confirmedProposal = blockchain.getValidBlock();
         if(confirmedProposal != null) {
-            System.out.println("confirmedProposal: " + confirmedProposal.getConsId());
             confirmedConsensus = executionManager.getConsensus(confirmedProposal.getConsId());
             confirmedEpoch = confirmedConsensus.getEpoch(confirmedProposal.getEpoch(), controller);
             confirmedEpoch.getConsensus().setDecided(confirmedEpoch);
