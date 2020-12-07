@@ -93,8 +93,8 @@ public final class DeliveryThread extends Thread {
 				TOMMessage[] requests = extractMessagesFromDecision(dec);
 				logger.debug("requests = {}", requests);
 				tomLayer.clientsManager.requestsOrdered(requests);
+				notEmptyQueue.signalAll();
 			}
-			notEmptyQueue.signalAll();
 			decidedLock.unlock();
 			logger.info("Consensus " + dec.getConsensusId() + " finished. Decided size=" + decided.size());
 		} catch (Exception e) {
