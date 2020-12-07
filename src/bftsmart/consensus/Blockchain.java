@@ -82,7 +82,7 @@ public class Blockchain {
     }
 
 
-    public void appendBlock(ProposalMessage msg) {
+    public ProposalMessage appendBlock(ProposalMessage msg) {
         // only check if the proposal extends to the current block
         if (Arrays.equals(msg.getPrevHash(),this.currentHash)) {
             chain.add(msg);
@@ -90,7 +90,12 @@ public class Blockchain {
 
             currentHash = computeBlockHash(msg);
             blocks.put(currentHash,msg);
+
+            // return the committed block
+            if(currentHeight >= 3)
+                return chain.get(currentHeight-2);
         }
+        return null;
     }
 
     public boolean replaceBlock(ProposalMessage msg) {
@@ -118,12 +123,5 @@ public class Blockchain {
             return true;
         }
         return false;
-    }
-
-    public ProposalMessage getValidBlock() {
-        if(currentHeight >= 3)
-            return chain.get(currentHeight-2);
-        else
-            return null;
     }
 }

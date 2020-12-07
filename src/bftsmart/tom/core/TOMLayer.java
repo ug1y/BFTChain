@@ -468,20 +468,6 @@ public final class TOMLayer extends Thread implements RequestReceiver {
         this.dt.delivery(dec); // Sends the decision to the delivery thread
     }
 
-
-    public void doubleDecided(Decision dec, Decision cdec) {
-
-        dec.setRegency(syncher.getLCManager().getLastReg());
-        dec.setLeader(execManager.getCurrentLeader());
-        this.dt.delivery(dec); // Sends the decision to the delivery thread
-
-        cdec.confirm();
-        cdec.setRegency(syncher.getLCManager().getLastReg());
-        cdec.setLeader(execManager.getCurrentLeader());
-        this.dt.delivery(cdec); // Sends the decision to the delivery thread
-
-    }
-
     /**
      * Verify if the value being proposed for a epoch is valid. It verifies the
      * client signature of all batch requests.

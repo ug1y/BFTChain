@@ -204,26 +204,16 @@ public final class ChainAcceptor {
      */
     private void decide(ProposalMessage msg) {
         Consensus consensus = executionManager.getConsensus(msg.getConsId());
-        Consensus confirmedConsensus = null;
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
-        Epoch confirmedEpoch = null;
         byte[] value = msg.getData();
         epoch.propValue = value;
         epoch.deserializedPropValue = tomLayer.checkProposedValue(value, true);
+        epoch.writeSent();
+        epoch.acceptSent();
+        epoch.acceptCreated();
         if (epoch.getConsensus().getDecision().firstMessageProposed != null)
             epoch.getConsensus().getDecision().firstMessageProposed.decisionTime = System.nanoTime();
-        epoch.getConsensus().setDecided(epoch);
-
-        ProposalMessage confirmedProposal = blockchain.getValidBlock();
-        if(confirmedProposal != null) {
-            System.out.println("confirmedProposal: " + confirmedProposal.getConsId());
-            confirmedConsensus = executionManager.getConsensus(confirmedProposal.getConsId());
-            confirmedEpoch = confirmedConsensus.getEpoch(confirmedProposal.getEpoch(), controller);
-            confirmedEpoch.getConsensus().setDecided(confirmedEpoch);
-            executionManager.getTOMLayer().doubleDecided(epoch.getConsensus().getDecision(), confirmedEpoch.getConsensus().getDecision());
-        } else {
-            executionManager.getTOMLayer().decided(epoch.getConsensus().getDecision());
-        }
+        epoch.getConsensus().decided(epoch, true);
     }
 
 }

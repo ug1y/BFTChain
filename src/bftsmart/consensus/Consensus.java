@@ -319,13 +319,4 @@ public class Consensus {
             }
         }
     }
-
-
-    public void setDecided(Epoch epoch) {
-        if (!decided) {
-            decided = true;
-            decisionEpoch = epoch.getTimestamp();
-            decision.setDecisionEpoch(epoch);
-        }
-    }
 }

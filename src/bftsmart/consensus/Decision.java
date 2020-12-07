@@ -39,22 +39,12 @@ public class Decision {
     public TOMMessage firstMessageProposed = null;
     public int batchSize = 0;
 
-    private boolean isConfirmed = false;
-
     /**
      * Creates a new instance of Decision
      * @param cid The ID for the respective consensus
      */
     public Decision(int cid) {
         this.cid = cid;
-    }
-
-    public void confirm() {
-        isConfirmed = true;
-    }
-
-    public boolean isConfirmed() {
-        return isConfirmed;
     }
 
     /**
