@@ -27,6 +27,8 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Example replica that implements a BFT replicated service (a counter).
@@ -40,6 +42,7 @@ public final class CounterServer extends DefaultSingleRecoverable  {
     
     private int counter = 0;
     private int iterations = 0;
+    private List<Integer> resultList = new ArrayList<Integer>();
     
     public CounterServer(int id) {
     	new ServiceReplica(id, this, this);
@@ -64,7 +67,20 @@ public final class CounterServer extends DefaultSingleRecoverable  {
         iterations++;
         try {
             int increment = new DataInputStream(new ByteArrayInputStream(command)).readInt();
+            if(resultList.size() > 0) {
+                counter = resultList.get(resultList.size() - 1);
+            }
+            else {
+                counter = 0;
+            }
             counter += increment;
+            resultList.add(counter);
+            if(resultList.size() < 3) {
+                counter = 0;
+            }
+            else {
+                counter = resultList.get(resultList.size() - 3);
+            }
             
             System.out.println("(" + iterations + ") Counter was incremented. Current value = " + counter);
             
