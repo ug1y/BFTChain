@@ -88,9 +88,12 @@ public final class DeliveryThread extends Thread {
 		try {
 			decidedLock.lock();
 			decided.put(dec);
-			TOMMessage[] requests = extractMessagesFromDecision(dec);
-			logger.debug("requests = {}", requests);
-			tomLayer.clientsManager.requestsOrdered(requests);// clean the ordered messages from the pending buffer
+			if(dec.isConfirmed()) {
+				// clean the ordered messages from the pending buffer
+				TOMMessage[] requests = extractMessagesFromDecision(dec);
+				logger.debug("requests = {}", requests);
+				tomLayer.clientsManager.requestsOrdered(requests);
+			}
 			notEmptyQueue.signalAll();
 			decidedLock.unlock();
 			logger.info("Consensus " + dec.getConsensusId() + " finished. Decided size=" + decided.size());
@@ -109,7 +112,7 @@ public final class DeliveryThread extends Thread {
 		} // else if (tomLayer.controller.getStaticConf().getProcessId() == 0)
 			// System.exit(0);
 		else {
-			logger.info("Decision from consensus " + dec.getConsensusId() + " has reconfiguration");
+			logger.debug("Decision from consensus " + dec.getConsensusId() + " has reconfiguration");
 			lastReconfig = dec.getConsensusId();
 		}
 	}
@@ -307,9 +310,7 @@ public final class DeliveryThread extends Thread {
 			requests = batchReader.deserialiseRequests(controller);
 		} else {
 			logger.debug("Using cached requests from the propose.");
-		}
-		if (dec.isConfirmed() == true) {
-			for (TOMMessage t : requests) {
+			for(TOMMessage t : requests) {
 				t.confirm();
 			}
 		}

@@ -243,7 +243,6 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 		out.writeInt(sequence);
 		out.writeInt(operationId);
 		out.writeInt(replyServer);
-		out.writeBoolean(isConfirmed);
 		
 		if (content == null) {
 			out.writeInt(-1);
@@ -261,7 +260,6 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 		sequence = in.readInt();
 		operationId = in.readInt();
 		replyServer = in.readInt();
-		isConfirmed = in.readBoolean();
 		
 		int toRead = in.readInt();
 		if (toRead != -1) {
@@ -386,7 +384,6 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
                     clone.timeout = this.timeout;
                     clone.timestamp = this.timestamp;
                     clone.writeSentTime = this.writeSentTime;
-                    clone.isConfirmed = this.isConfirmed;
 
                     return clone;
                         

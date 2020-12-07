@@ -464,19 +464,20 @@ public final class TOMLayer extends Thread implements RequestReceiver {
         
         dec.setRegency(syncher.getLCManager().getLastReg());
         dec.setLeader(execManager.getCurrentLeader());
+        
         this.dt.delivery(dec); // Sends the decision to the delivery thread
     }
 
 
     public void doubleDecided(Decision dec, Decision cdec) {
 
+        dec.setRegency(syncher.getLCManager().getLastReg());
+        dec.setLeader(execManager.getCurrentLeader());
+        this.dt.delivery(dec); // Sends the decision to the delivery thread
 
         cdec.confirm();
-        dec.setRegency(syncher.getLCManager().getLastReg());
         cdec.setRegency(syncher.getLCManager().getLastReg());
-        dec.setLeader(execManager.getCurrentLeader());
         cdec.setLeader(execManager.getCurrentLeader());
-        this.dt.delivery(dec); // Sends the decision to the delivery thread
         this.dt.delivery(cdec); // Sends the decision to the delivery thread
 
     }
