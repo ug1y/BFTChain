@@ -74,7 +74,16 @@ public final class CounterServer extends DefaultSingleRecoverable  {
                 counter = 0;
             }
             counter += increment;
-            resultList.add(counter);
+            if(msgCtx.getConsensusId() == resultList.size()) {
+                resultList.add(counter);
+            }
+            else if(msgCtx.getConsensusId() == resultList.size() - 1) {
+                resultList.set(msgCtx.getConsensusId() - 1, counter);
+            }
+            else {
+                System.out.println("Out of Context ConsensusId: " + msgCtx.getConsensusId());
+                return new byte[0];
+            }
             if(resultList.size() < 3) {
                 counter = 0;
             }
