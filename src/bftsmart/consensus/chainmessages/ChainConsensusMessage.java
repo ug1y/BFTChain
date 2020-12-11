@@ -15,9 +15,7 @@ limitations under the License.
 */
 package bftsmart.consensus.chainmessages;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import java.io.*;
 
 import bftsmart.communication.SystemMessage;
 
@@ -64,6 +62,16 @@ public abstract class ChainConsensusMessage extends SystemMessage {
 
     public int getConsId() {
         return consId;
+    }
+
+    public byte[] getBytes() {
+        ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+        try{
+            new ObjectOutputStream(bOut).writeObject(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bOut.toByteArray();
     }
 
     @Override

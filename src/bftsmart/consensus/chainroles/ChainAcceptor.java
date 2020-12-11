@@ -18,10 +18,13 @@ package bftsmart.consensus.chainroles;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import bftsmart.tom.util.TOMUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +52,7 @@ public final class ChainAcceptor {
     private ServerViewController controller;// ServerViewController
     private ExecutorService proofExecutor = null;// thread pool used to paralelise creation of consensus proofs
     private Blockchain blockchain;
+    private PrivateKey privKey;
 
     /**
      * Creates a new instance of Acceptor.
@@ -67,6 +71,7 @@ public final class ChainAcceptor {
         this.controller = controller;
         this.proofExecutor = Executors.newSingleThreadExecutor();
         this.blockchain = blockchain;
+        this.privKey = controller.getStaticConf().getPrivateKey();
     }
 
     /**
@@ -108,7 +113,9 @@ public final class ChainAcceptor {
      */
     public void startConsensus(int cid) {
         VoteMessage v = factory.createVOTE(blockchain.getCurrentHash(), 0, cid, 0);
-        v.addSignature();
+        byte[] vb =  v.getBytes();
+        byte[] signature = TOMUtil.signMessage(privKey, vb);
+        v.addSignature(signature);
 
         int[] leader = new int[1];
         leader[0] = executionManager.getCurrentLeader();
@@ -163,10 +170,11 @@ public final class ChainAcceptor {
      * @return valid(true) or not(false)
      */
     private boolean checkPROPOSAL(ProposalMessage msg) {
+        PublicKey pubKey = controller.getStaticConf().getPublicKey(msg.getSender());
         if(msg.getSender() == executionManager.getCurrentLeader() &&// is the message from the leader?
                 Arrays.equals(msg.getPrevHash(), blockchain.getCurrentHash()) &&// is the hash link valid?
-                msg.verifySignature() &&// is the signature valid?
-                msg.verifyVotes(controller.getQuorum())) {//if all votes are valid?
+                msg.verifySignature(pubKey) &&// is the signature valid?
+                msg.verifyVotes(controller.getQuorum(), controller.getStaticConf())) {//if all votes are valid?
             return true;
         }
         return false;

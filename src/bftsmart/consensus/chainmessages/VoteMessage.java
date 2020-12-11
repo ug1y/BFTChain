@@ -19,7 +19,9 @@ package bftsmart.consensus.chainmessages;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.security.PublicKey;
 import java.util.Arrays;
+import bftsmart.tom.util.TOMUtil;
 
 public class VoteMessage extends ChainConsensusMessage {
 
@@ -39,12 +41,21 @@ public class VoteMessage extends ChainConsensusMessage {
         this.replicaID = from;
     }
 
-    public void addSignature() {
-//        this.signature = null;
+    public void addSignature(byte[] signature) {
+        this.signature = signature;
     }
 
-    public boolean verifySignature(){
-        return true;
+    public byte[] getSignature(){
+        return this.signature;
+    }
+
+    public boolean verifySignature(PublicKey pubKey) {
+        byte[] signature = this.signature;
+        this.signature = null;
+        byte[] b = this.getBytes();
+        boolean ret = TOMUtil.verifySignature(pubKey, b, signature);
+        this.signature = signature;
+        return ret;
     }
 
     public byte[] getBlockHash() {

@@ -28,12 +28,15 @@ import bftsmart.tom.core.ExecutionManager;
 import bftsmart.tom.core.TOMLayer;
 import bftsmart.consensus.Consensus;
 import bftsmart.consensus.Epoch;
+import bftsmart.tom.util.TOMUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.sql.Array;
 import java.util.Arrays;
 
@@ -47,6 +50,7 @@ public class ChainProposer {
     private ExecutionManager executionManager;// Execution manager of consensus's executions
     private TOMLayer tomLayer; // TOM layer
     private byte[] data;
+    private PrivateKey privKey;
 
 
     public ChainProposer(ServerCommunicationSystem communication,
@@ -57,6 +61,7 @@ public class ChainProposer {
         this.factory = factory;
         this.controller = controller;
         this.blockchain = blockchain;
+        this.privKey = controller.getStaticConf().getPrivateKey();
     }
 
     public void setExecutionManager(ExecutionManager executionManager) {
@@ -129,7 +134,8 @@ public class ChainProposer {
      * @return valid(true) or not(false)
      */
     private boolean checkVOTE(VoteMessage msg) {
-        if(msg.verifySignature() &&// is the signature valid?
+        PublicKey pubKey = controller.getStaticConf().getPublicKey(msg.getSender());
+        if(msg.verifySignature(pubKey) &&// is the signature valid?
                 Arrays.equals(msg.getBlockHash(), blockchain.getCurrentHash())) {// is the vote's blockhash equals to the one which voting for?
             return true;
         }
@@ -152,7 +158,9 @@ public class ChainProposer {
             this.data = tomLayer.createPropose(tomLayer.execManager.getConsensus(msg.getConsId()).getDecision());
             ProposalMessage p = factory.createPROPOSAL(this.data, blockchain.getCurrentHash(),
                     epoch.getVotes(), 0, msg.getConsId(),0);
-            p.addSignature();
+            byte[] pb =  p.getBytes();
+            byte[] signature = TOMUtil.signMessage(privKey, pb);
+            p.addSignature(signature);
             logger.info("get enough votes, proposing");
             communication.send(this.controller.getCurrentViewAcceptors(), p);
         }

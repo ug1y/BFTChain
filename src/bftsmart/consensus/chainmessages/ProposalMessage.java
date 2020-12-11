@@ -19,6 +19,10 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import bftsmart.reconfiguration.util.TOMConfiguration;
+import bftsmart.tom.util.TOMUtil;
+
+import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.LinkedHashSet;
@@ -49,21 +53,27 @@ public class ProposalMessage extends ChainConsensusMessage {
         this.leaderID = from;
     }
 
-    public void addSignature() {
-//        this.signature = null;
+    public void addSignature(byte[] signature) {
+        this.signature = signature;
     }
 
-    public boolean verifySignature() {
-        return true;
+    public boolean verifySignature(PublicKey pubKey) {
+        byte[] signature = this.signature;
+        this.signature = null;
+        byte[] b = this.getBytes();
+        boolean ret = TOMUtil.verifySignature(pubKey, b, signature);
+        this.signature = signature;
+        return ret;
     }
 
-    public boolean verifyVotes(int Quorum) {
+    public boolean verifyVotes(int Quorum, TOMConfiguration TC) {
         int count = 0;
         for(VoteMessage vote : this.votes) {
             if(vote == null){
                 continue;
             }
-            if(!vote.verifySignature() ||
+            PublicKey pubKey = TC.getPublicKey(vote.getSender());
+            if(!vote.verifySignature(pubKey) ||
                     !Arrays.equals(vote.getBlockHash(), this.prevHash)) {
                 return false;
             }
