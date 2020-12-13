@@ -392,7 +392,7 @@ public class Epoch implements Serializable {
     }
 
     public VoteMessage[] getVotes() {
-        return votes;
+        return votes.clone();
     }
 
     /**

@@ -119,9 +119,7 @@ public class ChainProposer {
         logger.info("VOTE received from:{}, for consensus cId:{}",
                 msg.getSender(), cid);
         if (checkVOTE(msg)) {
-            if(epoch.countVote() <= controller.getQuorum()){//votes still not enough
-                epoch.setVote(msg.getSender(), msg);//record the VOTEs
-            }
+            epoch.setVote(msg.getSender(), msg);//record the VOTEs
             executeVOTE(epoch, msg);
         } else {
             logger.info("VOTE invalid.");
