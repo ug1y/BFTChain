@@ -16,6 +16,7 @@ limitations under the License.
 package bftsmart.consensus.chainroles;
 
 import bftsmart.communication.ServerCommunicationSystem;
+import bftsmart.consensus.Decision;
 import bftsmart.reconfiguration.ServerViewController;
 
 ///
@@ -50,7 +51,7 @@ public class ChainProposer {
     private ExecutionManager executionManager;// Execution manager of consensus's executions
     private TOMLayer tomLayer; // TOM layer
     private byte[] data;
-    private PrivateKey privKey;
+//    private PrivateKey privKey;
 
 
     public ChainProposer(ServerCommunicationSystem communication,
@@ -61,7 +62,7 @@ public class ChainProposer {
         this.factory = factory;
         this.controller = controller;
         this.blockchain = blockchain;
-        this.privKey = controller.getStaticConf().getPrivateKey();
+//        this.privKey = controller.getStaticConf().getPrivateKey();
     }
 
     public void setExecutionManager(ExecutionManager executionManager) {
@@ -132,9 +133,8 @@ public class ChainProposer {
      * @return valid(true) or not(false)
      */
     private boolean checkVOTE(VoteMessage msg) {
-        PublicKey pubKey = controller.getStaticConf().getPublicKey(msg.getSender());
-        if(msg.verifySignature(pubKey) &&// is the signature valid?
-                Arrays.equals(msg.getBlockHash(), blockchain.getCurrentHash())) {// is the vote's blockhash equals to the one which voting for?
+//        PublicKey pubKey = controller.getStaticConf().getPublicKey(msg.getSender());
+        if(Arrays.equals(msg.getBlockHash(), blockchain.getCurrentHash())) {// is the vote's blockhash equals to the one which voting for?
             return true;
         }
         else {
@@ -156,10 +156,18 @@ public class ChainProposer {
             this.data = tomLayer.createPropose(tomLayer.execManager.getConsensus(msg.getConsId()).getDecision());
             ProposalMessage p = factory.createPROPOSAL(this.data, blockchain.getCurrentHash(),
                     epoch.getVotes(), 0, msg.getConsId(),0);
-            byte[] pb =  p.getBytes();
-            byte[] signature = TOMUtil.signMessage(privKey, pb);
-            p.addSignature(signature);
+//            byte[] pb =  p.getBytes();
+//            byte[] signature = TOMUtil.signMessage(privKey, pb);
+//            p.addSignature(signature);
             logger.info("get enough votes, proposing");
+
+            //for benchmark
+            Decision dec = epoch.getConsensus().getDecision();
+            if(dec.firstMessageProposed != null) {
+                dec.firstMessageProposed.proposalSentTime = System.nanoTime();
+            }
+
+
             communication.send(this.controller.getCurrentViewAcceptors(), p);
         }
         executionManager.processOutOfContext(epoch.getConsensus());

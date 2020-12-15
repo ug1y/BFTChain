@@ -383,8 +383,8 @@ public final class TOMLayer extends Thread implements RequestReceiver {
 
         //for benchmarking
         if (dec.getConsensusId() > -1) { // if this is from the leader change, it doesnt matter
-            dec.firstMessageProposed = pendingRequests.getFirst();
-            dec.firstMessageProposed.consensusStartTime = System.nanoTime();
+//            dec.firstMessageProposed = pendingRequests.getFirst();
+//            dec.firstMessageProposed.consensusStartTime = System.nanoTime();
         }
         dec.batchSize = numberOfMessages;
 

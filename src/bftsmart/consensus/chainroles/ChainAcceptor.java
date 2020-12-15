@@ -24,6 +24,9 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import bftsmart.clientsmanagement.RequestList;
+import bftsmart.consensus.Decision;
+import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.util.TOMUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,15 +115,37 @@ public final class ChainAcceptor {
      * @param cid
      */
     public void startConsensus(int cid) {
+        //for benchmark
+        Consensus con = executionManager.getConsensus(cid);
+        con.lock.lock();
+        Decision dec = con.getDecision();
+        if(dec.firstMessageProposed == null) {
+            dec.firstMessageProposed = new TOMMessage();
+        }
+        if(dec.firstMessageProposed != null) {
+            dec.firstMessageProposed.consensusStartTime = System.nanoTime();
+        }
+        con.lock.unlock();
+
+
         VoteMessage v = factory.createVOTE(blockchain.getCurrentHash(), 0, cid, 0);
-        byte[] vb =  v.getBytes();
-        byte[] signature = TOMUtil.signMessage(privKey, vb);
+        byte[] signature = TOMUtil.signMessage(privKey, TOMUtil.computeHash(v.getBytes()));
         v.addSignature(signature);
 
         int[] leader = new int[1];
         leader[0] = executionManager.getCurrentLeader();
+
+        //for benchmark
+        con.lock.lock();
+        if(dec.firstMessageProposed != null) {
+            dec.firstMessageProposed.voteSentTime = System.nanoTime();
+        }
+        con.lock.unlock();
+
+
         communication.send(leader, v);
         logger.info("I've sent VOTE in cid {} to leader {}", cid, executionManager.getCurrentLeader());
+
     }
 
     /**
@@ -154,6 +179,13 @@ public final class ChainAcceptor {
      */
     public void proposalReceived(Epoch epoch, ProposalMessage msg) {
         int cid = epoch.getConsensus().getId();
+
+        //for benchmark
+        Decision dec = epoch.getConsensus().getDecision();
+        if(dec.firstMessageProposed != null) {
+            dec.firstMessageProposed.proposalReceivedTime = System.nanoTime();
+        }
+
         logger.info("PROPOSAL received from:{}, for consensus cId:{}",
                 msg.getSender(), cid);
         if (checkPROPOSAL(msg)) {
@@ -170,11 +202,12 @@ public final class ChainAcceptor {
      * @return valid(true) or not(false)
      */
     private boolean checkPROPOSAL(ProposalMessage msg) {
-        PublicKey pubKey = controller.getStaticConf().getPublicKey(msg.getSender());
+//        PublicKey pubKey = controller.getStaticConf().getPublicKey(msg.getSender());
         if(msg.getSender() == executionManager.getCurrentLeader() &&// is the message from the leader?
                 Arrays.equals(msg.getPrevHash(), blockchain.getCurrentHash()) &&// is the hash link valid?
-                msg.verifySignature(pubKey) &&// is the signature valid?
-                msg.verifyVotes(controller.getQuorum(), controller.getStaticConf())) {//if all votes are valid?
+//                msg.verifySignature(pubKey) &&// is the signature valid?
+                msg.verifyVotes(controller.getQuorum(), controller.getStaticConf())
+        ) {//if all votes are valid?
             return true;
         }
         return false;

@@ -65,6 +65,8 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
     private Storage proposeLatency = null;
     private Storage writeLatency = null;
     private Storage acceptLatency = null;
+//    private Storage proposalLatency = null;
+//    private Storage voteLatency = null;
     
     private Storage batchSize = null;
     
@@ -96,6 +98,8 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
         proposeLatency = new Storage(interval);
         writeLatency = new Storage(interval);
         acceptLatency = new Storage(interval);
+//        proposalLatency = new Storage(interval);
+//        voteLatency = new Storage(interval);
         
         batchSize = new Storage(interval);
         
@@ -244,6 +248,7 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
                 proposeLatency.store(msgCtx.getFirstInBatch().writeSentTime - msgCtx.getFirstInBatch().consensusStartTime);
                 writeLatency.store(msgCtx.getFirstInBatch().acceptSentTime - msgCtx.getFirstInBatch().writeSentTime);
                 acceptLatency.store(msgCtx.getFirstInBatch().decisionTime - msgCtx.getFirstInBatch().acceptSentTime);
+
                 
 
             } else {

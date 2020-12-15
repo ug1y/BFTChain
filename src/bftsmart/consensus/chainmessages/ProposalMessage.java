@@ -34,7 +34,7 @@ public class ProposalMessage extends ChainConsensusMessage {
     private VoteMessage[] votes; // the set of votes to prove this block valid
 
     private int leaderID; // identify the current leader
-    private byte[] signature; // signed by the current leader
+//    private byte[] signature; // signed by the current leader
 
 //    private int index; // the height of the block (extra)
 
@@ -53,18 +53,18 @@ public class ProposalMessage extends ChainConsensusMessage {
         this.leaderID = from;
     }
 
-    public void addSignature(byte[] signature) {
-        this.signature = signature;
-    }
+//    public void addSignature(byte[] signature) {
+//        this.signature = signature;
+//    }
 
-    public boolean verifySignature(PublicKey pubKey) {
-        byte[] signature = this.signature;
-        this.signature = null;
-        byte[] b = this.getBytes();
-        boolean ret = TOMUtil.verifySignature(pubKey, b, signature);
-        this.signature = signature;
-        return ret;
-    }
+//    public boolean verifySignature(PublicKey pubKey) {
+//        byte[] signature = this.signature;
+//        this.signature = null;
+//        byte[] b = this.getBytes();
+//        boolean ret = TOMUtil.verifySignature(pubKey, b, signature);
+//        this.signature = signature;
+//        return ret;
+//    }
 
     public boolean verifyVotes(int Quorum, TOMConfiguration TC) {
         int count = 0;
@@ -73,7 +73,7 @@ public class ProposalMessage extends ChainConsensusMessage {
                 continue;
             }
             PublicKey pubKey = TC.getPublicKey(vote.getSender());
-            if(!vote.verifySignature(pubKey) ||
+            if(//!vote.verifySignature(pubKey) ||
                     !Arrays.equals(vote.getBlockHash(), this.prevHash)) {
                 return false;
             }
@@ -93,9 +93,9 @@ public class ProposalMessage extends ChainConsensusMessage {
         return votes;
     }
 
-    public byte[] getSignature() {
-        return signature;
-    }
+//    public byte[] getSignature() {
+//        return signature;
+//    }
 
     public int getLeaderID() {
         return leaderID;
@@ -113,8 +113,8 @@ public class ProposalMessage extends ChainConsensusMessage {
                 "\ndata = " + Arrays.toString(this.data) +
                 "\nprevHash = " + Arrays.toString(this.prevHash) +
                 "\nvotes = " + Arrays.toString(this.votes) +
-                "\nleaderID = " + this.leaderID +
-                "\nsignature = " + Arrays.toString(this.signature);
+                "\nleaderID = " + this.leaderID;
+//                "\nsignature = " + Arrays.toString(this.signature);
     }
 
     // Implemented method of the Externalizable interface
@@ -139,12 +139,12 @@ public class ProposalMessage extends ChainConsensusMessage {
             out.write(prevHash);
         }
 
-        if(signature == null) {
-            out.writeInt(-1);
-        } else {
-            out.writeInt(signature.length);
-            out.write(signature);
-        }
+//        if(signature == null) {
+//            out.writeInt(-1);
+//        } else {
+//            out.writeInt(signature.length);
+//            out.write(signature);
+//        }
 
         if(votes == null) {
             out.writeInt(-1);
@@ -181,13 +181,13 @@ public class ProposalMessage extends ChainConsensusMessage {
             }while(len > 0);
         }
 
-        len = in.readInt();
-        if(len != -1) {
-            signature = new byte[len];
-            do{
-                len -= in.read(signature, signature.length-len, len);
-            }while(len > 0);
-        }
+//        len = in.readInt();
+//        if(len != -1) {
+//            signature = new byte[len];
+//            do{
+//                len -= in.read(signature, signature.length-len, len);
+//            }while(len > 0);
+//        }
 
         len = in.readInt();
         if(len != -1) {

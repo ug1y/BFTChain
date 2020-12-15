@@ -44,7 +44,7 @@ public class CounterClient {
 
             int inc = Integer.parseInt(args[1]);
             int numberOfOps = (args.length > 2) ? Integer.parseInt(args[2]) : 1000;
-
+            long starttime = System.nanoTime();
             for (int i = 0; i < numberOfOps; i++) {
 
                 ByteArrayOutputStream out = new ByteArrayOutputStream(4);
@@ -63,6 +63,7 @@ public class CounterClient {
                     break;
                 }
             }
+            System.out.println("runtime = " + (System.nanoTime() - starttime));
         } catch(IOException | NumberFormatException e){
             counterProxy.close();
         }

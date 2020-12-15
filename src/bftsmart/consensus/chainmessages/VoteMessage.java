@@ -52,7 +52,7 @@ public class VoteMessage extends ChainConsensusMessage {
     public boolean verifySignature(PublicKey pubKey) {
         byte[] signature = this.signature;
         this.signature = null;
-        byte[] b = this.getBytes();
+        byte[] b = TOMUtil.computeHash(this.getBytes());
         boolean ret = TOMUtil.verifySignature(pubKey, b, signature);
         this.signature = signature;
         return ret;
