@@ -75,6 +75,9 @@ public class ProposalMessage extends ChainConsensusMessage {
             PublicKey pubKey = TC.getPublicKey(vote.getSender());
             if(Arrays.equals(vote.getBlockHash(), this.prevHash)) {
                 count += 1;
+                if(count > Quorum){
+                    break;
+                }
             }
         }
         if(count <= Quorum) {
