@@ -383,7 +383,13 @@ public final class TOMLayer extends Thread implements RequestReceiver {
 
         //for benchmarking
         if (dec.getConsensusId() > -1) { // if this is from the leader change, it doesnt matter
-//            dec.firstMessageProposed = pendingRequests.getFirst();
+            TOMMessage tmptom = dec.firstMessageProposed;
+            dec.firstMessageProposed = pendingRequests.getFirst();
+            if(tmptom != null) {
+                dec.firstMessageProposed.voteSentTime = tmptom.voteSentTime;
+                dec.firstMessageProposed.proposalSentTime = tmptom.proposalSentTime;
+                dec.firstMessageProposed.proposalReceivedTime = tmptom.proposalReceivedTime;
+            }
 //            dec.firstMessageProposed.consensusStartTime = System.nanoTime();
         }
         dec.batchSize = numberOfMessages;
@@ -436,7 +442,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
             if (!doWork) break;
 
             ///
-            logger.info("There are requests to be ordered. I will start to vote.");
+            logger.debug("There are requests to be ordered. I will start to vote.");
             ///
 
             if (//(execManager.getCurrentLeader() == this.controller.getStaticConf().getProcessId()) && //I'm the leader
@@ -448,7 +454,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
                 setInExec(execId);
 
                 execManager.getChainAcceptor().startConsensus(execId);
-                logger.info("I'm a follower, I'm going to start cid {}", execId);
+                logger.debug("I'm a follower, I'm going to start cid {}", execId);
             }
         }
         logger.info("TOMLayer stopped.");

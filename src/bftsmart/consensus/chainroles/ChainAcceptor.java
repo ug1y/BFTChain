@@ -144,7 +144,7 @@ public final class ChainAcceptor {
 
 
         communication.send(leader, v);
-        logger.info("I've sent VOTE in cid {} to leader {}", cid, executionManager.getCurrentLeader());
+        logger.debug("I've sent VOTE in cid {} to leader {}", cid, executionManager.getCurrentLeader());
 
     }
 
@@ -186,7 +186,7 @@ public final class ChainAcceptor {
             dec.firstMessageProposed.proposalReceivedTime = System.nanoTime();
         }
 
-        logger.info("PROPOSAL received from:{}, for consensus cId:{}",
+        logger.debug("PROPOSAL received from:{}, for consensus cId:{}",
                 msg.getSender(), cid);
         if (checkPROPOSAL(msg)) {
             blockchain.appendBlock(msg);

@@ -352,7 +352,10 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
                             operationId, content, viewID, type);
 
                     clone.setReplyServer(replyServer);
-                    
+
+                    clone.proposalReceivedTime = this.proposalReceivedTime;
+                    clone.proposalSentTime = this.proposalSentTime;
+                    clone.voteSentTime = this.voteSentTime;
                     clone.acceptSentTime = this.acceptSentTime;
                     clone.alreadyProposed = this.alreadyProposed;
                     clone.authenticated = this.authenticated;

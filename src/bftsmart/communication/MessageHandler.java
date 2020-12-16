@@ -72,7 +72,7 @@ public class MessageHandler {
 		///
 		if (sm instanceof ChainConsensusMessage) {
 			ChainConsensusMessage ccMsg = (ChainConsensusMessage) sm;
-			logger.info("Received chain consensus message from replilca {}", ccMsg.getSender());
+			logger.debug("Received chain consensus message from replilca {}", ccMsg.getSender());
 			switch (ccMsg.getMsgType()) {
 				case ChainMessageFactory.PROPOSAL:
 					chainAcceptor.deliver(ccMsg);

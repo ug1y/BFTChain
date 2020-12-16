@@ -117,13 +117,13 @@ public class ChainProposer {
      */
     public void voteReceived(Epoch epoch, VoteMessage msg) {
         int cid = epoch.getConsensus().getId();
-        logger.info("VOTE received from:{}, for consensus cId:{}",
+        logger.debug("VOTE received from:{}, for consensus cId:{}",
                 msg.getSender(), cid);
         if (checkVOTE(msg)) {
             epoch.setVote(msg.getSender(), msg);//record the VOTEs
             executeVOTE(epoch, msg);
         } else {
-            logger.info("VOTE invalid.");
+            logger.debug("VOTE invalid.");
         }
     }
 
@@ -152,14 +152,14 @@ public class ChainProposer {
                 !epoch.isProposalSent() && // proposal haven't been sent yet
                 tomLayer.clientsManager.havePendingRequests()){// there are requests can be gotten
             epoch.proposalSent();
-            logger.info("id {} proposalSent turned to true", msg.getConsId());
+            logger.debug("id {} proposalSent turned to true", msg.getConsId());
             this.data = tomLayer.createPropose(tomLayer.execManager.getConsensus(msg.getConsId()).getDecision());
             ProposalMessage p = factory.createPROPOSAL(this.data, blockchain.getCurrentHash(),
                     epoch.getVotes(), 0, msg.getConsId(),0);
 //            byte[] pb =  p.getBytes();
 //            byte[] signature = TOMUtil.signMessage(privKey, pb);
 //            p.addSignature(signature);
-            logger.info("get enough votes, proposing");
+            logger.debug("get enough votes, proposing");
 
             //for benchmark
             Decision dec = epoch.getConsensus().getDecision();

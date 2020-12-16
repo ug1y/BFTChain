@@ -363,10 +363,10 @@ public final class ExecutionManager {
         if(isRetrievingState ||
                 (msg.getConsId() < inExec)
         ) {
-            logger.info("too old message with number {}.", msg.getConsId());
+            logger.debug("too old message with number {}.", msg.getConsId());
         }else if(msg.getConsId() > inExec && inExec != -1){
             addOutOfContextChainMessage(msg);
-            logger.info("too new vote message with number {}.", msg.getConsId());
+            logger.debug("too new vote message with number {}.", msg.getConsId());
         }
         else {// can process
             logger.debug("can process message with number {}.", msg.getConsId());
