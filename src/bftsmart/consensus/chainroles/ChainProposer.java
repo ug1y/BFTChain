@@ -29,6 +29,7 @@ import bftsmart.tom.core.ExecutionManager;
 import bftsmart.tom.core.TOMLayer;
 import bftsmart.consensus.Consensus;
 import bftsmart.consensus.Epoch;
+import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.util.TOMUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,10 +98,17 @@ public class ChainProposer {
     public final void processMessage(ChainConsensusMessage msg) {
         Consensus consensus = executionManager.getConsensus(msg.getConsId());
         consensus.lock.lock();
+        Decision dec = consensus.getDecision();
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
         logger.debug("message = " + msg.toString());
         switch (msg.getMsgType()) {
             case ChainMessageFactory.VOTE:
+                if(dec.firstMessageProposed == null) {
+                    dec.firstMessageProposed = new TOMMessage();
+                }
+                if(dec.firstMessageProposed != null && dec.firstMessageProposed.voteReceivedTime == 0) {
+                    dec.firstMessageProposed.voteReceivedTime = System.nanoTime();
+                }
                 voteReceived(epoch, (VoteMessage)msg);
                 break;
             default:

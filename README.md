@@ -34,6 +34,8 @@ You can run the counter demonstration by executing the following commands, from 
 ./runscripts/smartrun.sh bftsmart.demo.counter.CounterServer 1
 ./runscripts/smartrun.sh bftsmart.demo.counter.CounterServer 2
 ./runscripts/smartrun.sh bftsmart.demo.counter.CounterServer 3
+./runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 0 1 1 1 1 rw
+
 ```
 
 **Important tip #4:** If you are getting timeout messages, it is possible that the application you are running takes too long to process the requests or the network delay is too high and PROPOSE messages from the leader does not arrive in time, so replicas may start the leader change protocol. To prevent that, try to increase the `system.totalordermulticast.timeout` parameter in 'config/system.config'.
@@ -43,7 +45,9 @@ You can run the counter demonstration by executing the following commands, from 
 Once all replicas are ready, the client can be launched as follows:
 
 ```
-./runscripts/smartrun.sh bftsmart.demo.counter.CounterClient 1001 <increment> [<number of operations>]
+./runscripts/smartrun.sh bftsmart.demo.counter.CounterClient 1 1 10
+./runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyClient 1 1 1000 1 1 1 1 rw
+
 ```
 
 If `<increment>` equals 0 the request will be read-only. Default `<number of operations>` equals 1000.

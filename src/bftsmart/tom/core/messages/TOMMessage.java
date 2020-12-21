@@ -81,6 +81,7 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 	public transient long proposalSentTime = 0;
 	public transient long proposalReceivedTime = 0;
 	public transient long voteSentTime = 0;
+	public transient long voteReceivedTime = 0;
 
 	//the reply associated with this message
 	public transient TOMMessage reply = null;
@@ -356,6 +357,7 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
                     clone.proposalReceivedTime = this.proposalReceivedTime;
                     clone.proposalSentTime = this.proposalSentTime;
                     clone.voteSentTime = this.voteSentTime;
+                    clone.voteReceivedTime = this.voteReceivedTime;
                     clone.acceptSentTime = this.acceptSentTime;
                     clone.alreadyProposed = this.alreadyProposed;
                     clone.authenticated = this.authenticated;

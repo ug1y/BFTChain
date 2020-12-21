@@ -387,6 +387,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
             dec.firstMessageProposed = pendingRequests.getFirst();
             if(tmptom != null) {
                 dec.firstMessageProposed.voteSentTime = tmptom.voteSentTime;
+                dec.firstMessageProposed.voteReceivedTime = tmptom.voteReceivedTime;
                 dec.firstMessageProposed.proposalSentTime = tmptom.proposalSentTime;
                 dec.firstMessageProposed.proposalReceivedTime = tmptom.proposalReceivedTime;
             }

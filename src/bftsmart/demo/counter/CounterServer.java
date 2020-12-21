@@ -42,6 +42,12 @@ public final class CounterServer extends DefaultSingleRecoverable  {
     
     private int counter = 0;
     private int iterations = 0;
+    ///for benchmark
+    private long voteSum = 0;
+    private long proposalSum = 0;
+    private int voteCount = 0;
+    private int proposalCount = 0;
+    ///for benchmark
     private List<Integer> resultList = new ArrayList<Integer>();
     
     public CounterServer(int id) {
@@ -92,7 +98,24 @@ public final class CounterServer extends DefaultSingleRecoverable  {
             }
             
             System.out.println("(" + iterations + ") Counter was incremented. Current value = " + counter);
-            
+            ///for benchmark
+            long tmpp = msgCtx.getFirstInBatch().decisionTime - msgCtx.getFirstInBatch().proposalSentTime;
+            long tmpv = msgCtx.getFirstInBatch().proposalSentTime - msgCtx.getFirstInBatch().voteReceivedTime;
+            if(tmpp > 0 && tmpp < 2000000000) {
+                proposalSum += tmpp;
+                proposalCount += 1;
+            }
+            if(tmpv > 0 && tmpv < 2000000000){
+                voteSum += tmpv;
+                voteCount += 1;
+            }
+            if(voteCount > 0){
+                System.out.println("average vote latency = " + voteSum / voteCount);
+            }
+            if(proposalCount > 0) {
+                System.out.println("average proposal latency = " + proposalSum / proposalCount);
+            }
+            ///for benchmark
             ByteArrayOutputStream out = new ByteArrayOutputStream(4);
             new DataOutputStream(out).writeInt(counter);
             return out.toByteArray();
