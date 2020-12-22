@@ -100,7 +100,7 @@ public final class CounterServer extends DefaultSingleRecoverable  {
             System.out.println("(" + iterations + ") Counter was incremented. Current value = " + counter);
             ///for benchmark
             long tmpp = msgCtx.getFirstInBatch().decisionTime - msgCtx.getFirstInBatch().proposalSentTime;
-            long tmpv = msgCtx.getFirstInBatch().proposalSentTime - msgCtx.getFirstInBatch().voteReceivedTime;
+            long tmpv = msgCtx.getFirstInBatch().proposalSentTime - msgCtx.getFirstInBatch().voteSentTime;
             if(tmpp > 0 && tmpp < 2000000000) {
                 proposalSum += tmpp;
                 proposalCount += 1;
