@@ -114,7 +114,7 @@ public final class ChainAcceptor {
      * start a consensus by follower's voting
      * @param cid
      */
-    public void startConsensus(int cid) {
+    public void startConsensus(int cid, long receiveTime) {
         //for benchmark
         Consensus con = executionManager.getConsensus(cid);
         con.lock.lock();
@@ -124,6 +124,9 @@ public final class ChainAcceptor {
         }
         if(dec.firstMessageProposed != null) {
             dec.firstMessageProposed.consensusStartTime = System.nanoTime();
+        }
+        if(dec.firstMessageProposed != null) {
+            dec.firstMessageProposed.deliveryTime = receiveTime;
         }
         con.lock.unlock();
 
@@ -160,6 +163,11 @@ public final class ChainAcceptor {
         logger.debug("message = " + msg.toString());
         switch (msg.getMsgType()) {
             case ChainMessageFactory.PROPOSAL:
+                //for benchmark
+                Decision dec = epoch.getConsensus().getDecision();
+                if(dec.firstMessageProposed != null) {
+                    dec.firstMessageProposed.proposalReceivedTime = System.nanoTime();
+                }
                 proposalReceived(epoch, (ProposalMessage)msg);
                 break;
             case ChainMessageFactory.SYNC:
@@ -179,12 +187,6 @@ public final class ChainAcceptor {
      */
     public void proposalReceived(Epoch epoch, ProposalMessage msg) {
         int cid = epoch.getConsensus().getId();
-
-        //for benchmark
-        Decision dec = epoch.getConsensus().getDecision();
-        if(dec.firstMessageProposed != null) {
-            dec.firstMessageProposed.proposalReceivedTime = System.nanoTime();
-        }
 
         logger.debug("PROPOSAL received from:{}, for consensus cId:{}",
                 msg.getSender(), cid);
@@ -249,6 +251,15 @@ public final class ChainAcceptor {
         byte[] value = msg.getData();
         epoch.propValue = value;
         epoch.deserializedPropValue = tomLayer.checkProposedValue(value, true);
+        TOMMessage tmptom = epoch.getConsensus().getDecision().firstMessageProposed;
+        epoch.getConsensus().getDecision().firstMessageProposed = epoch.deserializedPropValue[0];
+        if(tmptom != null) {
+            epoch.getConsensus().getDecision().firstMessageProposed.deliveryTime = tmptom.deliveryTime;
+            epoch.getConsensus().getDecision().firstMessageProposed.voteSentTime = tmptom.voteSentTime;
+            epoch.getConsensus().getDecision().firstMessageProposed.proposalReceivedTime = tmptom.proposalReceivedTime;
+            epoch.getConsensus().getDecision().firstMessageProposed.decisionTime = tmptom.decisionTime;
+            epoch.getConsensus().getDecision().firstMessageProposed.requestReplyTime = tmptom.requestReplyTime;
+        }
         epoch.writeSent();
         epoch.acceptSent();
         epoch.acceptCreated();

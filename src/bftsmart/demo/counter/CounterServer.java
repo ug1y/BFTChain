@@ -45,8 +45,12 @@ public final class CounterServer extends DefaultSingleRecoverable  {
     ///for benchmark
     private long voteSum = 0;
     private long proposalSum = 0;
+    private long decisionSum = 0;
+    private long replySum = 0;
     private int voteCount = 0;
     private int proposalCount = 0;
+    private int decisionCount = 0;
+    private int replyCount = 0;
     ///for benchmark
     private List<Integer> resultList = new ArrayList<Integer>();
     
@@ -99,8 +103,15 @@ public final class CounterServer extends DefaultSingleRecoverable  {
             
             System.out.println("(" + iterations + ") Counter was incremented. Current value = " + counter);
             ///for benchmark
-            long tmpp = msgCtx.getFirstInBatch().decisionTime - msgCtx.getFirstInBatch().proposalSentTime;
-            long tmpv = msgCtx.getFirstInBatch().proposalSentTime - msgCtx.getFirstInBatch().voteSentTime;
+//            System.out.println("time:" + msgCtx.getFirstInBatch().deliveryTime);
+//            System.out.println("time:" + msgCtx.getFirstInBatch().voteSentTime);
+//            System.out.println("time:" + msgCtx.getFirstInBatch().proposalReceivedTime);
+//            System.out.println("time:" + msgCtx.getFirstInBatch().decisionTime);
+//            System.out.println("time:" + msgCtx.getFirstInBatch().requestReplyTime);
+            long tmpv = msgCtx.getFirstInBatch().voteSentTime - msgCtx.getFirstInBatch().deliveryTime;
+            long tmpp = msgCtx.getFirstInBatch().proposalReceivedTime - msgCtx.getFirstInBatch().deliveryTime;
+            long tmpd = msgCtx.getFirstInBatch().decisionTime - msgCtx.getFirstInBatch().deliveryTime;
+            long tmpr = msgCtx.getFirstInBatch().requestReplyTime - msgCtx.getFirstInBatch().deliveryTime;
             if(tmpp > 0 && tmpp < 2000000000) {
                 proposalSum += tmpp;
                 proposalCount += 1;
@@ -109,11 +120,25 @@ public final class CounterServer extends DefaultSingleRecoverable  {
                 voteSum += tmpv;
                 voteCount += 1;
             }
+            if(tmpd > 0 && tmpd < 2000000000){
+                decisionSum += tmpd;
+                decisionCount += 1;
+            }
+            if(tmpr > 0 && tmpr < 2000000000){
+                replySum += tmpr;
+                replyCount += 1;
+            }
             if(voteCount > 0){
                 System.out.println("average vote latency = " + voteSum / voteCount);
             }
             if(proposalCount > 0) {
                 System.out.println("average proposal latency = " + proposalSum / proposalCount);
+            }
+            if(proposalCount > 0) {
+                System.out.println("average decision latency = " + decisionSum / decisionCount);
+            }
+            if(proposalCount > 0) {
+                System.out.println("average reply latency = " + replySum / replyCount);
             }
             ///for benchmark
             ByteArrayOutputStream out = new ByteArrayOutputStream(4);

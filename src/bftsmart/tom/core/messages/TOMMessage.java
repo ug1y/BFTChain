@@ -82,6 +82,7 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 	public transient long proposalReceivedTime = 0;
 	public transient long voteSentTime = 0;
 	public transient long voteReceivedTime = 0;
+	public transient long requestReplyTime = 0;
 
 	//the reply associated with this message
 	public transient TOMMessage reply = null;

@@ -311,7 +311,8 @@ public class ServiceReplica {
                             if (requestCount + 1 == requestsFromConsensus.length) {
                                 
                                 msgCtx.setLastInBatch();
-                            }   request.deliveryTime = System.nanoTime();
+                            }
+                            //request.deliveryTime = System.nanoTime();
                             if (executor instanceof BatchExecutable) {
                                 
                                logger.debug("Batching request from " + request.getSender());
@@ -334,7 +335,7 @@ public class ServiceReplica {
                                 // store the proof associated with decisions (which are needed by replicas
                                 // that are asking for a state transfer).
                                 if (this.recoverer != null) this.recoverer.Op(msgCtx.getConsensusId(), request.getContent(), msgCtx);
-                                
+                                request.requestReplyTime = System.nanoTime();
                                 // This is used to deliver the requests to the application and obtain a reply to deliver
                                 //to the clients. The raw decision is passed to the application in the line above.
                                 TOMMessage response = ((SingleExecutable) executor).executeOrdered(id, SVController.getCurrentViewId(), request.getContent(), msgCtx);
@@ -342,6 +343,8 @@ public class ServiceReplica {
                                 if (response != null) {
                                     
                                     logger.debug("sending reply to " + response.getSender());
+//                                    response.requestReplyTime = System.nanoTime();
+//                                    msgCtx.setRequestReplyTime();
                                     replier.manageReply(response, msgCtx);
                                 }
                             } else { //this code should never be executed

@@ -390,6 +390,8 @@ public final class TOMLayer extends Thread implements RequestReceiver {
                 dec.firstMessageProposed.voteReceivedTime = tmptom.voteReceivedTime;
                 dec.firstMessageProposed.proposalSentTime = tmptom.proposalSentTime;
                 dec.firstMessageProposed.proposalReceivedTime = tmptom.proposalReceivedTime;
+                dec.firstMessageProposed.deliveryTime = tmptom.deliveryTime;
+                dec.firstMessageProposed.requestReplyTime = tmptom.requestReplyTime;
             }
 //            dec.firstMessageProposed.consensusStartTime = System.nanoTime();
         }
@@ -438,6 +440,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
                 haveMessages.awaitUninterruptibly();
                 logger.debug("Got enough requests");
             }
+            long receiveTime = System.nanoTime();
             messagesLock.unlock();
 
             if (!doWork) break;
@@ -453,8 +456,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
                 // Sets the current consensus
                 int execId = getLastExec() + 1;
                 setInExec(execId);
-
-                execManager.getChainAcceptor().startConsensus(execId);
+                execManager.getChainAcceptor().startConsensus(execId, receiveTime);
                 logger.debug("I'm a follower, I'm going to start cid {}", execId);
             }
         }

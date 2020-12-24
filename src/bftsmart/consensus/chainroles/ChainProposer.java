@@ -103,12 +103,12 @@ public class ChainProposer {
         logger.debug("message = " + msg.toString());
         switch (msg.getMsgType()) {
             case ChainMessageFactory.VOTE:
-                if(dec.firstMessageProposed == null) {
-                    dec.firstMessageProposed = new TOMMessage();
-                }
-                if(dec.firstMessageProposed != null && dec.firstMessageProposed.voteReceivedTime == 0) {
-                    dec.firstMessageProposed.voteReceivedTime = System.nanoTime();
-                }
+//                if(dec.firstMessageProposed == null) {
+//                    dec.firstMessageProposed = new TOMMessage();
+//                }
+//                if(dec.firstMessageProposed != null && dec.firstMessageProposed.voteReceivedTime == 0) {
+//                    dec.firstMessageProposed.voteReceivedTime = System.nanoTime();
+//                }
                 voteReceived(epoch, (VoteMessage)msg);
                 break;
             default:
@@ -171,9 +171,9 @@ public class ChainProposer {
 
             //for benchmark
             Decision dec = epoch.getConsensus().getDecision();
-            if(dec.firstMessageProposed != null) {
-                dec.firstMessageProposed.proposalSentTime = System.nanoTime();
-            }
+//            if(dec.firstMessageProposed != null) {
+//                dec.firstMessageProposed.proposalSentTime = System.nanoTime();
+//            }
 
 
             communication.send(this.controller.getCurrentViewAcceptors(), p);
