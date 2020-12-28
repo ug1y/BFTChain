@@ -61,8 +61,8 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
     private Storage totalLatency = null;
     private Storage consensusLatency = null;
     private Storage preConsLatency = null;
-    private Storage posConsLatency = null;
-    private Storage proposeLatency = null;
+    private Storage decisionLatency = null;
+    private Storage replyLatency = null;
     private Storage writeLatency = null;
     private Storage acceptLatency = null;
     private Storage proposalLatency = null;
@@ -94,8 +94,8 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
         totalLatency = new Storage(interval);
         consensusLatency = new Storage(interval);
         preConsLatency = new Storage(interval);
-        posConsLatency = new Storage(interval);
-        proposeLatency = new Storage(interval);
+        decisionLatency = new Storage(interval);
+        replyLatency = new Storage(interval);
         writeLatency = new Storage(interval);
         acceptLatency = new Storage(interval);
         proposalLatency = new Storage(interval);
@@ -244,12 +244,22 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
                 consensusLatency.store(msgCtx.getFirstInBatch().decisionTime - msgCtx.getFirstInBatch().consensusStartTime);
                 long temp = msgCtx.getFirstInBatch().consensusStartTime - msgCtx.getFirstInBatch().receptionTime;
                 preConsLatency.store(temp > 0 ? temp : 0);
-                posConsLatency.store(msgCtx.getFirstInBatch().executedTime - msgCtx.getFirstInBatch().decisionTime);            
-                proposeLatency.store(msgCtx.getFirstInBatch().writeSentTime - msgCtx.getFirstInBatch().consensusStartTime);
-                writeLatency.store(msgCtx.getFirstInBatch().acceptSentTime - msgCtx.getFirstInBatch().writeSentTime);
-                acceptLatency.store(msgCtx.getFirstInBatch().decisionTime - msgCtx.getFirstInBatch().acceptSentTime);
-                proposalLatency.store(msgCtx.getFirstInBatch().decisionTime - msgCtx.getFirstInBatch().proposalSentTime);
-                voteLatency.store(msgCtx.getFirstInBatch().proposalSentTime - msgCtx.getFirstInBatch().voteSentTime);
+                long tmpv = msgCtx.getFirstInBatch().voteSentTime - msgCtx.getFirstInBatch().deliveryTime;
+                long tmpp = msgCtx.getFirstInBatch().proposalReceivedTime - msgCtx.getFirstInBatch().deliveryTime;
+                long tmpd = msgCtx.getFirstInBatch().decisionTime - msgCtx.getFirstInBatch().deliveryTime;
+                long tmpr = msgCtx.getFirstInBatch().requestReplyTime - msgCtx.getFirstInBatch().deliveryTime;
+                if(tmpp > 0 && tmpp < 2000000000) {
+                    proposalLatency.store(tmpp);
+                }
+                if(tmpv > 0 && tmpv < 2000000000){
+                    voteLatency.store(tmpv);
+                }
+                if(tmpd > 0 && tmpd < 2000000000){
+                    decisionLatency.store(tmpd);
+                }
+                if(tmpr > 0 && tmpr < 2000000000){
+                    replyLatency.store(tmpr);
+                }
                 
 
             } else {
@@ -257,8 +267,8 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
            
                 consensusLatency.store(0);
                 preConsLatency.store(0);
-                posConsLatency.store(0);            
-                proposeLatency.store(0);
+                decisionLatency.store(0);            
+                replyLatency.store(0);
                 writeLatency.store(0);
                 acceptLatency.store(0);
                 proposalLatency.store(0);
@@ -272,8 +282,8 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
             
                 consensusLatency.store(0);
                 preConsLatency.store(0);
-                posConsLatency.store(0);            
-                proposeLatency.store(0);
+                decisionLatency.store(0);            
+                replyLatency.store(0);
                 writeLatency.store(0);
                 acceptLatency.store(0);
                 proposalLatency.store(0);
@@ -294,24 +304,24 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
             
             System.out.println("Throughput = " + tp +" operations/sec (Maximum observed: " + maxTp + " ops/sec)");            
             
-            System.out.println("Total latency = " + totalLatency.getAverage(false) / 1000 + " (+/- "+ (long)totalLatency.getDP(false) / 1000 +") us ");
-            totalLatency.reset();
-            System.out.println("Consensus latency = " + consensusLatency.getAverage(false) / 1000 + " (+/- "+ (long)consensusLatency.getDP(false) / 1000 +") us ");
-            consensusLatency.reset();
-            System.out.println("Pre-consensus latency = " + preConsLatency.getAverage(false) / 1000 + " (+/- "+ (long)preConsLatency.getDP(false) / 1000 +") us ");
-            preConsLatency.reset();
-            System.out.println("Pos-consensus latency = " + posConsLatency.getAverage(false) / 1000 + " (+/- "+ (long)posConsLatency.getDP(false) / 1000 +") us ");
-            posConsLatency.reset();
-            System.out.println("Propose latency = " + proposeLatency.getAverage(false) / 1000 + " (+/- "+ (long)proposeLatency.getDP(false) / 1000 +") us ");
-            proposeLatency.reset();
-            System.out.println("Write latency = " + writeLatency.getAverage(false) / 1000 + " (+/- "+ (long)writeLatency.getDP(false) / 1000 +") us ");
-            writeLatency.reset();
-            System.out.println("Accept latency = " + acceptLatency.getAverage(false) / 1000 + " (+/- "+ (long)acceptLatency.getDP(false) / 1000 +") us ");
-            acceptLatency.reset();
-            System.out.println("Proposal latency = " + proposalLatency.getAverage(false) / 1000 + " (+/- "+ (long)proposalLatency.getDP(false) / 1000 +") us ");
-            proposalLatency.reset();
+//            System.out.println("Total latency = " + totalLatency.getAverage(false) / 1000 + " (+/- "+ (long)totalLatency.getDP(false) / 1000 +") us ");
+//            totalLatency.reset();
+//            System.out.println("Consensus latency = " + consensusLatency.getAverage(false) / 1000 + " (+/- "+ (long)consensusLatency.getDP(false) / 1000 +") us ");
+//            consensusLatency.reset();
+//            System.out.println("Pre-consensus latency = " + preConsLatency.getAverage(false) / 1000 + " (+/- "+ (long)preConsLatency.getDP(false) / 1000 +") us ");
+//            preConsLatency.reset();
+//            System.out.println("Write latency = " + writeLatency.getAverage(false) / 1000 + " (+/- "+ (long)writeLatency.getDP(false) / 1000 +") us ");
+//            writeLatency.reset();
+//            System.out.println("Accept latency = " + acceptLatency.getAverage(false) / 1000 + " (+/- "+ (long)acceptLatency.getDP(false) / 1000 +") us ");
+//            acceptLatency.reset();
             System.out.println("Vote latency = " + voteLatency.getAverage(false) / 1000 + " (+/- "+ (long)voteLatency.getDP(false) / 1000 +") us ");
             voteLatency.reset();
+            System.out.println("Proposal latency = " + proposalLatency.getAverage(false) / 1000 + " (+/- "+ (long)proposalLatency.getDP(false) / 1000 +") us ");
+            proposalLatency.reset();
+            System.out.println("Decision latency = " + decisionLatency.getAverage(false) / 1000 + " (+/- "+ (long)decisionLatency.getDP(false) / 1000 +") us ");
+            decisionLatency.reset();
+            System.out.println("Reply latency = " + replyLatency.getAverage(false) / 1000 + " (+/- "+ (long)replyLatency.getDP(false) / 1000 +") us ");
+            replyLatency.reset();
             
             System.out.println("Batch average size = " + batchSize.getAverage(false) + " (+/- "+ (long)batchSize.getDP(false) +") requests");
             batchSize.reset();

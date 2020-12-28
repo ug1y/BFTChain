@@ -321,6 +321,7 @@ public class ServiceReplica {
                                 // a Recoverable object. It is useful to allow the application to create a log and
                                 // store the proof associated with decisions (which are needed by replicas
                                 // that are asking for a state transfer).
+                                request.requestReplyTime = System.nanoTime();
                                 if (this.recoverer != null) this.recoverer.Op(msgCtx.getConsensusId(), request.getContent(), msgCtx);
                                 
                                 // deliver requests and contexts to the executor later
