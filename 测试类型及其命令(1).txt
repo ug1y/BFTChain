@@ -1,0 +1,63 @@
+1、测试单客户端，配置为一次共识处理一个请求，计算协议耗时和吞吐率（变量：请求数量）
+system.totalordermulticast.batchtimeout = -1
+ 
+【服务端】开启四个服务器id从1到4，令存储器数组大小为1000，回复数据大小为0，状态数据大小为0，输出上下文信息，不签名，写文件
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 0 1000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 1 1000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 2 1000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 3 1000 0 0 true nosig rw
+【客户端】令初始id为1，创建1个线程，发送1000条请求，请求大小为1，连续不间断发送，非只读操作，输出过程信息，不签名
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyClient 1 1 1000 1 0 false true nosig
+ 
+ 
+2、测试单客户端，配置为一次共识处理一个请求，计算协议耗时和吞吐率（变量：请求大小）
+system.totalordermulticast.batchtimeout = -1
+system.totalordermulticast.maxbatchsize = 1024
+ 
+【服务端】开启四个服务器id从1到4，令存储器数组大小为1000，回复数据大小为0，状态数据大小为0，输出上下文信息，不签名，写文件
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 0 1000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 1 1000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 2 1000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 3 1000 0 0 true nosig rw
+【客户端】令初始id为1，创建1个线程，发送1000条请求，请求大小为100，连续不间断发送，非只读操作，输出过程信息，不签名
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyClient 1 1 1000 100 0 false true nosig
+ 
+ 
+3、测试多客户端，配置为共识批处理多个请求，计算协议耗时和吞吐率（变量：客户端线程数）
+system.totalordermulticast.batchtimeout = -1
+system.totalordermulticast.maxbatchsize = 1024
+ 
+【服务端】开启四个服务器id从1到4，令存储器数组大小为10000，回复数据大小为0，状态数据大小为0，输出上下文信息，不签名，写文件
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 0 10000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 1 10000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 2 10000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 3 10000 0 0 true nosig rw
+【客户端】令初始id为1，创建10个线程，发送1000条请求，请求大小为100，连续不间断发送，非只读操作，输出过程信息，不签名
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyClient 1 10 1000 100 0 false true nosig
+ 
+ 
+4、测试多客户端，配置为共识批处理多个请求，计算协议耗时和吞吐率。（变量：批处理超时时间）
+system.totalordermulticast.batchtimeout = 1000
+ 
+【服务端】开启四个服务器id从1到4，令存储器数组大小为10000，回复数据大小为0，状态数据大小为0，输出上下文信息，不签名，写文件
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 0 10000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 1 10000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 2 10000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 3 10000 0 0 true nosig rw
+【客户端】令初始id为1，创建10个线程，发送1000条请求，请求大小为1，连续不间断发送，非只读操作，输出过程信息，不签名
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyClient 1 10 1000 1 0 false true nosig
+ 
+ 
+5、测试多客户端，配置为共识批处理多个请求，计算协议耗时和吞吐率。（变量：网络规模）
+ system.servers.num = 4
+system.servers.f = 1
+
+【服务端】开启四个服务器id从1到4，令存储器数组大小为10000，回复数据大小为0，状态数据大小为0，输出上下文信息，不签名，写文件
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 0 10000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 1 10000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 2 10000 0 0 true nosig rw
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer 3 10000 0 0 true nosig rw
+【客户端】令初始id为1，创建10个线程，发送1000条请求，请求大小为1，连续不间断发送，非只读操作，输出过程信息，不签名
+runscripts/smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyClient 1 10 1000 1 0 false true nosig
+ 
+注：服务端的batchSize只是记录了每次共识数据的大小，并没有记录每次共识中批处理的请求数量，这里需要新增一个相同的变量进行记录。

@@ -21,13 +21,8 @@ import bftsmart.tom.server.defaultservices.CommandsInfo;
 import bftsmart.tom.server.defaultservices.DefaultRecoverable;
 import bftsmart.tom.util.Storage;
 import bftsmart.tom.util.TOMUtil;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectOutputStream;
-import java.io.RandomAccessFile;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.security.InvalidKeyException;
@@ -74,6 +69,7 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
     
     private RandomAccessFile randomAccessFile = null;
     private FileChannel channel = null;
+    private BufferedWriter bftbw = null;
 
     public ThroughputLatencyServer(int id, int interval, int replySize, int stateSize, boolean context,  int signed, int write) {
 
@@ -100,12 +96,14 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
         acceptLatency = new Storage(interval);
         proposalLatency = new Storage(interval);
         voteLatency = new Storage(interval);
-        
+
         batchSize = new Storage(interval);
         
         if (write > 0) {
             
             try {
+                bftbw = new BufferedWriter(new FileWriter("result/" + Long.toString(System.nanoTime()) + "_" +
+                        id + "_" + interval + "_" + replySize + "_" + stateSize + ".txt", true));
                 final File f = File.createTempFile("bft-"+id+"-", Long.toString(System.nanoTime()));
                 randomAccessFile = new RandomAccessFile(f, (write > 1 ? "rwd" : "rw"));
                 channel = randomAccessFile.getChannel();
@@ -116,6 +114,11 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
                     public void run() {
                         
                         f.delete();
+                        try {
+                            bftbw.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
             } catch (IOException ex) {
@@ -128,15 +131,15 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
     
     @Override
     public byte[][] appExecuteBatch(byte[][] commands, MessageContext[] msgCtxs, boolean fromConsensus) {
-        
+
         batchSize.store(commands.length);
                 
         byte[][] replies = new byte[commands.length][];
-        
+
         for (int i = 0; i < commands.length; i++) {
-            
+
             replies[i] = execute(commands[i],msgCtxs[i]);
-            
+
         }
         
         if (randomAccessFile != null) {
@@ -260,7 +263,6 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
                 if(tmpr > 0 && tmpr < 2000000000){
                     replyLatency.store(tmpr);
                 }
-                
 
             } else {
             
@@ -314,6 +316,13 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
 //            writeLatency.reset();
 //            System.out.println("Accept latency = " + acceptLatency.getAverage(false) / 1000 + " (+/- "+ (long)acceptLatency.getDP(false) / 1000 +") us ");
 //            acceptLatency.reset();
+            try {
+                bftbw.write(Double.toString(voteLatency.getAverage(false) / 1000) + ", ");
+                bftbw.write(Double.toString(proposalLatency.getAverage(false) / 1000) + ", ");
+                bftbw.write(Double.toString(decisionLatency.getAverage(false) / 1000) + ", ");
+                bftbw.write(Double.toString(replyLatency.getAverage(false) / 1000) + ", ");
+                bftbw.write(Double.toString(batchSize.getSum() - 2) + "\n");
+            }catch (Exception e){}
             System.out.println("Vote latency = " + voteLatency.getAverage(false) / 1000 + " (+/- "+ (long)voteLatency.getDP(false) / 1000 +") us ");
             voteLatency.reset();
             System.out.println("Proposal latency = " + proposalLatency.getAverage(false) / 1000 + " (+/- "+ (long)proposalLatency.getDP(false) / 1000 +") us ");
@@ -322,8 +331,7 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
             decisionLatency.reset();
             System.out.println("Reply latency = " + replyLatency.getAverage(false) / 1000 + " (+/- "+ (long)replyLatency.getDP(false) / 1000 +") us ");
             replyLatency.reset();
-            
-            System.out.println("Batch average size = " + batchSize.getAverage(false) + " (+/- "+ (long)batchSize.getDP(false) +") requests");
+            System.out.println("Batch amount = " + (batchSize.getSum() - 2)+" requests");
             batchSize.reset();
             
             throughputMeasurementStartTime = System.currentTimeMillis();

@@ -32,6 +32,14 @@ public class Storage {
         return count;
     }
 
+    public long getSum(){
+        long sum = 0;
+        for(long i : values){
+            sum += i;
+        }
+        return sum;
+    }
+
     public void reset(){
         count=0;
     }

@@ -129,16 +129,16 @@ public final class CounterServer extends DefaultSingleRecoverable  {
                 replyCount += 1;
             }
             if(voteCount > 0){
-                System.out.println("average vote latency = " + voteSum / voteCount);
+                System.out.print(/*"average vote latency = " + */voteSum / voteCount + ",");
             }
             if(proposalCount > 0) {
-                System.out.println("average proposal latency = " + proposalSum / proposalCount);
+                System.out.print(/*"average proposal latency = " + */proposalSum / proposalCount + ",");
             }
             if(proposalCount > 0) {
-                System.out.println("average decision latency = " + decisionSum / decisionCount);
+                System.out.print(/*"average decision latency = " + */decisionSum / decisionCount + ",");
             }
             if(proposalCount > 0) {
-                System.out.println("average reply latency = " + replySum / replyCount);
+                System.out.println(/*"average reply latency = " + */replySum / replyCount + ",");
             }
             ///for benchmark
             ByteArrayOutputStream out = new ByteArrayOutputStream(4);

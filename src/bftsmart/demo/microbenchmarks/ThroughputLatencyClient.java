@@ -15,6 +15,7 @@ limitations under the License.
 */
 package bftsmart.demo.microbenchmarks;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 
 import bftsmart.tom.ServiceProxy;
@@ -71,8 +72,7 @@ public class ThroughputLatencyClient {
     
     public static String privKey = "MD4CAQAwEAYHKoZIzj0CAQYFK4EEAAoEJzAlAgEBBCBnhIob4JXH+WpaNiL72BlbtUMAIBQoM852d+tKFBb7fg==";
     public static String pubKey = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEavNEKGRcmB7u49alxowlwCi1s24ANOpOQ9UiFBxgqnO/RfOl3BJm0qE2IJgCnvL7XUetwj5C/8MnMWi9ux2aeQ==";
-    
-    
+
     @SuppressWarnings("static-access")
     public static void main(String[] args) throws IOException {
         if (args.length < 8) {
@@ -174,7 +174,8 @@ public class ThroughputLatencyClient {
         ServiceProxy proxy;
         byte[] request;
         int rampup = 1000;
-        
+        private BufferedWriter bftbw = null;
+
         public Client(int id, int numberOfOps, int requestSize, int interval, boolean readOnly, boolean verbose, int sign) {
             super("Client "+id);
         
@@ -194,6 +195,8 @@ public class ThroughputLatencyClient {
             Signature eng;
             
             try {
+
+                bftbw = new BufferedWriter(new FileWriter("result/" + Long.toString(System.nanoTime()) + "_client.txt", true));
 
                 if (sign > 0) {
 
@@ -226,7 +229,7 @@ public class ThroughputLatencyClient {
                 this.request = buffer.array();
 
 
-            } catch (NoSuchAlgorithmException | SignatureException | NoSuchProviderException | InvalidKeyException | InvalidKeySpecException ex) {
+            } catch (NoSuchAlgorithmException | SignatureException | NoSuchProviderException | InvalidKeyException | InvalidKeySpecException | IOException ex) {
                 ex.printStackTrace();
                 System.exit(0);
             }
@@ -328,7 +331,14 @@ public class ThroughputLatencyClient {
                 System.out.println(this.id + " // Average time for " + numberOfOps / 2 + " executions (all samples) = " + st.getAverage(false) / 1000 + " us ");
                 System.out.println(this.id + " // Standard desviation for " + numberOfOps / 2 + " executions (all samples) = " + st.getDP(false) / 1000 + " us ");
                 System.out.println(this.id + " // Maximum time for " + numberOfOps / 2 + " executions (all samples) = " + st.getMax(false) / 1000 + " us ");
+                try {
+                    bftbw.write(Double.toString(numberOfOps / 2) + ", ");
+                    bftbw.write(Double.toString(st.getAverage(false) / 1000) + ", ");
+                    bftbw.write(Double.toString(st.getDP(false) / 1000) + "\n");
+                    bftbw.close();
+                }catch (Exception e){}
             }
+
             
             proxy.close();
         }
