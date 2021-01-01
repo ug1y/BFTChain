@@ -34,8 +34,8 @@ public class Storage {
 
     public long getSum(){
         long sum = 0;
-        for(long i : values){
-            sum += i;
+        for (int i = 0; i < count - 2; i++) {
+            sum += values[i];
         }
         return sum;
     }

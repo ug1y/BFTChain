@@ -331,7 +331,7 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
             decisionLatency.reset();
             System.out.println("Reply latency = " + replyLatency.getAverage(false) / 1000 + " (+/- "+ (long)replyLatency.getDP(false) / 1000 +") us ");
             replyLatency.reset();
-            System.out.println("Batch amount = " + (batchSize.getSum() - 2)+" requests");
+            System.out.println("Batch amount = " + (batchSize.getSum())+" requests");
             batchSize.reset();
             
             throughputMeasurementStartTime = System.currentTimeMillis();
