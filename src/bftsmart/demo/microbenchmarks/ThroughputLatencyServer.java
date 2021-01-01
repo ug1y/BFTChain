@@ -321,7 +321,7 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
                 bftbw.write(Double.toString(proposalLatency.getAverage(false) / 1000) + ", ");
                 bftbw.write(Double.toString(decisionLatency.getAverage(false) / 1000) + ", ");
                 bftbw.write(Double.toString(replyLatency.getAverage(false) / 1000) + ", ");
-                bftbw.write(Double.toString(batchSize.getSum() - 2) + "\n");
+                bftbw.write(Double.toString(batchSize.getSum()) + "\n");
             }catch (Exception e){}
             System.out.println("Vote latency = " + voteLatency.getAverage(false) / 1000 + " (+/- "+ (long)voteLatency.getDP(false) / 1000 +") us ");
             voteLatency.reset();
