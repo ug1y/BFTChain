@@ -22,6 +22,10 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import bftsmart.communication.ServerCommunicationSystem;
+import bftsmart.consensus.Blockchain;
+import bftsmart.consensus.chainmessages.ChainMessageFactory;
+import bftsmart.consensus.chainroles.ChainAcceptor;
+import bftsmart.consensus.chainroles.ChainProposer;
 import bftsmart.tom.core.ExecutionManager;
 import bftsmart.consensus.messages.MessageFactory;
 import bftsmart.consensus.roles.Acceptor;
@@ -460,18 +464,23 @@ public class ServiceReplica {
         }
 
         // Assemble the total order messaging layer
-        MessageFactory messageFactory = new MessageFactory(id);
+        ChainMessageFactory messageFactory = new ChainMessageFactory(id);
 
-        Acceptor acceptor = new Acceptor(cs, messageFactory, SVController);
-        cs.setAcceptor(acceptor);
+        Blockchain blockchain = new Blockchain();
+        blockchain.initBlockchain();
 
-        Proposer proposer = new Proposer(cs, messageFactory, SVController);
+        ChainAcceptor chainAcceptor = new ChainAcceptor(cs, messageFactory, SVController, blockchain);
+        cs.setChainAcceptor(chainAcceptor);
 
-        ExecutionManager executionManager = new ExecutionManager(SVController, acceptor, proposer, id);
+        ChainProposer chainProposer = new ChainProposer(cs, messageFactory, SVController, blockchain);
+        cs.setChainProposer(chainProposer);
 
-        acceptor.setExecutionManager(executionManager);
+        ExecutionManager executionManager = new ExecutionManager(SVController, chainAcceptor, chainProposer, id);
 
-        tomLayer = new TOMLayer(executionManager, this, recoverer, acceptor, cs, SVController, verifier);
+        chainAcceptor.setExecutionManager(executionManager);
+        chainProposer.setExecutionManager(executionManager);
+
+        tomLayer = new TOMLayer(executionManager, this, recoverer, null, cs, SVController, verifier);
 
         executionManager.setTOMLayer(tomLayer);
 
@@ -480,7 +489,8 @@ public class ServiceReplica {
         cs.setTOMLayer(tomLayer);
         cs.setRequestReceiver(tomLayer);
 
-        acceptor.setTOMLayer(tomLayer);
+        chainAcceptor.setTOMLayer(tomLayer);
+        chainProposer.setTOMLayer(tomLayer);
 
         if (SVController.getStaticConf().isShutdownHookEnabled()) {
             Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(tomLayer));

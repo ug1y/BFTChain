@@ -15,6 +15,10 @@ limitations under the License.
 */
 package bftsmart.communication;
 
+import bftsmart.consensus.chainmessages.ChainConsensusMessage;
+import bftsmart.consensus.chainmessages.ChainMessageFactory;
+import bftsmart.consensus.chainroles.ChainAcceptor;
+import bftsmart.consensus.chainroles.ChainProposer;
 import bftsmart.consensus.messages.MessageFactory;
 import bftsmart.consensus.messages.ConsensusMessage;
 import bftsmart.consensus.roles.Acceptor;
@@ -45,6 +49,10 @@ public class MessageHandler {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private Acceptor acceptor;
+    /// for BFTChain
+    private ChainAcceptor chainAcceptor;
+    private ChainProposer chainProposer;
+    ///
     private TOMLayer tomLayer;
     private Mac mac;
     
@@ -59,13 +67,47 @@ public class MessageHandler {
         this.acceptor = acceptor;
     }
 
+    /// for BFTChain
+    public void setChainAcceptor(ChainAcceptor chainAcceptor) {
+        this.chainAcceptor = chainAcceptor;
+    }
+
+    public void setChainProposer(ChainProposer chainProposer) {
+        this.chainProposer = chainProposer;
+    }
+    ///
+
     public void setTOMLayer(TOMLayer tomLayer) {
         this.tomLayer = tomLayer;
     }
 
     @SuppressWarnings("unchecked")
     protected void processData(SystemMessage sm) {
-        if (sm instanceof ConsensusMessage) {
+        if (sm instanceof ChainConsensusMessage) {
+
+            int myId = tomLayer.controller.getStaticConf().getProcessId();
+
+            ChainConsensusMessage ccMsg = (ChainConsensusMessage) sm;
+
+            logger.info("Received chain consensus message from replilca {}", ccMsg.getSender());
+
+            if (ccMsg.authenticated || ccMsg.getSender() == myId) {
+                switch (ccMsg.getMsgType()) {
+                    case ChainMessageFactory.PROPOSAL | ChainMessageFactory.SYNC:
+                        chainAcceptor.deliver(ccMsg);
+                        break;
+                    case ChainMessageFactory.VOTE:
+                        chainProposer.deliver(ccMsg);
+                        break;
+                    default:
+                        logger.warn("unexpected chain message type");
+                        break;
+                }
+            } else {
+                logger.warn("Discarding unauthenticated chain message from " + sm.getSender());
+            }
+        }
+        else if (sm instanceof ConsensusMessage) {
             
             int myId = tomLayer.controller.getStaticConf().getProcessId();
             

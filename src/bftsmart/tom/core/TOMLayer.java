@@ -31,6 +31,8 @@ import bftsmart.communication.client.RequestReceiver;
 import bftsmart.consensus.Decision;
 import bftsmart.consensus.Consensus;
 import bftsmart.consensus.Epoch;
+import bftsmart.consensus.chainroles.ChainAcceptor;
+import bftsmart.consensus.chainroles.ChainProposer;
 import bftsmart.consensus.roles.Acceptor;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.statemanagement.StateManager;
@@ -389,19 +391,19 @@ public final class TOMLayer extends Thread implements RequestReceiver {
         logger.debug("Running."); // TODO: can't this be outside of the loop?
         while (doWork) {
 
-            // blocks until this replica learns to be the leader for the current epoch of the current consensus
-            leaderLock.lock();
-            logger.debug("Next leader for CID=" + (getLastExec() + 1) + ": " + execManager.getCurrentLeader());
-
-            //******* EDUARDO BEGIN **************//
-            if (execManager.getCurrentLeader() != this.controller.getStaticConf().getProcessId()) {
-                iAmLeader.awaitUninterruptibly();
-                //waitForPaxosToFinish();
-            }
-            //******* EDUARDO END **************//
-            leaderLock.unlock();
-            
-            if (!doWork) break;
+//            // blocks until this replica learns to be the leader for the current epoch of the current consensus
+//            leaderLock.lock();
+//            logger.debug("Next leader for CID=" + (getLastExec() + 1) + ": " + execManager.getCurrentLeader());
+//
+//            //******* EDUARDO BEGIN **************//
+//            if (execManager.getCurrentLeader() != this.controller.getStaticConf().getProcessId()) {
+//                iAmLeader.awaitUninterruptibly();
+//                //waitForPaxosToFinish();
+//            }
+//            //******* EDUARDO END **************//
+//            leaderLock.unlock();
+//
+//            if (!doWork) break;
 
             // blocks until the current consensus finishes
             proposeLock.lock();
@@ -414,7 +416,9 @@ public final class TOMLayer extends Thread implements RequestReceiver {
             
             if (!doWork) break;
 
-            logger.debug("I'm the leader.");
+            ///
+            logger.debug("I'm a chain replica.");
+            ///
 
             // blocks until there are requests to be processed/ordered
             messagesLock.lock();
@@ -428,12 +432,12 @@ public final class TOMLayer extends Thread implements RequestReceiver {
             messagesLock.unlock();
             
             if (!doWork) break;
-            
-            logger.debug("There are requests to be ordered.");
 
-            logger.debug("I can try to propose.");
+            ///
+            logger.info("There are requests to be ordered. I will start to vote.");
+            ///
 
-            if ((execManager.getCurrentLeader() == this.controller.getStaticConf().getProcessId()) && //I'm the leader
+            if (//(execManager.getCurrentLeader() == this.controller.getStaticConf().getProcessId()) && //I'm the leader
                     (clientsManager.havePendingRequests()) && //there are messages to be ordered
                     (getInExec() == -1)) { //there is no consensus in execution
 
@@ -441,30 +445,31 @@ public final class TOMLayer extends Thread implements RequestReceiver {
                 int execId = getLastExec() + 1;
                 setInExec(execId);
 
-                Decision dec = execManager.getConsensus(execId).getDecision();
-
-                // Bypass protocol if service is not replicated
-                if (controller.getCurrentViewN() == 1) {
-
-                    logger.debug("Only one replica, bypassing consensus.");
-                    
-                    byte[] value = createPropose(dec);
-
-                    Consensus consensus = execManager.getConsensus(dec.getConsensusId());
-                    Epoch epoch = consensus.getEpoch(0, controller);
-                    epoch.propValue = value;
-                    epoch.propValueHash = computeHash(value);
-                    epoch.getConsensus().addWritten(value);
-                    epoch.deserializedPropValue = checkProposedValue(value, true);
-                    epoch.getConsensus().getDecision().firstMessageProposed = epoch.deserializedPropValue[0];
-                    dec.setDecisionEpoch(epoch);
-
-                    //System.out.println("ESTOU AQUI!");
-                    dt.delivery(dec);
-                    continue;
-
-                }
-                execManager.getProposer().startConsensus(execId, createPropose(dec));
+//                Decision dec = execManager.getConsensus(execId).getDecision();
+//
+//                // Bypass protocol if service is not replicated
+//                if (controller.getCurrentViewN() == 1) {
+//
+//                    logger.debug("Only one replica, bypassing consensus.");
+//
+//                    byte[] value = createPropose(dec);
+//
+//                    Consensus consensus = execManager.getConsensus(dec.getConsensusId());
+//                    Epoch epoch = consensus.getEpoch(0, controller);
+//                    epoch.propValue = value;
+//                    epoch.propValueHash = computeHash(value);
+//                    epoch.getConsensus().addWritten(value);
+//                    epoch.deserializedPropValue = checkProposedValue(value, true);
+//                    epoch.getConsensus().getDecision().firstMessageProposed = epoch.deserializedPropValue[0];
+//                    dec.setDecisionEpoch(epoch);
+//
+//                    //System.out.println("ESTOU AQUI!");
+//                    dt.delivery(dec);
+//                    continue;
+//
+//                }
+                execManager.getChainAcceptor().startConsensus(execId);
+                logger.info("I'm a follower, I'm going to start cid {}", execId);
             }
         }
         logger.info("TOMLayer stopped.");
@@ -595,9 +600,9 @@ public final class TOMLayer extends Thread implements RequestReceiver {
 
     public void processOutOfContext() {
         for (int nextConsensus = getLastExec() + 1;
-                execManager.receivedOutOfContextPropose(nextConsensus);
+                execManager.receivedOutOfContextProposal(nextConsensus);
                 nextConsensus = getLastExec() + 1) {
-            execManager.processOutOfContextPropose(execManager.getConsensus(nextConsensus));
+            execManager.processOutOfContextProposal(execManager.getConsensus(nextConsensus));
         }
     }
 

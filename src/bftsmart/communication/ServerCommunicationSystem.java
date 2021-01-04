@@ -22,6 +22,8 @@ import bftsmart.communication.client.CommunicationSystemServerSide;
 import bftsmart.communication.client.CommunicationSystemServerSideFactory;
 import bftsmart.communication.client.RequestReceiver;
 import bftsmart.communication.server.ServersCommunicationLayer;
+import bftsmart.consensus.chainroles.ChainAcceptor;
+import bftsmart.consensus.chainroles.ChainProposer;
 import bftsmart.consensus.roles.Acceptor;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.tom.ServiceReplica;
@@ -92,6 +94,16 @@ public class ServerCommunicationSystem extends Thread {
     public void setAcceptor(Acceptor acceptor) {
         messageHandler.setAcceptor(acceptor);
     }
+
+    ///
+    public void setChainAcceptor(ChainAcceptor chainAcceptor) {
+        messageHandler.setChainAcceptor(chainAcceptor);
+    }
+
+    public void setChainProposer(ChainProposer chainProposer) {
+        messageHandler.setChainProposer(chainProposer);
+    }
+    ///
 
     public void setTOMLayer(TOMLayer tomLayer) {
         messageHandler.setTOMLayer(tomLayer);
