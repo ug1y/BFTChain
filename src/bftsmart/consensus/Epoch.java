@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import bftsmart.consensus.chainmessages.VoteMessage;
 import org.apache.commons.codec.binary.Base64;
 
 import bftsmart.consensus.messages.ConsensusMessage;
@@ -43,11 +44,15 @@ public class Epoch implements Serializable {
     private final int me; // Process ID
     private boolean[] writeSetted;
     private boolean[] acceptSetted;
+    private boolean[] voteSetted; /// for BFTChain
     private byte[][] write; // WRITE values from other processes
     private byte[][] accept; // accepted values from other processes
+    private VoteMessage[] vote; /// for BFTChain
     private boolean writeSent;
     private boolean acceptSent;
     private boolean acceptCreated;
+    private boolean voteSent;
+    private boolean proposalSent;
     
     private boolean alreadyRemoved = false; // indicates if this epoch was removed from its consensus
 
@@ -86,26 +91,33 @@ public class Epoch implements Serializable {
 
         writeSetted = new boolean[n];
         acceptSetted = new boolean[n];
+        voteSetted = new boolean[n]; ///
 
         Arrays.fill(writeSetted, false);
         Arrays.fill(acceptSetted, false);
+        Arrays.fill(voteSetted, false); ///
 
         writeSent = false;
         acceptSent = false;
         acceptCreated = false;
+        voteSent = false;
+        proposalSent = false;
             
         if (timestamp == 0) {
             this.write = new byte[n][];
             this.accept = new byte[n][];
+            this.vote = new VoteMessage[n]; ///
 
             Arrays.fill((Object[]) write, null);
             Arrays.fill((Object[]) accept, null);
+            Arrays.fill(vote,null); ///
             
         } else {
             Epoch previousEpoch = consensus.getEpoch(timestamp - 1, controller);
 
             this.write = previousEpoch.getWrite();
             this.accept = previousEpoch.getAccept();
+
             
         }
     }
@@ -120,12 +132,15 @@ public class Epoch implements Serializable {
             
             byte[][] write = new byte[n][];
             byte[][] accept = new byte[n][];
+            VoteMessage[] vote = new VoteMessage[n];
             
             boolean[] writeSetted = new boolean[n];
             boolean[] acceptSetted = new boolean[n];
+            boolean[] voteSetted = new boolean[n];
 
             Arrays.fill(writeSetted, false);
             Arrays.fill(acceptSetted, false);
+            Arrays.fill(voteSetted, false);
         
             for (int pid : lastView.getProcesses()) {
                 
@@ -136,18 +151,22 @@ public class Epoch implements Serializable {
                     
                     write[currentPos] = this.write[lastPos];
                     accept[currentPos] = this.accept[lastPos];
+                    vote[currentPos] = this.vote[lastPos];
 
                     writeSetted[currentPos] = this.writeSetted[lastPos];
                     acceptSetted[currentPos] = this.acceptSetted[lastPos];
+                    voteSetted[currentPos] = this.voteSetted[lastPos];
 
                 }
             }
             
             this.write = write;
             this.accept = accept;
+            this.vote = vote;
 
             this.writeSetted = writeSetted;
             this.acceptSetted = acceptSetted;
+            this.voteSetted = voteSetted;
 
             lastView = controller.getCurrentView();
             
@@ -329,6 +348,41 @@ public class Epoch implements Serializable {
         //******* EDUARDO END **************//
     }
 
+    public VoteMessage getVote(int acceptor) {
+
+        updateArrays();
+
+        int p = this.controller.getCurrentViewPos(acceptor);
+        if (p >= 0) {
+            return vote[p];
+        } else {
+            return null;
+        }
+    }
+
+    public VoteMessage[] getVote() { return vote; }
+
+    public void setVote(int acceptor, VoteMessage value) {
+
+        updateArrays();
+
+        int p = this.controller.getCurrentViewPos(acceptor);
+        if (p >= 0) { //it can only be setted once
+            vote[p] = value;
+            voteSetted[p] = true;
+        }
+    }
+
+    public int countVote() {
+        int counter = 0;
+        for (int i = 0; i < voteSetted.length; i++) {
+            if (voteSetted[i]) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
     /**
      * Retrieves the amount of replicas from which this process received a WRITE value
      * @param value The value in question
@@ -367,6 +421,14 @@ public class Epoch implements Serializable {
     public void acceptCreated() {
         acceptCreated = true;
     }
+
+    public void voteSent() {
+        voteSent = true;
+    }
+
+    public void proposalSent() {
+        proposalSent = true;
+    }
     
     /**
      * Indicates if the consensus instance already sent its WRITE message
@@ -382,6 +444,14 @@ public class Epoch implements Serializable {
      */
     public boolean isAcceptSent() {
         return acceptSent;
+    }
+
+    public boolean isVoteSent() {
+        return voteSent;
+    }
+
+    public boolean isProposalSent() {
+        return proposalSent;
     }
     
     /**
@@ -498,5 +568,7 @@ public class Epoch implements Serializable {
         this.writeSent = false;
         this.acceptSent = false;
         this.acceptCreated = false;
+        this.voteSent = false;
+        this.proposalSent = false;
     }
 }

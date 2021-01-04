@@ -89,15 +89,18 @@ public class MessageHandler {
 
             ChainConsensusMessage ccMsg = (ChainConsensusMessage) sm;
 
-            logger.info("Received chain consensus message from replilca {}", ccMsg.getSender());
+            logger.debug("Received chain consensus message from replilca {}", ccMsg.getSender());
 
             if (ccMsg.authenticated || ccMsg.getSender() == myId) {
                 switch (ccMsg.getMsgType()) {
-                    case ChainMessageFactory.PROPOSAL | ChainMessageFactory.SYNC:
+                    case ChainMessageFactory.PROPOSAL:
                         chainAcceptor.deliver(ccMsg);
                         break;
                     case ChainMessageFactory.VOTE:
                         chainProposer.deliver(ccMsg);
+                        break;
+                    case ChainMessageFactory.SYNC:
+                        chainAcceptor.deliver(ccMsg);
                         break;
                     default:
                         logger.warn("unexpected chain message type");

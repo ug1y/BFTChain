@@ -619,6 +619,14 @@ public final class TOMLayer extends Thread implements RequestReceiver {
         haveMessages.signal();
         messagesLock.unlock();
     }
+
+    public ReentrantLock getMessagesLock() {
+        return messagesLock;
+    }
+
+    public Condition getHaveMessages() {
+        return haveMessages;
+    }
     
     public DeliveryThread getDeliveryThread() {
         return dt;

@@ -353,7 +353,34 @@ public final class ExecutionManager {
      * @return true
      */
     public final boolean checkLimits(ChainConsensusMessage msg) {
-        return true;
+        outOfContextLock.lock();
+
+        int lastConsId = tomLayer.getLastExec();
+
+        int inExec = tomLayer.getInExec();
+
+        logger.debug("I'm at consensus " +
+                inExec + " and my last consensus is " + lastConsId);
+
+        boolean isRetrievingState = tomLayer.isRetrievingState();
+
+        boolean canProcessTheMessage = false;
+
+        if (isRetrievingState || (msg.getConsId() < inExec)) {
+            logger.debug("too old message with number {}.", msg.getConsId());
+        }
+        else if (msg.getConsId() > inExec && inExec != -1) {
+            addOutOfContextChainMessage(msg);
+            logger.debug("too new vote message with number {}.", msg.getConsId());
+        }
+        else {// can process
+            logger.debug("can process message with number {}.", msg.getConsId());
+            canProcessTheMessage = true;
+        }
+
+        outOfContextLock.unlock();
+
+        return canProcessTheMessage;
     }
 
     /**
@@ -585,7 +612,7 @@ public final class ExecutionManager {
                     + " out of context messages.");
 
             for (Iterator<ChainConsensusMessage> i = messages.iterator(); i.hasNext();) {
-                chainAcceptor.processMessage(i.next());
+                chainProposer.processMessage(i.next());
                 if (consensus.isDecided()) {
                     logger.debug("Consensus "
                             + consensus.getId() + " decided.");

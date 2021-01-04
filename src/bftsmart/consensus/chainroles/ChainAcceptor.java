@@ -17,14 +17,16 @@ package bftsmart.consensus.chainroles;
 
 import bftsmart.communication.ServerCommunicationSystem;
 import bftsmart.consensus.Blockchain;
-import bftsmart.consensus.chainmessages.ChainConsensusMessage;
-import bftsmart.consensus.chainmessages.ChainMessageFactory;
-import bftsmart.consensus.chainmessages.VoteMessage;
+import bftsmart.consensus.Consensus;
+import bftsmart.consensus.Epoch;
+import bftsmart.consensus.chainmessages.*;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.tom.core.ExecutionManager;
 import bftsmart.tom.core.TOMLayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 public class ChainAcceptor {
 
@@ -81,9 +83,88 @@ public class ChainAcceptor {
      * @param msg process chain message
      */
     public final void processMessage(ChainConsensusMessage msg) {
+        Consensus consensus = executionManager.getConsensus(msg.getConsId());
+
+        consensus.lock.lock();
+        Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
+        switch (msg.getMsgType()){
+            case ChainMessageFactory.PROPOSAL:{
+                proposalReceived(epoch, (ProposalMessage) msg);
+            }break;
+            case ChainMessageFactory.SYNC:{
+                syncReceived(epoch, (SyncMessage) msg);
+            }break;
+        }
+        consensus.lock.unlock();
+    }
+
+    /**
+     * the procedure when leader receives a PROPOSAL message
+     * @param epoch the epoch related to the consensus, which usage is not clear
+     * @param msg the PROPOSAL message
+     */
+    public void proposalReceived(Epoch epoch, ProposalMessage msg) {
+        int cid = epoch.getConsensus().getId();
+        logger.info("PROPOSAL from " + msg.getSender() + " for consensus " + cid);
+
+        if(msg.getSender() == executionManager.getCurrentLeader() && // is the message from the leader?
+                Arrays.equals(msg.getPrevHash(), blockchain.getCurrentHash())) { // is the hash link valid?
+            int voteCount = 0;
+            for (int i=0; i < msg.getVotes().length; i++) {
+                if (msg.getVotes()[i] !=  null &&
+                        Arrays.equals(msg.getVotes()[i].getBlockHash(), blockchain.getCurrentHash())) {
+                    voteCount ++;
+                }
+            }
+            if (voteCount > controller.getQuorum()) {
+                blockchain.appendBlock(msg);
+                executePROPOSAL(epoch, msg.getData());
+            }
+        }
+
 
     }
 
+    /**
+     * Computes PROPOSAL according to the Byzantine consensus specification
+     * @param epoch Epoch of the receives message
+     * @param value Value sent in the message
+     */
+    public void executePROPOSAL(Epoch epoch, byte[] value) {
+        if(epoch.propValue == null) { //only accept one propose per epoch
+            epoch.propValue = value;
+            epoch.propValueHash = tomLayer.computeHash(value);
+
+            epoch.deserializedPropValue = tomLayer.checkProposedValue(value, true);
+
+            if (epoch.deserializedPropValue != null) {
+                if(epoch.getConsensus().getDecision().firstMessageProposed == null) {
+                    epoch.getConsensus().getDecision().firstMessageProposed = epoch.deserializedPropValue[0];
+                }
+                decide(epoch);
+            }
+        }
+    }
+
+    /**
+     * the procedure when leader receives a Sync message
+     * @param epoch the epoch related to the consensus, which usage is not clear
+     * @param msg the Sync message
+     */
+    public void syncReceived(Epoch epoch, SyncMessage msg) {
+
+    }
+
+    /**
+     * decide the consensus through message and send this to the client
+     * @param epoch which to be sent
+     */
+    private void decide(Epoch epoch) {
+        if (epoch.getConsensus().getDecision().firstMessageProposed != null)
+            epoch.getConsensus().getDecision().firstMessageProposed.decisionTime = System.nanoTime();
+
+        epoch.getConsensus().decided(epoch, true);
+    }
 
     /**
      * start a consensus by follower's voting
@@ -96,5 +177,6 @@ public class ChainAcceptor {
         leader[0] = executionManager.getCurrentLeader();
         communication.send(leader, vote);
         logger.info("I've sent VOTE in cid {} to leader {}", cid, executionManager.getCurrentLeader());
+        logger.info("voteHash = " + Arrays.toString(vote.getBlockHash()));
     }
 }
