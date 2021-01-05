@@ -21,13 +21,8 @@ import bftsmart.tom.server.defaultservices.CommandsInfo;
 import bftsmart.tom.server.defaultservices.DefaultRecoverable;
 import bftsmart.tom.util.Storage;
 import bftsmart.tom.util.TOMUtil;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectOutputStream;
-import java.io.RandomAccessFile;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.security.InvalidKeyException;
@@ -76,6 +71,7 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
     
     private RandomAccessFile randomAccessFile = null;
     private FileChannel channel = null;
+    private BufferedWriter bftbw = null;
 
     public ThroughputLatencyServer(int id, int interval, int replySize, int stateSize, boolean context,  int signed, int write) {
 
@@ -106,6 +102,8 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
         if (write > 0) {
             
             try {
+                bftbw = new BufferedWriter(new FileWriter("result/" + Long.toString(System.nanoTime()) + "_" +
+                        id + "_" + interval + "_" + replySize + "_" + stateSize + ".txt", true));
                 final File f = File.createTempFile("bft-"+id+"-", Long.toString(System.nanoTime()));
                 randomAccessFile = new RandomAccessFile(f, (write > 1 ? "rwd" : "rw"));
                 channel = randomAccessFile.getChannel();
@@ -116,6 +114,11 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
                     public void run() {
                         
                         f.delete();
+                        try {
+                            bftbw.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
             } catch (IOException ex) {
@@ -285,6 +288,17 @@ public final class ThroughputLatencyServer extends DefaultRecoverable{
             tp = (float)(interval*1000/(float)(System.currentTimeMillis()-throughputMeasurementStartTime));
             
             if (tp > maxTp) maxTp = tp;
+
+            try {
+                bftbw.write(Double.toString( totalLatency.getAverage(false) / 1000000) + "\n");
+                bftbw.write(Double.toString(consensusLatency.getAverage(false) / 1000000) + "\n");
+                bftbw.write(Double.toString(preConsLatency.getAverage(false) / 1000000) + "\n");
+                bftbw.write(Double.toString(posConsLatency.getAverage(false) / 1000000) + "\n");
+                bftbw.write(Double.toString(proposeLatency.getAverage(false) / 1000000) + "\n");
+                bftbw.write(Double.toString(writeLatency.getAverage(false) / 1000000) + "\n");
+                bftbw.write(Double.toString(acceptLatency.getAverage(false) / 1000000) + "\n");
+                bftbw.write(Double.toString(batchSize.getAverage(false)) + "\n");
+            }catch (Exception e){}
             
             System.out.println("Throughput = " + tp +" operations/sec (Maximum observed: " + maxTp + " ops/sec)");            
             
