@@ -79,6 +79,11 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 	public transient long deliveryTime =0; //time the request is delivered
 	public transient long executedTime =0; //time the request is executed
 
+	// for benchmarking BFTChain
+	public transient long chainStartTime =0; //time the request is executed
+	public transient long voteSentTime =0; //time the request is executed
+
+
 	//the reply associated with this message
 	public transient TOMMessage reply = null;
 	public transient boolean alreadyProposed = false;
@@ -374,6 +379,9 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
                     clone.timeout = this.timeout;
                     clone.timestamp = this.timestamp;
                     clone.writeSentTime = this.writeSentTime;
+
+                    clone.chainStartTime = this.chainStartTime;
+                    clone.voteSentTime = this.voteSentTime;
 
                     return clone;
                         

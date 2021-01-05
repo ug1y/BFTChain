@@ -70,6 +70,9 @@ public class Epoch implements Serializable {
     
     private ConsensusMessage acceptMsg = null;
 
+    public long chainStartTime;
+    public long voteSentTime;
+
     /**
      * Creates a new instance of Epoch for acceptors
      * @param controller
@@ -348,19 +351,25 @@ public class Epoch implements Serializable {
         //******* EDUARDO END **************//
     }
 
-    public VoteMessage getVote(int acceptor) {
+    public Object getVote(int acceptor) {
 
         updateArrays();
 
         int p = this.controller.getCurrentViewPos(acceptor);
         if (p >= 0) {
-            return vote[p];
+            return vote[p].getSignature();
         } else {
             return null;
         }
     }
 
-    public VoteMessage[] getVote() { return vote; }
+    public Object[] getVote() {
+        Object[] proofs = new Object[vote.length];
+        for (int i=0; i<vote.length; i++) {
+            proofs[i] = (vote[i] == null ? null: vote[i].getSignature());
+        }
+        return proofs;
+    }
 
     public void setVote(int acceptor, VoteMessage value) {
 

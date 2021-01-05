@@ -58,7 +58,7 @@ public class Blockchain {
      * add the genesis block into
      */
     public void initBlockchain(){
-        ProposalMessage geniusBlock = new ProposalMessage(null,null,null,-1,-1,-1, -1);
+        ProposalMessage geniusBlock = new ProposalMessage(null,null,-1,-1,-1, -1);
         chain.add(geniusBlock);
 
         byte[] geniusHash = computeBlockHash(geniusBlock);
@@ -70,14 +70,7 @@ public class Blockchain {
     }
 
     public byte[] computeBlockHash(ProposalMessage msg) {
-        ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-        try {
-            new ObjectOutputStream(bOut).writeObject(msg);
-        } catch (IOException ex) {
-            logger.error("Failed to serialize message", ex);
-        }
-        byte[] data = bOut.toByteArray();
-        return TOMUtil.computeHash(data);
+        return TOMUtil.computeHash(TOMUtil.getBytes(msg));
     }
 
     public ProposalMessage getBlockByHeight(int height) {

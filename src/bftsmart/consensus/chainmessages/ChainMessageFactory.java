@@ -26,20 +26,20 @@ public class ChainMessageFactory {
      * @param epoch the epoch this message in
      * @return a PROPOSAL message
      */
-    public ProposalMessage createPROPOSAL(byte[] data, byte[] prevHash, VoteMessage[] votes,
+    public ProposalMessage createPROPOSAL(byte[] data, byte[] prevHash,
                                           int viewNumber, int consId, int epoch) {
-        return new ProposalMessage(data, prevHash, votes, viewNumber, consId, epoch, this.from);
+        return new ProposalMessage(data, prevHash, viewNumber, consId, epoch, this.from);
     }
 
     /**
      * create a VOTE message
-     * @param blockHash the hash of the block which is voted for
+     * @param blockHeight the hash of the block which is voted for
      * @param viewNumber the view this message in
      * @param epoch the epoch this message in
      * @return a VOTE message
      */
-    public VoteMessage createVOTE(byte[] blockHash,int viewNumber, int consId, int epoch) {
-        return new VoteMessage(blockHash, viewNumber, consId, epoch, this.from);
+    public VoteMessage createVOTE(int blockHeight,int viewNumber, int consId, int epoch) {
+        return new VoteMessage(blockHeight, viewNumber, consId, epoch, this.from);
     }
 
     /**

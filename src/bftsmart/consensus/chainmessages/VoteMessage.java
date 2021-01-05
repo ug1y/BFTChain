@@ -22,7 +22,7 @@ import java.util.Arrays;
 
 public class VoteMessage extends ChainConsensusMessage {
 
-    private byte[] blockHash; // the hash value of voted block
+    private int blockHeight; // the hash value of voted block
     private int replicaID; // identify the replica
     private Object signature; // signed by the replica
 
@@ -31,29 +31,32 @@ public class VoteMessage extends ChainConsensusMessage {
      */
     public VoteMessage(){}
 
-    public VoteMessage(byte[] blockHash, int viewNumber, int consId, int epoch, int from) {
+    public VoteMessage(int blockHeight, int viewNumber, int consId, int epoch, int from) {
         super(ChainMessageFactory.VOTE, viewNumber, consId, epoch, from);
 
-        this.blockHash = blockHash;
+        this.blockHeight = blockHeight;
         this.replicaID = from;
+        this.signature = 0;
     }
 
     public void setSignature(Object signature) {
         this.signature = signature;
     }
 
-    public byte[] getBlockHash() {
-        return blockHash;
+    public int getBlockHeight() {
+        return blockHeight;
     }
 
-    public int getReplicaID() {return replicaID; }
+    public int getReplicaID() { return replicaID; }
+
+    public Object getSignature() { return signature; }
 
     @Override
     public String toString(){
         return "\ntype = VOTE" +
                 "\nviewNumber = " + super.viewNumber +
                 "\nepoch = " + super.epoch +
-                "\nblockHash = " + Arrays.toString(this.blockHash) +
+                "\nblockHeight = " + this.blockHeight +
                 "\nreplicaID = " + this.replicaID +
                 "\nsignature = " + this.signature;
     }
@@ -66,12 +69,13 @@ public class VoteMessage extends ChainConsensusMessage {
 
         out.writeInt(replicaID);
 
-        if(blockHash == null) {
-            out.writeInt(-1);
-        } else {
-            out.writeInt(blockHash.length);
-            out.write(blockHash);
-        }
+        out.writeInt(blockHeight);
+//        if(blockHash == null) {
+//            out.writeInt(-1);
+//        } else {
+//            out.writeInt(blockHash.length);
+//            out.write(blockHash);
+//        }
 
         if(signature == null) {
             out.writeBoolean(false);
@@ -89,13 +93,14 @@ public class VoteMessage extends ChainConsensusMessage {
 
         replicaID = in.readInt();
 
-        int len = in.readInt();
-        if(len != -1) {
-            blockHash = new byte[len];
-            do{
-                len -= in.read(blockHash, blockHash.length-len, len);
-            }while(len > 0);
-        }
+        blockHeight = in.readInt();
+//        int len = in.readInt();
+//        if(len != -1) {
+//            blockHash = new byte[len];
+//            do{
+//                len -= in.read(blockHash, blockHash.length-len, len);
+//            }while(len > 0);
+//        }
 
         boolean asSignature = in.readBoolean();
         if (asSignature) {

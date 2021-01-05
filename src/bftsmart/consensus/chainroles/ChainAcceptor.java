@@ -23,9 +23,11 @@ import bftsmart.consensus.chainmessages.*;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.tom.core.ExecutionManager;
 import bftsmart.tom.core.TOMLayer;
+import bftsmart.tom.util.TOMUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.PrivateKey;
 import java.util.Arrays;
 
 public class ChainAcceptor {
@@ -40,6 +42,7 @@ public class ChainAcceptor {
     private TOMLayer tomLayer; // TOM layer
 
     private Blockchain blockchain;
+    private PrivateKey privKey;
 
     public ChainAcceptor(ServerCommunicationSystem communication,
                          ChainMessageFactory factory,
@@ -49,6 +52,7 @@ public class ChainAcceptor {
         this.factory = factory;
         this.controller = controller;
         this.blockchain = blockchain;
+        this.privKey = controller.getStaticConf().getPrivateKey();
     }
 
     public void setExecutionManager(ExecutionManager executionManager) {
@@ -105,14 +109,13 @@ public class ChainAcceptor {
      */
     public void proposalReceived(Epoch epoch, ProposalMessage msg) {
         int cid = epoch.getConsensus().getId();
-        logger.info("PROPOSAL from " + msg.getSender() + " for consensus " + cid);
+        logger.debug("I've received PROPOSAL with size {} in cid {} from leader {} ", TOMUtil.getBytes(msg).length, cid, msg.getSender());
 
         if(msg.getSender() == executionManager.getCurrentLeader() && // is the message from the leader?
                 Arrays.equals(msg.getPrevHash(), blockchain.getCurrentHash())) { // is the hash link valid?
             int voteCount = 0;
             for (int i=0; i < msg.getVotes().length; i++) {
-                if (msg.getVotes()[i] !=  null &&
-                        Arrays.equals(msg.getVotes()[i].getBlockHash(), blockchain.getCurrentHash())) {
+                if (msg.getVotes()[i] !=  null) {
                     voteCount ++;
                 }
             }
@@ -160,8 +163,12 @@ public class ChainAcceptor {
      * @param epoch which to be sent
      */
     private void decide(Epoch epoch) {
-        if (epoch.getConsensus().getDecision().firstMessageProposed != null)
+        if (epoch.getConsensus().getDecision().firstMessageProposed != null) {
             epoch.getConsensus().getDecision().firstMessageProposed.decisionTime = System.nanoTime();
+
+            epoch.getConsensus().getDecision().firstMessageProposed.chainStartTime = epoch.chainStartTime;
+            epoch.getConsensus().getDecision().firstMessageProposed.voteSentTime = epoch.voteSentTime;
+        }
 
         epoch.getConsensus().decided(epoch, true);
     }
@@ -171,12 +178,19 @@ public class ChainAcceptor {
      * @param cid start consensus with id
      */
     public void startConsensus(int cid) {
-        VoteMessage vote = factory.createVOTE(blockchain.getCurrentHash(), 0, cid, 0);
+        long chainStartTime = System.nanoTime();
+
+        VoteMessage vote = factory.createVOTE(blockchain.getCurrentHeight(), 0, cid, 0);
+        vote.setSignature(TOMUtil.signMessage(privKey, blockchain.getCurrentHash()));
 
         int[] leader = new int[1];
         leader[0] = executionManager.getCurrentLeader();
+
+        Epoch epoch = executionManager.getConsensus(cid).getEpoch(0, controller);
+        epoch.chainStartTime = chainStartTime;
+        epoch.voteSentTime = System.nanoTime();
+
         communication.send(leader, vote);
-        logger.info("I've sent VOTE in cid {} to leader {}", cid, executionManager.getCurrentLeader());
-        logger.info("voteHash = " + Arrays.toString(vote.getBlockHash()));
+        logger.debug("I've sent VOTE with size {} in cid {} to leader {}", TOMUtil.getBytes(vote).length, cid, executionManager.getCurrentLeader());
     }
 }

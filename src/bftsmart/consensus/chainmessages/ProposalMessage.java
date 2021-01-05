@@ -24,20 +24,24 @@ public class ProposalMessage extends ChainConsensusMessage {
 
     private byte[] data; // the data that the block contains
     private byte[] prevHash; // the hash value of the referred block
-    private VoteMessage[] votes; // the set of votes to prove this block valid
+    private Object[] votes; // the set of votes to prove this block valid
 
     /**
      * to avoid EOFException in Serializable
      */
     public ProposalMessage(){}
 
-    public ProposalMessage(byte[] data, byte[] prevHash, VoteMessage[] votes,
+    public ProposalMessage(byte[] data, byte[] prevHash,
                            int viewNumber, int consId, int epoch, int from) {
         super(ChainMessageFactory.PROPOSAL, viewNumber, consId, epoch, from);
 
         this.data = data;
         this.prevHash = prevHash;
-        this.votes = votes;
+        this.votes = null;
+    }
+
+    public void setVotes(Object[] proofs) {
+        this.votes = proofs;
     }
 
     public byte[] getData() {
@@ -48,7 +52,7 @@ public class ProposalMessage extends ChainConsensusMessage {
         return prevHash;
     }
 
-    public VoteMessage[] getVotes() {
+    public Object[] getVotes() {
         return votes;
     }
 
@@ -86,7 +90,7 @@ public class ProposalMessage extends ChainConsensusMessage {
             out.writeInt(-1);
         } else {
             out.writeInt(votes.length);
-            for(VoteMessage v : votes) {
+            for(Object v : votes) {
                 out.writeObject(v);
             }
         }
@@ -117,9 +121,9 @@ public class ProposalMessage extends ChainConsensusMessage {
 
         len = in.readInt();
         if(len != -1) {
-            votes = new VoteMessage[len];
+            votes = new Object[len];
             for(int i = 0; i < len; i++) {
-                votes[i] = (VoteMessage)in.readObject();
+                votes[i] = in.readObject();
             }
         }
     }

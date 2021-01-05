@@ -106,9 +106,9 @@ public class ChainProposer {
      */
     public void voteReceived(Epoch epoch, VoteMessage msg) {
         int cid = epoch.getConsensus().getId();
-        logger.info("VOTE received from:{}, for consensus cId:{}", msg.getSender(), cid);
+        logger.debug("VOTE received from:{}, for consensus cId:{}", msg.getSender(), cid);
 
-        if(!epoch.isProposalSent() && Arrays.equals(msg.getBlockHash(), blockchain.getCurrentHash())) {
+        if(!epoch.isProposalSent() && (msg.getBlockHeight() == blockchain.getCurrentHeight())) {
             epoch.setVote(msg.getSender(), msg); // record the VOTE messages
             executeVOTE(cid, epoch, msg);
         }
@@ -122,7 +122,7 @@ public class ChainProposer {
     public void executeVOTE(int cid, Epoch epoch, VoteMessage msg) {
         int voteCount = epoch.countVote();
 
-        logger.info("I have " + voteCount +
+        logger.debug("I have " + voteCount +
                 " VOTEs for " + cid + "," + epoch.getTimestamp());
 
         if (voteCount > controller.getQuorum() && // there are enough votes
@@ -133,10 +133,11 @@ public class ChainProposer {
 
             Decision dec = epoch.getConsensus().getDecision();
             byte[] data = tomLayer.createPropose(dec);
-            ProposalMessage pm = factory.createPROPOSAL(data, msg.getBlockHash(),
-                    epoch.getVote(), controller.getCurrentViewId(), cid, msg.getEpoch());
+            ProposalMessage pm = factory.createPROPOSAL(data, blockchain.getCurrentHash(),
+                    controller.getCurrentViewId(), cid, msg.getEpoch());
+            pm.setVotes(epoch.getVote());
 
-            logger.info("sending proposal to all replicas for consensus " + cid);
+            logger.debug("sending proposal to all replicas for consensus " + cid);
             communication.send(this.controller.getCurrentViewAcceptors(), pm);
         }
         executionManager.processOutOfContextVote(epoch.getConsensus());
