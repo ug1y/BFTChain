@@ -88,9 +88,9 @@ public class ChainAcceptor {
      */
     public final void processMessage(ChainConsensusMessage msg) {
         Consensus consensus = executionManager.getConsensus(msg.getConsId());
-
         consensus.lock.lock();
         Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
+        epoch.consensusStartTime = System.nanoTime();
         switch (msg.getMsgType()){
             case ChainMessageFactory.PROPOSAL:{
                 proposalReceived(epoch, (ProposalMessage) msg);
@@ -168,6 +168,9 @@ public class ChainAcceptor {
 
             epoch.getConsensus().getDecision().firstMessageProposed.chainStartTime = epoch.chainStartTime;
             epoch.getConsensus().getDecision().firstMessageProposed.voteSentTime = epoch.voteSentTime;
+            if (epoch.getConsensus().getDecision().firstMessageProposed.consensusStartTime == 0) {
+                epoch.getConsensus().getDecision().firstMessageProposed.consensusStartTime = epoch.consensusStartTime;
+            }
         }
 
         epoch.getConsensus().decided(epoch, true);

@@ -15,6 +15,8 @@ limitations under the License.
 */
 package bftsmart.demo.microbenchmarks;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import bftsmart.tom.ServiceProxy;
@@ -138,6 +140,8 @@ public class ThroughputLatencyClient {
         boolean verbose;
         ServiceProxy proxy;
         byte[] request;
+
+        private BufferedWriter bftbw = null;
         
         public Client(int id, int numberOfOps, int requestSize, int interval, boolean readOnly, boolean verbose, int sign) {
             super("Client "+id);
@@ -158,6 +162,8 @@ public class ThroughputLatencyClient {
             Signature eng;
             
             try {
+
+                bftbw = new BufferedWriter(new FileWriter("result/" + Long.toString(System.nanoTime()) + "_client.txt", true));
 
                 if (sign > 0) {
 
@@ -186,7 +192,7 @@ public class ThroughputLatencyClient {
                 this.request = buffer.array();
 
 
-            } catch (NoSuchAlgorithmException | SignatureException | NoSuchProviderException | InvalidKeyException | InvalidKeySpecException ex) {
+            } catch (NoSuchAlgorithmException | SignatureException | NoSuchProviderException | InvalidKeyException | InvalidKeySpecException | IOException ex) {
                 ex.printStackTrace();
                 System.exit(0);
             }
@@ -253,6 +259,12 @@ public class ThroughputLatencyClient {
                 System.out.println(this.id + " // Average time for " + numberOfOps / 2 + " executions (all samples) = " + st.getAverage(false) / 1000000 + " ms ");
                 System.out.println(this.id + " // Standard desviation for " + numberOfOps / 2 + " executions (all samples) = " + st.getDP(false) / 1000000 + " ms ");
                 System.out.println(this.id + " // Maximum time for " + numberOfOps / 2 + " executions (all samples) = " + st.getMax(false) / 1000000 + " ms ");
+                try {
+                    bftbw.write(Double.toString(numberOfOps / 2) + "\n");
+                    bftbw.write(Double.toString(st.getAverage(false) / 1000) + "\n");
+                    bftbw.write(Double.toString(st.getDP(false) / 1000) + "\n");
+                    bftbw.close();
+                }catch (Exception e){}
             }
             
             proxy.close();

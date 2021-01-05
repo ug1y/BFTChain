@@ -72,6 +72,7 @@ public class Epoch implements Serializable {
 
     public long chainStartTime;
     public long voteSentTime;
+    public long consensusStartTime;
 
     /**
      * Creates a new instance of Epoch for acceptors
