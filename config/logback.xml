@@ -37,6 +37,13 @@
 
   </logger>
 
+  <logger name="bftsmart.communication" level="OFF">
+
+    <appender-ref ref="MIN-STDOUT" />
+    <!--  <appender-ref ref="STDOUT" /> -->
+
+  </logger>
+
   <logger name="io.netty" level="OFF">
 
     <appender-ref ref="MIN-STDOUT" />
